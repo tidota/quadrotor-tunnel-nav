@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_ros
   hector_gazebo_plugins
   hector_quadrotor_description
+  hector_gazebo_worlds
   roscpp
   rospy
   std_msgs
@@ -105,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES uav_practice161129
-#  CATKIN_DEPENDS gazebo_ros hector_gazebo_plugins hector_quadrotor_description roscpp rospy std_msgs
+#  CATKIN_DEPENDS gazebo_ros hector_gazebo_plugins hector_quadrotor_description hector_gazebo_worlds roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 

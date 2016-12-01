@@ -43,12 +43,14 @@
   <build_depend>gazebo_ros</build_depend>
   <build_depend>hector_gazebo_plugins</build_depend>
   <build_depend>hector_quadrotor_description</build_depend>
+  <build_depend>hector_gazebo_worlds</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
   <run_depend>gazebo_ros</run_depend>
   <run_depend>hector_gazebo_plugins</run_depend>
   <run_depend>hector_quadrotor_description</run_depend>
+  <run_depend>hector_gazebo_worlds</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
@@ -57,6 +59,6 @@
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-    <gazebo_ros gazebo_model_path="${prefix}/Media/models"/>
+    <gazebo_ros gazebo_model_path="${prefix}/worlds"/>
   </export>
 </package>
