@@ -5,6 +5,7 @@ project(uav_practice161129)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  geometry_msgs
   gazebo_ros
   hector_gazebo_plugins
   hector_quadrotor_description
@@ -15,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -142,6 +143,11 @@ include_directories(
 # target_link_libraries(uav_practice161129_node
 #   ${catkin_LIBRARIES}
 # )
+
+add_executable(uav_control src/uav_control.cpp src/sub.cpp)
+add_dependencies(uav_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(uav_control ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##
