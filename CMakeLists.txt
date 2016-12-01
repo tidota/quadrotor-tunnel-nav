@@ -6,6 +6,7 @@ project(uav_practice161129)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  sensor_msgs
   gazebo_ros
   hector_gazebo_plugins
   hector_quadrotor_description
