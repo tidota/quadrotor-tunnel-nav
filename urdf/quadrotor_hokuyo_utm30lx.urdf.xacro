@@ -19,7 +19,7 @@
       <origin xyz="0.0 0.0 0.097" rpy="0 0 0"/>
     </xacro:hokuyo_utm30lx>
     <xacro:hokuyo_utm30lx name="laser1" parent="base_link" ros_topic="scan" update_rate="40" ray_count="1081" min_angle="-135" max_angle="135">
-      <origin xyz="0.0 0.0 -0.05" rpy="${M_PI/2} 0 0"/>
+      <origin xyz="0.0 0.0 -0.07" rpy="${M_PI/2} ${M_PI/2} 0"/>
     </xacro:hokuyo_utm30lx>
     
     <!-- Forward facing camera -->

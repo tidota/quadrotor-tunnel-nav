@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_ros
   hector_gazebo_plugins
   hector_quadrotor_description
+  hector_quadrotor_gazebo
   hector_gazebo_worlds
   roscpp
   rospy
@@ -145,7 +146,7 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(uav_control src/uav_control.cpp src/sub.cpp)
+add_executable(uav_control src/uav_control.cpp)
 add_dependencies(uav_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(uav_control ${catkin_LIBRARIES})
 
