@@ -44,8 +44,10 @@ private:
   ros::Timer timer;
 
   boost::mutex scan_mutex;
-  sensor_msgs::LaserScan scan_h; // horizontal
-  sensor_msgs::LaserScan scan_v; // vertical
+  //sensor_msgs::LaserScan scan_h; // horizontal
+  double scan_h[5]; // horizontal
+  double scan_v[3]; // vertical
+  //sensor_msgs::LaserScan scan_v; // vertical
 
   bool f_up;
 };
@@ -133,7 +135,7 @@ void UAV_Control::command()
 {
   geometry_msgs::Twist vel;
 
-  vel.linear.x = 0.05;
+  vel.linear.x = 0.2;
   vel.angular.z = 0.5;
 
   if(f_up)
@@ -147,10 +149,8 @@ void UAV_Control::command()
     f_up = true;
   }
 
-  if(scan_h.ranges.size() != 0 && scan_v.ranges.size() != 0)
-    ROS_INFO("ranges: %f, %f",
-      scan_h.ranges[scan_h.ranges.size()/2],
-      scan_v.ranges[scan_v.ranges.size()/2]);
+  ROS_INFO("%1.1f %1.1f %1.1f %1.1f %1.1f | %1.1f %1.1f %1.1f",
+    scan_h[0], scan_h[1], scan_h[2], scan_h[3], scan_h[4], scan_v[0], scan_v[1], scan_v[2]);
 
   UAV_Control::vel_pub.publish(vel);
 }
@@ -188,13 +188,23 @@ void UAV_Control::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 void UAV_Control::updateScanData(const sensor_msgs::LaserScan::ConstPtr& new_scan)
 {
   boost::mutex::scoped_lock lock(UAV_Control::scan_mutex);
+  double half_angle = (new_scan->angle_max - new_scan->angle_min)/2;
+  int num = new_scan->ranges.size();
+  int num_2 = new_scan->ranges.size()*(M_PI/2)/half_angle;
+  int num_4 = new_scan->ranges.size()*(M_PI/4)/half_angle;
   if(new_scan->header.frame_id.compare("laser0_frame") == 0)
   {
-    scan_h = *new_scan;
+    scan_h[0] = new_scan->ranges[num/2-num_2]; // 90 degrees to the right
+    scan_h[1] = new_scan->ranges[num/2-num_4]; // 45 degrees to the right
+    scan_h[2] = new_scan->ranges[num/2];       // center
+    scan_h[3] = new_scan->ranges[num/2+num_4]; // 45 degrees to the left
+    scan_h[4] = new_scan->ranges[num/2+num_2]; // 90 degrees to the left
   }
   else if(new_scan->header.frame_id.compare("laser1_frame") == 0)
   {
-    scan_v = *new_scan;
+    scan_v[0] = new_scan->ranges[num/2-num_4]; // 45 degrees to the rear from the nadir
+    scan_v[1] = new_scan->ranges[num/2];       // nadir
+    scan_v[2] = new_scan->ranges[num/2+num_4]; // 45 degrees to the front from the nadir
   }
 }
 // ============================================================================================
