@@ -1,0 +1,166 @@
+#include "subsumption.hpp"
+
+///////////////////////////////////////////////////////////////
+// getNextCom
+// it generates a command from the given input
+// based on the subsumption concept.
+//
+geometry_msgs::Twist getNextCom(INPUT input)
+{
+  geometry_msgs::Twist com;
+  com.linear.x = 0;
+  com.linear.y = 0;
+  com.linear.z = 0;
+  com.angular.x = 0;
+  com.angular.y = 0;
+  com.angular.z = 0;
+
+  bool f_fired = false;
+  bool f_done = false;
+
+// OBSTACLE AVOIDANCE
+  // input check
+  f_fired = (
+    input.h[0] < DIST_OBS || 
+    input.h[1] < DIST_OBS || 
+    input.h[2] < DIST_OBS || 
+    input.h[3] < DIST_OBS || 
+    input.h[4] < DIST_OBS || 
+    input.v[0] < DIST_OBS || 
+    input.v[1] < DIST_OBS || 
+    input.v[2] < DIST_OBS); 
+  if(f_fired == true && f_done == false)
+  {
+    ROS_INFO("OBSTACLE AVOIDANCE");
+    // calculate the output
+    if(input.h[0] < DIST_OBS)
+    {
+      com.linear.y += VEL_OBS;
+    }
+    if(input.h[1] < DIST_OBS)
+    {
+      com.linear.x -= VEL_OBS/sqrt(2);
+      com.linear.y += VEL_OBS/sqrt(2);
+    }
+    if(input.h[2] < DIST_OBS)
+    {
+      com.linear.x -= VEL_OBS;
+    }
+    if(input.h[3] < DIST_OBS)
+    {
+      com.linear.x -= VEL_OBS/sqrt(2);
+      com.linear.y -= VEL_OBS/sqrt(2);
+    }
+    if(input.h[4] < DIST_OBS)
+    {
+      com.linear.y -= VEL_OBS;
+    }
+    if(input.v[0] < DIST_OBS)
+    {
+      com.linear.x -= VEL_OBS/sqrt(2);
+      com.linear.z += VEL_OBS/sqrt(2);
+    }
+    if(input.v[1] < DIST_OBS)
+    {
+      com.linear.z += VEL_OBS;
+    }
+    if(input.v[2] < DIST_OBS)
+    {
+      com.linear.x += VEL_OBS/sqrt(2);
+      com.linear.z += VEL_OBS/sqrt(2);
+    }
+ 
+    f_done = true;
+  }
+
+// KEEP THE ALTITUDE
+  // input check
+  f_fired = (input.v[1] < DIST_ALT_MIN || DIST_ALT_MAX < input.v[1]);
+  if(f_fired == true && f_done == false)
+  {
+    ROS_INFO("KEEP THE ALTITUDE");
+    // calculate the output
+    com.linear.z = VEL_ALT * (input.v[1] < DIST_ALT_MIN)? 1: -1;
+    if(input.h[2] > input.h[0])
+      com.linear.x = VEL_STRAIGHT;
+    f_done = true;
+  }
+
+// STAY ON THE MIDDLE LINE
+  // input check
+  f_fired = 
+    (input.h[0] < input.h[4] - DIST_OFF ||
+     input.h[0] > input.h[4] + DIST_OFF) &&
+    (input.h[0] < input.h[2] &&
+     input.h[4] < input.h[2]);
+  if(f_fired == true && f_done == false)
+  {
+    ROS_INFO("STAY ON THE MIDDLE LINE");
+    // calculate the output
+    if(input.h[0] < input.h[2] && input.h[4] < input.h[2])
+      com.linear.y = (input.h[0] < input.h[4])? VEL_MIDDLE: -VEL_MIDDLE;
+    else if(input.h[0] < input.h[2])
+      com.linear.x = VEL_MIDDLE;
+    else
+      com.linear.y = -VEL_MIDDLE;
+    f_done = true;
+  }
+    
+// TURN LEFT
+  // input check
+  f_fired = (
+    input.h[0] < DIST_MAX &&
+    (input.h[1] < input.h[0] * sqrt(2) * DIST_RATE_TURNL ||
+     (input.h[0] < DIST_TURNL &&
+      input.h[1] < DIST_TURNL &&
+      input.h[2] < DIST_TURNL)));
+  if(f_fired == true && f_done == false)
+  {
+    ROS_INFO("TURN LEFT");
+    // calculate the output
+    com.angular.z = VEL_TURNL;
+    if(input.h[2] > input.h[0])
+      com.linear.x = VEL_STRAIGHT;
+    f_done = true;
+  }
+
+// TURN RIGHT
+  // input check
+  f_fired = (
+    input.h[0] < DIST_MAX &&
+    input.h[1] > input.h[0] * sqrt(2) * DIST_RATE_TURNR);
+  if(f_fired == true && f_done == false)
+  {
+    ROS_INFO("TURN RIGHT");
+    // calculate the output
+    com.angular.z = -VEL_TURNR;
+    if(input.h[2] > input.h[0])
+      com.linear.x = VEL_STRAIGHT;
+    f_done = true;
+  }
+
+// GO STRAIGHT
+  // input check
+  f_fired = input.h[0] < DIST_MAX;
+  if(f_fired == true && f_done == false)
+  {
+    ROS_INFO("GO STRAIGHT");
+    // calculate the output
+    com.linear.x = VEL_STRAIGHT;
+    f_done = true;
+  }
+
+// FIND A WALL
+  // input check
+  f_fired = true;
+  if(f_fired == true && f_done == false)
+  {
+    ROS_INFO("FIND A WALL");
+    // calculate the output
+    com.linear.y = -VEL_FIND;
+    f_done = true;
+  }
+
+  return com;
+}
+

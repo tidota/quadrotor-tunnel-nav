@@ -9,6 +9,7 @@
 #include <sensor_msgs/LaserScan.h>
 #include "boost/thread/mutex.hpp"
 
+#include "subsumption.hpp"
 
 // ============================================================================================
 // UAV_Control class
@@ -44,12 +45,7 @@ private:
   ros::Timer timer;
 
   boost::mutex scan_mutex;
-  //sensor_msgs::LaserScan scan_h; // horizontal
-  double scan_h[5]; // horizontal
-  double scan_v[3]; // vertical
-  //sensor_msgs::LaserScan scan_v; // vertical
-
-  bool f_up;
+  INPUT input;
 };
 
 // ============================================================================================
@@ -115,13 +111,13 @@ void UAV_Control::kill_control()
 // ============================================================================================
 // Constructor
 // ============================================================================================
-UAV_Control::UAV_Control(): f_up(true)
+UAV_Control::UAV_Control()
 {
   // set up for publisher, subscriber, and timer
   ros::NodeHandle n;
   UAV_Control::vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
   UAV_Control::scan_sub = n.subscribe("/scan", 1, UAV_Control::scanCallback);
-  timer = n.createTimer(ros::Duration(4.0), boost::bind(&UAV_Control::command, this));
+  timer = n.createTimer(ros::Duration(TIME_INT), boost::bind(&UAV_Control::command, this));
 }
 
 // ============================================================================================
@@ -133,24 +129,12 @@ UAV_Control::UAV_Control(): f_up(true)
 // ============================================================================================
 void UAV_Control::command()
 {
-  geometry_msgs::Twist vel;
-
-  vel.linear.x = 0.2;
-  vel.angular.z = 0.5;
-
-  if(f_up)
+  INPUT input_buff;
   {
-    vel.linear.z = 0.5;
-    f_up = false;
+    boost::mutex::scoped_lock lock(UAV_Control::scan_mutex);
+    input_buff = input;
   }
-  else
-  {
-    vel.linear.z = -0.5;
-    f_up = true;
-  }
-
-  ROS_INFO("%1.1f %1.1f %1.1f %1.1f %1.1f | %1.1f %1.1f %1.1f",
-    scan_h[0], scan_h[1], scan_h[2], scan_h[3], scan_h[4], scan_v[0], scan_v[1], scan_v[2]);
+  geometry_msgs::Twist vel = getNextCom(input_buff); 
 
   UAV_Control::vel_pub.publish(vel);
 }
@@ -163,7 +147,7 @@ void UAV_Control::command()
 void UAV_Control::stop()
 {
   geometry_msgs::Twist vel;
-  vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
+  vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = -1.0;//0;
   vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
   UAV_Control::vel_pub.publish(vel);
   timer.stop();
@@ -192,19 +176,29 @@ void UAV_Control::updateScanData(const sensor_msgs::LaserScan::ConstPtr& new_sca
   int num = new_scan->ranges.size();
   int num_2 = new_scan->ranges.size()/2*(M_PI/2)/half_angle;
   int num_4 = new_scan->ranges.size()/2*(M_PI/4)/half_angle;
-  if(new_scan->header.frame_id.compare("laser0_frame") == 0)
+  if(new_scan->header.frame_id.compare("laser_h_frame") == 0) // horizontal
   {
-    scan_h[0] = new_scan->ranges[num/2-num_2]; // 90 degrees to the right
-    scan_h[1] = new_scan->ranges[num/2-num_4]; // 45 degrees to the right
-    scan_h[2] = new_scan->ranges[num/2];       // center
-    scan_h[3] = new_scan->ranges[num/2+num_4]; // 45 degrees to the left
-    scan_h[4] = new_scan->ranges[num/2+num_2]; // 90 degrees to the left
+    input.h[0] = new_scan->ranges[num/2-num_2]; // 90 degrees to the right
+    input.h[1] = new_scan->ranges[num/2-num_4]; // 45 degrees to the right
+    input.h[2] = new_scan->ranges[num/2];       // center
+    input.h[3] = new_scan->ranges[num/2+num_4]; // 45 degrees to the left
+    input.h[4] = new_scan->ranges[num/2+num_2]; // 90 degrees to the left
   }
-  else if(new_scan->header.frame_id.compare("laser1_frame") == 0)
+  else if(new_scan->header.frame_id.compare("laser_d_frame") == 0) // downward
   {
-    scan_v[0] = new_scan->ranges[num/2-num_4]; // 45 degrees to the rear from the nadir
-    scan_v[1] = new_scan->ranges[num/2];       // nadir
-    scan_v[2] = new_scan->ranges[num/2+num_4]; // 45 degrees to the front from the nadir
+    input.d[0] = new_scan->ranges[num/2-num_2]; // 90 degrees to the front
+    input.d[1] = new_scan->ranges[num/2-num_4]; // 45 degrees to the front
+    input.d[2] = new_scan->ranges[num/2];       // nadir
+    input.d[3] = new_scan->ranges[num/2+num_4]; // 45 degrees to the rear
+    input.d[4] = new_scan->ranges[num/2+num_2]; // 90 degrees to the rear
+  }
+  else if(new_scan->header.frame_id.compare("laser_u_frame") == 0) // upward
+  {
+    input.u[0] = new_scan->ranges[num/2-num_2]; // 90 degrees to the rear
+    input.u[1] = new_scan->ranges[num/2-num_4]; // 45 degrees to the rear
+    input.u[2] = new_scan->ranges[num/2];       // nadir
+    input.u[3] = new_scan->ranges[num/2+num_4]; // 45 degrees to the front
+    input.u[4] = new_scan->ranges[num/2+num_2]; // 90 degrees to the front
   }
 }
 // ============================================================================================
