@@ -10,7 +10,7 @@
    
   <!-- Spawn simulated quadrotor uav -->
   <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch" >
-    <arg name="model" value="$(find uav_practice161129)/urdf/quadrotor_hokuyo_utm30lx.gazebo.xacro"/> 
+    <arg name="model" value="$(find uav_practice161129)/urdf/quadrotor_ray_sensor.gazebo.xacro"/> 
   </include>
   
   <!-- Start rviz visualization with preset config -->
