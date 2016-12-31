@@ -46,75 +46,75 @@ void Obs_Avoid::command()
 
   // input check
   if(
-    rng_h[0]->range.range < DIST_OBS || rng_h[1]->range.range < DIST_OBS || rng_h[2]->range.range < DIST_OBS || rng_h[3]->range < DIST_OBS ||
-    rng_h[4]->range < DIST_OBS || rng_h[5]->range < DIST_OBS || rng_h[6]->range < DIST_OBS || rng_h[7]->range < DIST_OBS ||
-    rng_u[0]->range < DIST_OBS || rng_u[1]->range < DIST_OBS || rng_u[2]->range < DIST_OBS || 
-    rng_d[0]->range < DIST_OBS || rng_d[1]->range < DIST_OBS || rng_d[2]->range < DIST_OBS)
+    rng_h[0].range < DIST_OBS || rng_h[1].range < DIST_OBS || rng_h[2].range < DIST_OBS || rng_h[3].range < DIST_OBS ||
+    rng_h[4].range < DIST_OBS || rng_h[5].range < DIST_OBS || rng_h[6].range < DIST_OBS || rng_h[7].range < DIST_OBS ||
+    rng_u[0].range < DIST_OBS || rng_u[1].range < DIST_OBS || rng_u[2].range < DIST_OBS || 
+    rng_d[0].range < DIST_OBS || rng_d[1].range < DIST_OBS || rng_d[2].range < DIST_OBS)
   {
     ROS_INFO("OBSTACLE AVOIDANCE");
     vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
     vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
     // calculate the output
-    if(rng_h[0]->range < DIST_OBS)
+    if(rng_h[0].range < DIST_OBS)
     {
       vel.linear.x -= VEL_OBS;
     }
-    if(rng_h[1]->range < DIST_OBS)
+    if(rng_h[1].range < DIST_OBS)
     {
       vel.linear.x -= VEL_OBS/sqrt(2);
       vel.linear.y -= VEL_OBS/sqrt(2);
     }
-    if(rng_h[2]->range < DIST_OBS)
+    if(rng_h[2].range < DIST_OBS)
     {
       vel.linear.y -= VEL_OBS;
     }
-    if(rng_h[3]->range < DIST_OBS)
+    if(rng_h[3].range < DIST_OBS)
     {
       vel.linear.x += VEL_OBS/sqrt(2);
       vel.linear.y -= VEL_OBS/sqrt(2);
     }
-    if(rng_h[4]->range < DIST_OBS)
+    if(rng_h[4].range < DIST_OBS)
     {
       vel.linear.y += VEL_OBS;
     }
-    if(rng_h[5]->range < DIST_OBS)
+    if(rng_h[5].range < DIST_OBS)
     {
       vel.linear.x += VEL_OBS/sqrt(2);
       vel.linear.y += VEL_OBS/sqrt(2);
     }
-    if(rng_h[6]->range < DIST_OBS)
+    if(rng_h[6].range < DIST_OBS)
     {
       vel.linear.y += VEL_OBS;
     }
-    if(rng_h[7]->range < DIST_OBS)
+    if(rng_h[7].range < DIST_OBS)
     {
       vel.linear.x -= VEL_OBS/sqrt(2);
       vel.linear.y += VEL_OBS/sqrt(2);
     }
-    if(rng_u[0]->range < DIST_OBS)
+    if(rng_u[0].range < DIST_OBS)
     {
       vel.linear.x -= VEL_OBS/sqrt(2);
       vel.linear.z -= VEL_OBS/sqrt(2);
     }
-    if(rng_u[1]->range < DIST_OBS)
+    if(rng_u[1].range < DIST_OBS)
     {
       vel.linear.z -= VEL_OBS;
     }
-    if(rng_u[2]->range < DIST_OBS)
+    if(rng_u[2].range < DIST_OBS)
     {
       vel.linear.x += VEL_OBS/sqrt(2);
       vel.linear.z -= VEL_OBS/sqrt(2);
     }
-    if(rng_d[0]->range < DIST_OBS)
+    if(rng_d[0].range < DIST_OBS)
     {
       vel.linear.x -= VEL_OBS/sqrt(2);
       vel.linear.z += VEL_OBS/sqrt(2);
     }
-    if(rng_d[1]->range < DIST_OBS)
+    if(rng_d[1].range < DIST_OBS)
     {
       vel.linear.z += VEL_OBS;
     }
-    if(rng_d[2]->range < DIST_OBS)
+    if(rng_d[2].range < DIST_OBS)
     {
       vel.linear.x += VEL_OBS/sqrt(2);
       vel.linear.z += VEL_OBS/sqrt(2);

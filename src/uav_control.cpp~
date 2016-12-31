@@ -68,7 +68,7 @@ void UAV_Control::kill_control()
 // ============================================================================================
 UAV_Control::UAV_Control()
 {
-  // set up for publisher, subscriber, and timer
+  // set up for publisher, subscriber
   ros::NodeHandle n;
   vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
   vel_sub = n.subscribe("obstacle_avoidance", 1, &LAYER_BASE::updateVel, (LAYER_BASE*)this);

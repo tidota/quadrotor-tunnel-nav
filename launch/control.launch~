@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+   
+  <node name="main" pkg="uav_practice161129" type="uav_control" args="" />
+  <node name="obstacle avoidance" pkg="uav_practice161129" type="obs_avoid" args="" />
+   
+</launch>

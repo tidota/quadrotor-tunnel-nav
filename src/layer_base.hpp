@@ -13,22 +13,22 @@
 
 ///////////////////////////////////////////////////////////////
 // Constants
-#define TIME_INT 0.1
+#define TIME_INT 0.15
 
-#define TOPIC_RANGE_H0 "range_front"
-#define TOPIC_RANGE_H1 "range_lfront"
-#define TOPIC_RANGE_H2 "range_left"
-#define TOPIC_RANGE_H3 "range_lrear"
-#define TOPIC_RANGE_H4 "range_rear"
-#define TOPIC_RANGE_H5 "range_rrear"
-#define TOPIC_RANGE_H6 "range_right"
-#define TOPIC_RANGE_H7 "range_rfront"
-#define TOPIC_RANGE_U0 "range_ufront"
-#define TOPIC_RANGE_U1 "range_up"
-#define TOPIC_RANGE_U2 "range_urear"
-#define TOPIC_RANGE_D0 "range_dfront"
-#define TOPIC_RANGE_D1 "range_down"
-#define TOPIC_RANGE_D2 "range_drear"
+#define TOPIC_RANGE_H0 "/range_front"
+#define TOPIC_RANGE_H1 "/range_lfront"
+#define TOPIC_RANGE_H2 "/range_left"
+#define TOPIC_RANGE_H3 "/range_lrear"
+#define TOPIC_RANGE_H4 "/range_rear"
+#define TOPIC_RANGE_H5 "/range_rrear"
+#define TOPIC_RANGE_H6 "/range_right"
+#define TOPIC_RANGE_H7 "/range_rfront"
+#define TOPIC_RANGE_U0 "/range_ufront"
+#define TOPIC_RANGE_U1 "/range_up"
+#define TOPIC_RANGE_U2 "/range_urear"
+#define TOPIC_RANGE_D0 "/range_dfront"
+#define TOPIC_RANGE_D1 "/range_down"
+#define TOPIC_RANGE_D2 "/range_drear"
 
 //////////////////////////////////////////////////////////////////
 // macros
@@ -50,9 +50,9 @@
     rng_d[_NUM_] = *new_range;\
   }
 
-#define subscribe_H(_NUM_) rng_h_sub[_NUM_] = n.subscribe(TOPIC_RANGE_H##_NUM_, 1, &LAYER_BASE::updateVel, this);
-#define subscribe_U(_NUM_) rng_u_sub[_NUM_] = n.subscribe(TOPIC_RANGE_U##_NUM_, 1, &LAYER_BASE::updateVel, this);
-#define subscribe_D(_NUM_) rng_d_sub[_NUM_] = n.subscribe(TOPIC_RANGE_D##_NUM_, 1, &LAYER_BASE::updateVel, this);
+#define subscribe_H(_NUM_) rng_h_sub[_NUM_] = n.subscribe(TOPIC_RANGE_H##_NUM_, 1, &LAYER_BASE::updateRange_H##_NUM_, this);
+#define subscribe_U(_NUM_) rng_u_sub[_NUM_] = n.subscribe(TOPIC_RANGE_U##_NUM_, 1, &LAYER_BASE::updateRange_U##_NUM_, this);
+#define subscribe_D(_NUM_) rng_d_sub[_NUM_] = n.subscribe(TOPIC_RANGE_D##_NUM_, 1, &LAYER_BASE::updateRange_D##_NUM_, this);
 
 // ============================================================================================
 // UAV_Control class

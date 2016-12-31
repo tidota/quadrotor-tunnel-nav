@@ -43,6 +43,8 @@ Obs_Avoid::~Obs_Avoid()
 void Obs_Avoid::command()
 {
   boost::mutex::scoped_lock lock(vel_mutex);
+    vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
+    vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
 
   // input check
   if(
