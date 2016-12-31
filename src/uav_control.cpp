@@ -3,50 +3,7 @@
 // this is the control code for UAV in the simulated enviornment by gazebo.
 // 
 
-#include <ros/ros.h>
-#include <signal.h>
-#include <geometry_msgs/Twist.h>
-#include <sensor_msgs/LaserScan.h>
-#include "boost/thread/mutex.hpp"
-
-#include "subsumption.hpp"
-
-// ============================================================================================
-// UAV_Control class
-// it contains everything necessary for control
-// ============================================================================================
-class UAV_Control
-{
-public:
-  // the instance of this class must be single
-  // so this function must be called to create the object.
-  static UAV_Control *create_control();
-
-  // to release the memory, call this function.
-  static void kill_control();
-
-private:
-  UAV_Control();
-
-  void command();
-  void stop();
-
-  static void scanCallback(const sensor_msgs::LaserScan::ConstPtr&);
-  void updateScanData(const sensor_msgs::LaserScan::ConstPtr&);
-
-  static void quit(int);
-
-private:
-  static UAV_Control *p_control;
-
-  static ros::Publisher vel_pub;
-  static ros::Subscriber scan_sub;
-
-  ros::Timer timer;
-
-  boost::mutex scan_mutex;
-  INPUT input;
-};
+#include "uav_control.hpp"
 
 // ============================================================================================
 // main
@@ -68,8 +25,6 @@ int main(int argc, char** argv)
 // definitions of static members in the class
 // ============================================================================================
 UAV_Control* UAV_Control::p_control = NULL;
-ros::Publisher UAV_Control::vel_pub;
-ros::Subscriber UAV_Control::scan_sub;
 
 // ============================================================================================
 // create_control
@@ -82,15 +37,15 @@ ros::Subscriber UAV_Control::scan_sub;
 // ============================================================================================
 UAV_Control *UAV_Control::create_control()
 {
-  if(p_control == NULL)
+  if(UAV_Control::p_control == NULL)
   {
     // create a new object
-    p_control = new UAV_Control();
+    UAV_Control::p_control = new UAV_Control();
 
     // set up for signal handler
     signal(SIGINT,UAV_Control::quit);
   }
-  return p_control;
+  return UAV_Control::p_control;
 }
 
 // ============================================================================================
@@ -113,11 +68,10 @@ void UAV_Control::kill_control()
 // ============================================================================================
 UAV_Control::UAV_Control()
 {
-  // set up for publisher, subscriber, and timer
+  // set up for publisher, subscriber
   ros::NodeHandle n;
-  UAV_Control::vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
-  UAV_Control::scan_sub = n.subscribe("/scan", 1, UAV_Control::scanCallback);
-  timer = n.createTimer(ros::Duration(TIME_INT), boost::bind(&UAV_Control::command, this));
+  vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+  vel_sub = n.subscribe("obstacle_avoidance", 1, &LAYER_BASE::updateVel, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -129,14 +83,8 @@ UAV_Control::UAV_Control()
 // ============================================================================================
 void UAV_Control::command()
 {
-  INPUT input_buff;
-  {
-    boost::mutex::scoped_lock lock(UAV_Control::scan_mutex);
-    input_buff = input;
-  }
-  geometry_msgs::Twist vel = getNextCom(input_buff); 
-
-  UAV_Control::vel_pub.publish(vel);
+  boost::mutex::scoped_lock lock(vel_mutex);
+  vel_pub.publish(vel);
 }
 
 // ============================================================================================
@@ -152,57 +100,6 @@ void UAV_Control::stop()
   UAV_Control::vel_pub.publish(vel);
   timer.stop();
 }
-
-// ============================================================================================
-// scanCallback
-//
-// it is called when scanning is complete.
-// it receives scan data based on the topic, sensor_msgs/LaserScan.
-// the sensor data is stored in the static field.
-// ============================================================================================
-void UAV_Control::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
-{
-  p_control->updateScanData(scan);
-}
-// ============================================================================================
-// updateScanData
-//
-// it stores scan data into the UAV_Control object
-// ============================================================================================
-void UAV_Control::updateScanData(const sensor_msgs::LaserScan::ConstPtr& new_scan)
-{
-  boost::mutex::scoped_lock lock(UAV_Control::scan_mutex);
-  double half_angle = (new_scan->angle_max - new_scan->angle_min)/2;
-  int num = new_scan->ranges.size();
-  int num_2 = new_scan->ranges.size()/2*(M_PI/2)/half_angle;
-  int num_4 = new_scan->ranges.size()/2*(M_PI/4)/half_angle;
-  if(new_scan->header.frame_id.compare("laser_h_frame") == 0) // horizontal
-  {
-    input.h[0] = new_scan->ranges[num/2-num_2]; // 90 degrees to the right
-    input.h[1] = new_scan->ranges[num/2-num_4]; // 45 degrees to the right
-    input.h[2] = new_scan->ranges[num/2];       // center
-    input.h[3] = new_scan->ranges[num/2+num_4]; // 45 degrees to the left
-    input.h[4] = new_scan->ranges[num/2+num_2]; // 90 degrees to the left
-  }
-  else if(new_scan->header.frame_id.compare("laser_d_frame") == 0) // downward
-  {
-    input.d[0] = new_scan->ranges[num/2-num_2]; // 90 degrees to the front
-    input.d[1] = new_scan->ranges[num/2-num_4]; // 45 degrees to the front
-    input.d[2] = new_scan->ranges[num/2];       // nadir
-    input.d[3] = new_scan->ranges[num/2+num_4]; // 45 degrees to the rear
-    input.d[4] = new_scan->ranges[num/2+num_2]; // 90 degrees to the rear
-  }
-  else if(new_scan->header.frame_id.compare("laser_u_frame") == 0) // upward
-  {
-    input.u[0] = new_scan->ranges[num/2-num_2]; // 90 degrees to the rear
-    input.u[1] = new_scan->ranges[num/2-num_4]; // 45 degrees to the rear
-    input.u[2] = new_scan->ranges[num/2];       // nadir
-    input.u[3] = new_scan->ranges[num/2+num_4]; // 45 degrees to the front
-    input.u[4] = new_scan->ranges[num/2+num_2]; // 90 degrees to the front
-  }
-}
-// ============================================================================================
-// ============================================================================================
 
 // ============================================================================================
 // quit
