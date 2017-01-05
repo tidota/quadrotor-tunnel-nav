@@ -25,12 +25,8 @@ Keep_Alt::Keep_Alt()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  vel_pub = n.advertise<geometry_msgs::Twist>("keep_altitude", 1);
-  vel_sub = n.subscribe("turn", 1, &LAYER_BASE::updateVel, (LAYER_BASE*)this);
-}
-Keep_Alt::~Keep_Alt()
-{
-  this->stop();
+  com_pub = n.advertise<uav_practice161129::Com>("keep_altitude", 1);
+  com_sub = n.subscribe("turn", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -42,34 +38,20 @@ Keep_Alt::~Keep_Alt()
 // ============================================================================================
 void Keep_Alt::command()
 {
-  boost::mutex::scoped_lock lock(vel_mutex);
+  boost::mutex::scoped_lock lock(com_mutex);
 
   // input check
   if(rng_u[1].range - rng_d[1].range > DIST_OFF_ALT || rng_d[1].range - rng_u[1].range > DIST_OFF_ALT)
   {
-    ROS_INFO("KEEP THE ALTITUDE");
-    vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-    vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
+    com.message = "KEEP THE ALTITUDE";
+    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
-    vel.linear.z = VEL_ALT * (rng_d[1].range < rng_u[1].range)? 1: -1;
+    com.vel.linear.z = VEL_ALT * (rng_d[1].range < rng_u[1].range)? 1: -1;
     //if(rng_h[2] > rng_h[0])
-      //vel.linear.x = VEL_STRAIGHT;
+      //com.vel.linear.x = VEL_STRAIGHT;
   }
 
-  vel_pub.publish(vel);
-}
-
-// ============================================================================================
-// stop
-//
-// it stops the UAV so that the machine stays on the current location.
-// ============================================================================================
-void Keep_Alt::stop()
-{
-  boost::mutex::scoped_lock lock(vel_mutex);
-  vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-  vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
-  vel_pub.publish(vel);
-  timer.stop();
+  com_pub.publish(com);
 }
 

@@ -25,12 +25,8 @@ Obs_Avoid::Obs_Avoid()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  vel_pub = n.advertise<geometry_msgs::Twist>("obstacle_avoidance", 1);
-  vel_sub = n.subscribe("keep_altitude", 1, &LAYER_BASE::updateVel, (LAYER_BASE*)this);
-}
-Obs_Avoid::~Obs_Avoid()
-{
-  this->stop();
+  com_pub = n.advertise<uav_practice161129::Com>("obstacle_avoidance", 1);
+  com_sub = n.subscribe("keep_altitude", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -42,9 +38,7 @@ Obs_Avoid::~Obs_Avoid()
 // ============================================================================================
 void Obs_Avoid::command()
 {
-  boost::mutex::scoped_lock lock(vel_mutex);
-    vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-    vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
+  boost::mutex::scoped_lock lock(com_mutex);
 
   // input check
   if(
@@ -53,90 +47,76 @@ void Obs_Avoid::command()
     rng_u[0].range < DIST_OBS || rng_u[1].range < DIST_OBS || rng_u[2].range < DIST_OBS || 
     rng_d[0].range < DIST_OBS || rng_d[1].range < DIST_OBS || rng_d[2].range < DIST_OBS)
   {
-    ROS_INFO("OBSTACLE AVOIDANCE");
-    vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-    vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
+    com.message = "OBSTACLE AVOIDANCE";
+    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
     if(rng_h[0].range < DIST_OBS)
     {
-      vel.linear.x -= VEL_OBS;
+      com.vel.linear.x -= VEL_OBS;
     }
     if(rng_h[1].range < DIST_OBS)
     {
-      vel.linear.x -= VEL_OBS/sqrt(2);
-      vel.linear.y -= VEL_OBS/sqrt(2);
+      com.vel.linear.x -= VEL_OBS/sqrt(2);
+      com.vel.linear.y -= VEL_OBS/sqrt(2);
     }
     if(rng_h[2].range < DIST_OBS)
     {
-      vel.linear.y -= VEL_OBS;
+      com.vel.linear.y -= VEL_OBS;
     }
     if(rng_h[3].range < DIST_OBS)
     {
-      vel.linear.x += VEL_OBS/sqrt(2);
-      vel.linear.y -= VEL_OBS/sqrt(2);
+      com.vel.linear.x += VEL_OBS/sqrt(2);
+      com.vel.linear.y -= VEL_OBS/sqrt(2);
     }
     if(rng_h[4].range < DIST_OBS)
     {
-      vel.linear.y += VEL_OBS;
+      com.vel.linear.y += VEL_OBS;
     }
     if(rng_h[5].range < DIST_OBS)
     {
-      vel.linear.x += VEL_OBS/sqrt(2);
-      vel.linear.y += VEL_OBS/sqrt(2);
+      com.vel.linear.x += VEL_OBS/sqrt(2);
+      com.vel.linear.y += VEL_OBS/sqrt(2);
     }
     if(rng_h[6].range < DIST_OBS)
     {
-      vel.linear.y += VEL_OBS;
+      com.vel.linear.y += VEL_OBS;
     }
     if(rng_h[7].range < DIST_OBS)
     {
-      vel.linear.x -= VEL_OBS/sqrt(2);
-      vel.linear.y += VEL_OBS/sqrt(2);
+      com.vel.linear.x -= VEL_OBS/sqrt(2);
+      com.vel.linear.y += VEL_OBS/sqrt(2);
     }
     if(rng_u[0].range < DIST_OBS)
     {
-      vel.linear.x -= VEL_OBS/sqrt(2);
-      vel.linear.z -= VEL_OBS/sqrt(2);
+      com.vel.linear.x -= VEL_OBS/sqrt(2);
+      com.vel.linear.z -= VEL_OBS/sqrt(2);
     }
     if(rng_u[1].range < DIST_OBS)
     {
-      vel.linear.z -= VEL_OBS;
+      com.vel.linear.z -= VEL_OBS;
     }
     if(rng_u[2].range < DIST_OBS)
     {
-      vel.linear.x += VEL_OBS/sqrt(2);
-      vel.linear.z -= VEL_OBS/sqrt(2);
+      com.vel.linear.x += VEL_OBS/sqrt(2);
+      com.vel.linear.z -= VEL_OBS/sqrt(2);
     }
     if(rng_d[0].range < DIST_OBS)
     {
-      vel.linear.x -= VEL_OBS/sqrt(2);
-      vel.linear.z += VEL_OBS/sqrt(2);
+      com.vel.linear.x -= VEL_OBS/sqrt(2);
+      com.vel.linear.z += VEL_OBS/sqrt(2);
     }
     if(rng_d[1].range < DIST_OBS)
     {
-      vel.linear.z += VEL_OBS;
+      com.vel.linear.z += VEL_OBS;
     }
     if(rng_d[2].range < DIST_OBS)
     {
-      vel.linear.x += VEL_OBS/sqrt(2);
-      vel.linear.z += VEL_OBS/sqrt(2);
+      com.vel.linear.x += VEL_OBS/sqrt(2);
+      com.vel.linear.z += VEL_OBS/sqrt(2);
     }
   }
 
-  vel_pub.publish(vel);
-}
-
-// ============================================================================================
-// stop
-//
-// it stops the UAV so that the machine stays on the current location.
-// ============================================================================================
-void Obs_Avoid::stop()
-{
-  boost::mutex::scoped_lock lock(vel_mutex);
-  vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-  vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
-  vel_pub.publish(vel);
-  timer.stop();
+  com_pub.publish(com);
 }
 

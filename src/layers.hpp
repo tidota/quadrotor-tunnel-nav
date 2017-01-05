@@ -8,17 +8,20 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
+#include <uav_practice161129/Com.h>
 #include <sensor_msgs/Range.h>
 #include "boost/thread/mutex.hpp"
 
+#include <signal.h>
+
 ///////////////////////////////////////////////////////////////
 // Constants
-#define TIME_INT 0.15
+#define TIME_INT 0.05
 
 #define DIST_OBS 0.5
 #define VEL_OBS 0.5
 #define DIST_OFF_ALT 0.5
-#define VEL_ALT 0.5
+#define VEL_ALT 0.3
 
 #define DIST_RATE_TURN 1.1
 #define VEL_TURN 1.0
@@ -101,24 +104,27 @@ public:
     subscribe_D(1)
     subscribe_D(2)
   }
+  ~LAYER_BASE()
+  {
+    timer.stop();
+  }
 
 protected:
   virtual void command() = 0;
-  virtual void stop() = 0;
 
-  ros::Publisher vel_pub;
-  ros::Subscriber vel_sub;
+  ros::Publisher com_pub;
+  ros::Subscriber com_sub;
 
-  boost::mutex vel_mutex;
-  geometry_msgs::Twist vel;
+  boost::mutex com_mutex;
+  uav_practice161129::Com com;
 
   ros::Timer timer;
 
 public:
-  void updateVel(const geometry_msgs::Twist::ConstPtr& new_data)
+  void updateCom(const uav_practice161129::Com::ConstPtr& new_com)
   {
-    boost::mutex::scoped_lock lock(vel_mutex);
-    vel = *new_data;
+    boost::mutex::scoped_lock lock(com_mutex);
+    com = *new_com;
   }
 
 private:
@@ -154,70 +160,84 @@ public:
 };
 
 // ============================================================================================
+// UAV_Control class
+// it contains everything necessary for control
+// ============================================================================================
+class UAV_Control : public LAYER_BASE
+{
+public:
+  // the instance of this class must be single
+  // so this function must be called to create the object.
+  static UAV_Control *create_control();
+
+  // to release the memory, call this function.
+  static void kill_control();
+
+protected:
+  static ros::Publisher vel_pub;
+
+private:
+  UAV_Control();
+
+  void command();
+
+  static void quit(int);
+
+  static UAV_Control *p_control;
+
+};
+
+// ============================================================================================
 // LAYER classes
 // ============================================================================================
 class Obs_Avoid: public LAYER_BASE
 {
 public:
   Obs_Avoid();
-  ~Obs_Avoid();
 private:
   void command();
-  void stop();
 };
 class Keep_Alt: public LAYER_BASE
 {
 public:
   Keep_Alt();
-  ~Keep_Alt();
 private:
   void command();
-  void stop();
 };
 class Turn: public LAYER_BASE
 {
 public:
   Turn();
-  ~Turn();
 private:
   void command();
-  void stop();
 };
 class Adjust_Direction: public LAYER_BASE
 {
 public:
   Adjust_Direction();
-  ~Adjust_Direction();
 private:
   void command();
-  void stop();
 };
 class Middle_Line: public LAYER_BASE
 {
 public:
   Middle_Line();
-  ~Middle_Line();
 private:
   void command();
-  void stop();
 };
 class Go_Straight: public LAYER_BASE
 {
 public:
   Go_Straight();
-  ~Go_Straight();
 private:
   void command();
-  void stop();
 };
 class Find_Wall: public LAYER_BASE
 {
 public:
   Find_Wall();
-  ~Find_Wall();
 private:
   void command();
-  void stop();
 };
 
 #endif // _LAYERS_HPP

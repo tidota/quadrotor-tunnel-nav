@@ -25,12 +25,8 @@ Adjust_Direction::Adjust_Direction()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  vel_pub = n.advertise<geometry_msgs::Twist>("adjust_direction", 1);
-  vel_sub = n.subscribe("middle_line", 1, &LAYER_BASE::updateVel, (LAYER_BASE*)this);
-}
-Adjust_Direction::~Adjust_Direction()
-{
-  this->stop();
+  com_pub = n.advertise<uav_practice161129::Com>("adjust_direction", 1);
+  com_sub = n.subscribe("middle_line", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -42,42 +38,29 @@ Adjust_Direction::~Adjust_Direction()
 // ============================================================================================
 void Adjust_Direction::command()
 {
-  boost::mutex::scoped_lock lock(vel_mutex);
+  boost::mutex::scoped_lock lock(com_mutex);
 
   // input check
   if(rng_h[7].range > rng_h[6].range * sqrt(2) * DIST_RATE_ADJR)
   {
-    ROS_INFO("ADJUST THE DIRECTION TO THE RIGHT");
-    vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-    vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
+    com.message = "ADJUST THE DIRECTION TO THE RIGHT";
+    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
-    vel.angular.z = -VEL_TURN;
-    vel.linear.x = VEL_STRAIGHT;
+    com.vel.angular.z = -VEL_TURN;
+    com.vel.linear.x = VEL_STRAIGHT;
   }
   else if(rng_h[7].range < rng_h[6].range * sqrt(2) * DIST_RATE_ADJL)
   {
-    ROS_INFO("ADJUST THE DIRECTION TO THE LEFT");
-    vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-    vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
+    com.message = "ADJUST THE DIRECTION TO THE LEFT";
+    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
-    vel.angular.z = VEL_TURN;
-	vel.linear.x = VEL_STRAIGHT;
+    com.vel.angular.z = VEL_TURN;
+	com.vel.linear.x = VEL_STRAIGHT;
   }
 
-  vel_pub.publish(vel);
+  com_pub.publish(com);
 }
 
-// ============================================================================================
-// stop
-//
-// it stops the UAV so that the machine stays on the current location.
-// ============================================================================================
-void Adjust_Direction::stop()
-{
-  boost::mutex::scoped_lock lock(vel_mutex);
-  vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-  vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
-  vel_pub.publish(vel);
-  timer.stop();
-}
 

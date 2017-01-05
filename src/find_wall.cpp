@@ -25,12 +25,8 @@ Find_Wall::Find_Wall()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  vel_pub = n.advertise<geometry_msgs::Twist>("find_wall", 1);
-  //vel_sub = n.subscribe("", 1, &LAYER_BASE::updateVel, (LAYER_BASE*)this);
-}
-Find_Wall::~Find_Wall()
-{
-  this->stop();
+  com_pub = n.advertise<uav_practice161129::Com>("find_wall", 1);
+  //com_sub = n.subscribe("", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -42,27 +38,14 @@ Find_Wall::~Find_Wall()
 // ============================================================================================
 void Find_Wall::command()
 {
-  boost::mutex::scoped_lock lock(vel_mutex);
+  boost::mutex::scoped_lock lock(com_mutex);
 
   // calculate the output
-  vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-  vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
-  vel.linear.y = -VEL_FIND;
+  com.message = "FIND A WALL";
+  com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+  com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
+  com.vel.linear.y = -VEL_FIND;
 
-  vel_pub.publish(vel);
-}
-
-// ============================================================================================
-// stop
-//
-// it stops the UAV so that the machine stays on the current location.
-// ============================================================================================
-void Find_Wall::stop()
-{
-  boost::mutex::scoped_lock lock(vel_mutex);
-  vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = 0;
-  vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
-  vel_pub.publish(vel);
-  timer.stop();
+  com_pub.publish(com);
 }
 

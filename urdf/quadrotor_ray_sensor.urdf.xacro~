@@ -16,7 +16,7 @@
 
     <!-- ray sensors -->
     <xacro:include filename="$(find hector_sensors_description)/urdf/sonar_sensor.urdf.xacro" />
-    <xacro:property name="RATE" value="20" />
+    <xacro:property name="RATE" value="10" />
     <xacro:property name="MIN" value="0.01" />
     <xacro:property name="MAX" value="10.0" />
     <xacro:property name="DEG" value="3" />
