@@ -4,5 +4,11 @@
    
   <node name="main_control" pkg="uav_practice161129" type="uav_control" args="" />
   <node name="obstacle_avoidance" pkg="uav_practice161129" type="obs_avoid" args="" />
+  <node name="altitude_adjustment" pkg="uav_practice161129" type="keep_altitude" args="" />
+  <node name="turning_around" pkg="uav_practice161129" type="turn" args="" />
+  <node name="direction_adjustment" pkg="uav_practice161129" type="adjust_direction" args="" />
+  <node name="staying_on_the_middle_line" pkg="uav_practice161129" type="middle_line" args="" />
+  <node name="going_straight" pkg="uav_practice161129" type="go_straight" args="" />
+  <node name="finding_the_right_wall" pkg="uav_practice161129" type="find_wall" args="" />
    
 </launch>

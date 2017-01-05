@@ -1,19 +1,19 @@
 // obstacle_avoidance.cpp
 
-#include "obstacle_avoidance.hpp"
+#include "layers.hpp"
 
 // ============================================================================================
 // main
 // ============================================================================================
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "uav_control");
+  ros::init(argc, argv, "obstacle_avoidance");
 
-  Obs_Avoid* obs_avoid = new Obs_Avoid();
+  Obs_Avoid* obj = new Obs_Avoid();
 
   ros::spin();
 
-  delete obs_avoid;
+  delete obj;
 
   return(0);
 }
@@ -26,7 +26,7 @@ Obs_Avoid::Obs_Avoid()
   // set up for publisher, subscriber
   ros::NodeHandle n;
   vel_pub = n.advertise<geometry_msgs::Twist>("obstacle_avoidance", 1);
-  //vel_sub = n.subscribe("", 1, &LAYER_BASE::updateVel, (LAYER_BASE*)this);
+  vel_sub = n.subscribe("keep_altitude", 1, &LAYER_BASE::updateVel, (LAYER_BASE*)this);
 }
 Obs_Avoid::~Obs_Avoid()
 {
