@@ -38,3 +38,10 @@ It should be good to add this line in .bashrc so the compiled package is always 
 echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
+
+### Enable motors
+For some reason, motors are disabled so a UAV does not fly even if a message is sent to the topic /cmd_vel. To enable them, call the ROS service /enable_motors.
+```
+rosservice call /enable_motors true
+```
+
