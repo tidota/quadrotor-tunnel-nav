@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>uav_practice161129</name>
+  <name>quadrotor_tunnel_nav</name>
   <version>0.0.0</version>
   <description>The UAV Practice (since Nov29,2016) package</description>
 
