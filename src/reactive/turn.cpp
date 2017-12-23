@@ -25,7 +25,7 @@ Turn::Turn()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<uav_practice161129::Com>("turn", 1);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("turn", 1);
   com_sub = n.subscribe("adjust_direction", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 

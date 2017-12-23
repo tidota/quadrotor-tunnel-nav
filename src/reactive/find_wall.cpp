@@ -25,7 +25,7 @@ Find_Wall::Find_Wall()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<uav_practice161129::Com>("find_wall", 1);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("find_wall", 1);
   //com_sub = n.subscribe("", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 

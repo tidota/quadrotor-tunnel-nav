@@ -25,7 +25,7 @@ Obs_Avoid::Obs_Avoid()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<uav_practice161129::Com>("obstacle_avoidance", 1);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("obstacle_avoidance", 1);
   com_sub = n.subscribe("keep_altitude", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
