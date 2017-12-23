@@ -149,35 +149,35 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(uav_control src/uav_control.cpp)
+add_executable(uav_control src/reactive/uav_control.cpp)
 add_dependencies(uav_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(uav_control ${catkin_LIBRARIES})
 
-add_executable(obs_avoid src/obstacle_avoidance.cpp)
+add_executable(obs_avoid src/reactive/obstacle_avoidance.cpp)
 add_dependencies(obs_avoid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(obs_avoid ${catkin_LIBRARIES})
 
-add_executable(keep_altitude src/keep_altitude.cpp)
+add_executable(keep_altitude src/reactive/keep_altitude.cpp)
 add_dependencies(keep_altitude ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(keep_altitude ${catkin_LIBRARIES})
 
-add_executable(turn src/turn.cpp)
+add_executable(turn src/reactive/turn.cpp)
 add_dependencies(turn ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(turn ${catkin_LIBRARIES})
 
-add_executable(adjust_direction src/adjust_direction.cpp)
+add_executable(adjust_direction src/reactive/adjust_direction.cpp)
 add_dependencies(adjust_direction ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(adjust_direction ${catkin_LIBRARIES})
 
-add_executable(middle_line src/middle_line.cpp)
+add_executable(middle_line src/reactive/middle_line.cpp)
 add_dependencies(middle_line ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(middle_line ${catkin_LIBRARIES})
 
-add_executable(go_straight src/go_straight.cpp)
+add_executable(go_straight src/reactive/go_straight.cpp)
 add_dependencies(go_straight ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(go_straight ${catkin_LIBRARIES})
 
-add_executable(find_wall src/find_wall.cpp)
+add_executable(find_wall src/reactive/find_wall.cpp)
 add_dependencies(find_wall ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(find_wall ${catkin_LIBRARIES})
 
