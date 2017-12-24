@@ -1,4 +1,4 @@
-// adjust_direction.cpp
+// steer.cpp
 
 #include "layers.hpp"
 
@@ -7,9 +7,9 @@
 // ============================================================================================
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "adjust_direction");
+  ros::init(argc, argv, "steer");
 
-  Adjust_Direction* obj = new Adjust_Direction();
+  Steer* obj = new Steer();
 
   ros::spin();
 
@@ -21,11 +21,11 @@ int main(int argc, char** argv)
 // ============================================================================================
 // Constructor
 // ============================================================================================
-Adjust_Direction::Adjust_Direction()
+Steer::Steer()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("adjust_direction", 1);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("steer", 1);
   com_sub = n.subscribe("middle_line", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
@@ -36,7 +36,7 @@ Adjust_Direction::Adjust_Direction()
 // it controls the uav based on the received sensor data.
 // it is to be called repeatedly by the timer.
 // ============================================================================================
-void Adjust_Direction::command()
+void Steer::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
 

@@ -211,10 +211,10 @@ public:
 private:
   void command();
 };
-class Adjust_Direction: public LAYER_BASE
+class Steer: public LAYER_BASE
 {
 public:
-  Adjust_Direction();
+  Steer();
 private:
   void command();
 };
