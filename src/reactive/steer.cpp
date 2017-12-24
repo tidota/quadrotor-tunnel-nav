@@ -41,7 +41,7 @@ void Steer::command()
   boost::mutex::scoped_lock lock(com_mutex);
 
   // input check
-  if(rng_h[7].range > rng_h[6].range * sqrt(2) * DIST_RATE_ADJR)
+  if(rng_h[7].range > rng_h[6].range * sqrt(2) * DIST_RATE_STRR)
   {
     com.message = com.message + " + STEER TO THE RIGHT";
     //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
@@ -50,7 +50,7 @@ void Steer::command()
     com.vel.angular.z += -VEL_TURN;
     //com.vel.linear.x += VEL_STRAIGHT;
   }
-  else if(rng_h[7].range < rng_h[6].range * sqrt(2) * DIST_RATE_ADJL)
+  else if(rng_h[7].range < rng_h[6].range * sqrt(2) * DIST_RATE_STRL)
   {
     com.message = com.message + " + STEER TO THE LEFT";
     //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
