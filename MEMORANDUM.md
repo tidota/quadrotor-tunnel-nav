@@ -255,11 +255,12 @@ export ROS_MASTER_URI=http://<master's name or IP>:<port #>
 export ROS_IP=<the machine's IP>
 export ROS_HOSTNAME=$ROS_IP
 ```
-At least on Ubuntu 16.04, the following commands should work so you do not need to check each machine's IP manually. You can create a script to run them in addition to that for `ROS_MASTER_URI`.
+At least on Ubuntu 16.04, the following commands should work so you do not need to check each machine's IP manually.
 ```
 export ROS_IP=`hostname -I | awk '{print $1}'`
 export ROS_HOSTNAME=$ROS_IP
 ```
+You can create a script including those above in addition to that for `ROS_MASTER_URI`, and source the script.
 
 ## Really Miscellaneous Notes
 
