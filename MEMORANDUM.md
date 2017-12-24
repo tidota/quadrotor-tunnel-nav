@@ -237,6 +237,21 @@ roscd
 roswtf
 ```
 
+## To run ROS on more than one machine
+[The official tutorial is here.](http://wiki.ros.org/ROS/Tutorials/MultipleMachines)
+- make sure that all machines are connected with each other through the network (check by `ping` and `netcat`)
+- run `roscore` on the master machine
+On the terminal, you can see `ROS_MASTER_URI=http://<master's name or IP>:<port #>`
+- On each non-master machine, declare an environment variable `ROS_MASTER_URI` as shown in the terminal of the master machine.
+```
+export ROS_MASTER_URI=http://<master's name or IP>:<port #>
+```
+- If the master does not know the other machines' names, do the following on each non-master machine.
+```
+export ROS_IP=<the machine's IP>
+export ROS_HOSTNAME=$ROS_IP
+```
+
 ## Really Miscellaneous Notes
 
 packages are usually located in
