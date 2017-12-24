@@ -239,9 +239,13 @@ roswtf
 
 ## To run ROS on more than one machine
 [The official tutorial is here.](http://wiki.ros.org/ROS/Tutorials/MultipleMachines)
-- make sure that all machines are connected with each other through the network (check by `ping` and `netcat`)
-- run `roscore` on the master machine
-On the terminal, you can see `ROS_MASTER_URI=http://<master's name or IP>:<port #>`
+
+Make sure that all machines are connected with each other through the network (check by `ping` and `netcat`). You need to choose one of the machines as a master which is to run `roscore`.
+
+### The master machine
+- run `roscore` on the terminal. You will see `ROS_MASTER_URI=http://<master's name or IP>:<port #>`
+
+### The other machines
 - On each non-master machine, declare an environment variable `ROS_MASTER_URI` as shown in the terminal of the master machine.
 ```
 export ROS_MASTER_URI=http://<master's name or IP>:<port #>
@@ -249,6 +253,11 @@ export ROS_MASTER_URI=http://<master's name or IP>:<port #>
 - If the master does not know the other machines' names, do the following on each non-master machine.
 ```
 export ROS_IP=<the machine's IP>
+export ROS_HOSTNAME=$ROS_IP
+```
+At least on Ubuntu 16.04, the following commands should work so you do not need to check each machine's IP manually. You can create a script to run them in addition to that for `ROS_MASTER_URI`.
+```
+export ROS_IP=`hostname -I | awk '{print $1}'`
 export ROS_HOSTNAME=$ROS_IP
 ```
 
