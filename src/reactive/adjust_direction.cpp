@@ -43,21 +43,21 @@ void Adjust_Direction::command()
   // input check
   if(rng_h[7].range > rng_h[6].range * sqrt(2) * DIST_RATE_ADJR)
   {
-    com.message = "ADJUST THE DIRECTION TO THE RIGHT";
-    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
+    com.message = com.message + " + ADJUST THE DIRECTION TO THE RIGHT";
+    //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+    //com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
-    com.vel.angular.z = -VEL_TURN;
-    com.vel.linear.x = VEL_STRAIGHT;
+    com.vel.angular.z += -VEL_TURN;
+    com.vel.linear.x += VEL_STRAIGHT;
   }
   else if(rng_h[7].range < rng_h[6].range * sqrt(2) * DIST_RATE_ADJL)
   {
-    com.message = "ADJUST THE DIRECTION TO THE LEFT";
-    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
+    com.message = com.message + " + ADJUST THE DIRECTION TO THE LEFT";
+    //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+    //com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
-    com.vel.angular.z = VEL_TURN;
-	com.vel.linear.x = VEL_STRAIGHT;
+    com.vel.angular.z += VEL_TURN;
+    com.vel.linear.x += VEL_STRAIGHT;
   }
 
   com_pub.publish(com);
