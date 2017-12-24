@@ -25,13 +25,13 @@ You need to launch two parts in separated terminal windows: gazebo and controlle
 
 gazebo:
 ```
-roslaunch uav_practice161129 uav_Y-tunnel.launch
+roslaunch quadrotor_tunnel_nav uav_Y-tunnel.launch
 ```
 controller:<br>
 The hector-quadrotor (built from the source) apparently [disables the motors in default](https://answers.ros.org/question/256590/hector-quadcopter-not-responding-to-cmd_vel-messages/) and it is required to enable them.
 ```
 rosservice call /enable_motors true
-roslaunch uav_practice161129 control.launch
+roslaunch quadrotor_tunnel_nav control.launch
 ```
 Then, you can see a quadrotor flying inside a tunnel in the simulator window.
 
