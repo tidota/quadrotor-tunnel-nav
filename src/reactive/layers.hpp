@@ -8,7 +8,7 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
-#include <uav_practice161129/Com.h>
+#include <quadrotor_tunnel_nav/Com.h>
 #include <sensor_msgs/Range.h>
 #include "boost/thread/mutex.hpp"
 
@@ -116,12 +116,12 @@ protected:
   ros::Subscriber com_sub;
 
   boost::mutex com_mutex;
-  uav_practice161129::Com com;
+  quadrotor_tunnel_nav::Com com;
 
   ros::Timer timer;
 
 public:
-  void updateCom(const uav_practice161129::Com::ConstPtr& new_com)
+  void updateCom(const quadrotor_tunnel_nav::Com::ConstPtr& new_com)
   {
     boost::mutex::scoped_lock lock(com_mutex);
     com = *new_com;

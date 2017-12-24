@@ -1,4 +1,4 @@
-// adjust_direction.cpp
+// go_straight.cpp
 
 #include "layers.hpp"
 
@@ -7,9 +7,9 @@
 // ============================================================================================
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "adjust_direction");
+  ros::init(argc, argv, "go_straight");
 
-  Adjust_Direction* obj = new Adjust_Direction();
+  Go_Straight* obj = new Go_Straight();
 
   ros::spin();
 
@@ -21,12 +21,12 @@ int main(int argc, char** argv)
 // ============================================================================================
 // Constructor
 // ============================================================================================
-Adjust_Direction::Adjust_Direction()
+Go_Straight::Go_Straight()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<uav_practice161129::Com>("adjust_direction", 1);
-  com_sub = n.subscribe("middle_line", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("go_straight", 1);
+  com_sub = n.subscribe("find_wall", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -36,31 +36,20 @@ Adjust_Direction::Adjust_Direction()
 // it controls the uav based on the received sensor data.
 // it is to be called repeatedly by the timer.
 // ============================================================================================
-void Adjust_Direction::command()
+void Go_Straight::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
 
   // input check
-  if(rng_h[7].range > rng_h[6].range * sqrt(2) * DIST_RATE_ADJR)
+  if(rng_h[6].range < DIST_MAX)
   {
-    com.message = "ADJUST THE DIRECTION TO THE RIGHT";
+    com.message = "GO STRAIGHT";
     com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
     com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
-    com.vel.angular.z = -VEL_TURN;
     com.vel.linear.x = VEL_STRAIGHT;
-  }
-  else if(rng_h[7].range < rng_h[6].range * sqrt(2) * DIST_RATE_ADJL)
-  {
-    com.message = "ADJUST THE DIRECTION TO THE LEFT";
-    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
-    // calculate the output
-    com.vel.angular.z = VEL_TURN;
-	com.vel.linear.x = VEL_STRAIGHT;
   }
 
   com_pub.publish(com);
 }
-
 

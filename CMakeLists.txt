@@ -111,7 +111,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES uav_practice161129
+#  LIBRARIES quadrotor_tunnel_nav
   CATKIN_DEPENDS message_runtime gazebo_ros hector_gazebo_plugins hector_quadrotor_description hector_gazebo_worlds roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
@@ -128,56 +128,56 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(uav_practice161129
-#   src/${PROJECT_NAME}/uav_practice161129.cpp
+# add_library(quadrotor_tunnel_nav
+#   src/${PROJECT_NAME}/quadrotor_tunnel_nav.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(uav_practice161129 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(quadrotor_tunnel_nav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(uav_practice161129_node src/uav_practice161129_node.cpp)
+# add_executable(quadrotor_tunnel_nav_node src/quadrotor_tunnel_nav_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(uav_practice161129_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(quadrotor_tunnel_nav_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(uav_practice161129_node
+# target_link_libraries(quadrotor_tunnel_nav_node
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(uav_control src/uav_control.cpp)
+add_executable(uav_control src/reactive/uav_control.cpp)
 add_dependencies(uav_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(uav_control ${catkin_LIBRARIES})
 
-add_executable(obs_avoid src/obstacle_avoidance.cpp)
+add_executable(obs_avoid src/reactive/obstacle_avoidance.cpp)
 add_dependencies(obs_avoid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(obs_avoid ${catkin_LIBRARIES})
 
-add_executable(keep_altitude src/keep_altitude.cpp)
+add_executable(keep_altitude src/reactive/keep_altitude.cpp)
 add_dependencies(keep_altitude ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(keep_altitude ${catkin_LIBRARIES})
 
-add_executable(turn src/turn.cpp)
+add_executable(turn src/reactive/turn.cpp)
 add_dependencies(turn ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(turn ${catkin_LIBRARIES})
 
-add_executable(adjust_direction src/adjust_direction.cpp)
+add_executable(adjust_direction src/reactive/adjust_direction.cpp)
 add_dependencies(adjust_direction ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(adjust_direction ${catkin_LIBRARIES})
 
-add_executable(middle_line src/middle_line.cpp)
+add_executable(middle_line src/reactive/middle_line.cpp)
 add_dependencies(middle_line ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(middle_line ${catkin_LIBRARIES})
 
-add_executable(go_straight src/go_straight.cpp)
+add_executable(go_straight src/reactive/go_straight.cpp)
 add_dependencies(go_straight ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(go_straight ${catkin_LIBRARIES})
 
-add_executable(find_wall src/find_wall.cpp)
+add_executable(find_wall src/reactive/find_wall.cpp)
 add_dependencies(find_wall ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(find_wall ${catkin_LIBRARIES})
 
@@ -196,7 +196,7 @@ target_link_libraries(find_wall ${catkin_LIBRARIES})
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS uav_practice161129 uav_practice161129_node
+# install(TARGETS quadrotor_tunnel_nav quadrotor_tunnel_nav_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -221,7 +221,7 @@ target_link_libraries(find_wall ${catkin_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_uav_practice161129.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_quadrotor_tunnel_nav.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
