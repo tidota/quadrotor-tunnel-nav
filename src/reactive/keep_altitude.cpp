@@ -41,6 +41,7 @@ void Keep_Alt::command()
   boost::mutex::scoped_lock lock(com_mutex);
 
   // input check
+  // if it is out of the range, generate the maximum value
   if(rng_u[1].range - rng_d[1].range > DIST_OFF_ALT || rng_d[1].range - rng_u[1].range > DIST_OFF_ALT)
   {
     com.message = com.message + " + KEEP THE ALTITUDE";
@@ -51,7 +52,13 @@ void Keep_Alt::command()
     //if(rng_h[2] > rng_h[0])
       //com.vel.linear.x = VEL_STRAIGHT;
   }
-
+  // if it is a little off the right altitude, generate a value proportional to the gap
+  else if(rng_u[1].range - rng_d[1].range > DIST_OFF_ALT*0.2 || rng_d[1].range - rng_u[1].range > DIST_OFF_ALT*0.2)
+  {
+    com.message = com.message + " + KEEP THE ALTITUDE";
+    com.vel.linear.z += VEL_ALT * (rng_u[1].range - rng_d[1].range)/DIST_OFF_ALT;
+  }
+    
   com_pub.publish(com);
 }
 
