@@ -26,7 +26,7 @@ Go_Straight::Go_Straight()
   // set up for publisher, subscriber
   ros::NodeHandle n;
   com_pub = n.advertise<quadrotor_tunnel_nav::Com>("go_straight", 1);
-  //com_sub = n.subscribe("", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  com_sub = n.subscribe("steer", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
