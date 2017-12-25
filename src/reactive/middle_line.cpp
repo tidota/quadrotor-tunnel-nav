@@ -52,16 +52,17 @@ void Middle_Line::command()
   // input check
   if(lengL <= lengF)
   {
+    com.message = "STAY ON THE MIDDLE LINE";
+    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // if the front side is clear and it is out of range from the middle line
     if(diff_rate < -DIST_OFF_RATE_MID || DIST_OFF_RATE_MID < diff_rate)
     {
-      com.message = com.message + " + STAY ON THE MIDDLE LINE";
       com.vel.linear.y += (lengR < lengL)? MAX_VEL_MID: -MAX_VEL_MID;
     }
     // if it is slightly off the mid line, apply a proportional value
     else if(diff_rate < -DIST_OFF_RATE_MID*0.5 || DIST_OFF_RATE_MID*0.5 < diff_rate)
     {
-      com.message = com.message + " + STAY ON THE MIDDLE LINE";
       com.vel.linear.y -= MAX_VEL_MID * diff_rate / DIST_OFF_RATE_MID;
     }
   }
