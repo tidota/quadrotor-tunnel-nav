@@ -1,4 +1,4 @@
-// adjust_direction.cpp
+// steer.cpp
 
 #include "layers.hpp"
 
@@ -7,9 +7,9 @@
 // ============================================================================================
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "adjust_direction");
+  ros::init(argc, argv, "steer");
 
-  Adjust_Direction* obj = new Adjust_Direction();
+  Steer* obj = new Steer();
 
   ros::spin();
 
@@ -21,11 +21,11 @@ int main(int argc, char** argv)
 // ============================================================================================
 // Constructor
 // ============================================================================================
-Adjust_Direction::Adjust_Direction()
+Steer::Steer()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("adjust_direction", 1);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("steer", 1);
   com_sub = n.subscribe("middle_line", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
@@ -36,12 +36,12 @@ Adjust_Direction::Adjust_Direction()
 // it controls the uav based on the received sensor data.
 // it is to be called repeatedly by the timer.
 // ============================================================================================
-void Adjust_Direction::command()
+void Steer::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
 
   // input check
-  if(rng_h[7].range > rng_h[6].range * sqrt(2) * DIST_RATE_ADJR)
+  if(rng_h[7].range > rng_h[6].range * sqrt(2) * DIST_RATE_STRR)
   {
     com.message = com.message + " + STEER TO THE RIGHT";
     //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
@@ -50,7 +50,7 @@ void Adjust_Direction::command()
     com.vel.angular.z += -VEL_TURN;
     //com.vel.linear.x += VEL_STRAIGHT;
   }
-  else if(rng_h[7].range < rng_h[6].range * sqrt(2) * DIST_RATE_ADJL)
+  else if(rng_h[7].range < rng_h[6].range * sqrt(2) * DIST_RATE_STRL)
   {
     com.message = com.message + " + STEER TO THE LEFT";
     //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
