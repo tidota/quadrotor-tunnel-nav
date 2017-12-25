@@ -20,8 +20,9 @@
 
 #define DIST_OBS 0.5
 #define VEL_OBS 0.5
-#define DIST_OFF_ALT 0.5
-#define VEL_ALT 0.3
+
+#define DIST_OFF_RATE_ALT 0.05
+#define MAX_VEL_ALT 0.5
 
 #define DIST_RATE_TURN 1.1
 #define VEL_TURN 1.0
@@ -30,8 +31,9 @@
 #define DIST_RATE_STRR 1.1
 
 #define DIST_MAX 10.0
-#define DIST_OFF 1.0
-#define VEL_MIDDLE 0.5
+
+#define DIST_OFF_RATE_MID 0.1
+#define MAX_VEL_MID 0.5
 
 #define VEL_STRAIGHT 0.8
 #define VEL_FIND 1.0

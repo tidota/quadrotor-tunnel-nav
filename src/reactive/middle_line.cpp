@@ -40,15 +40,30 @@ void Middle_Line::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
 
+  double lengL = (rng_h[2].range < rng_h[1].range/sqrt(2))? rng_h[2].range: rng_h[1].range/sqrt(2);
+  double lengR = rng_h[6].range;
+  double lengF = rng_h[0].range;
+
+  // diff_rate is the gap from the mid with respect to y axis (left is positive)
+  double mid_leng = (lengL + lengR)/2;
+  double diff_leng = (lengR - lengL)/2;
+  double diff_rate = (mid_leng != 0)? diff_leng/mid_leng: 0;
+
   // input check
-  if(rng_h[2].range <= rng_h[0].range &&
-  (rng_h[6].range < rng_h[2].range - DIST_OFF || rng_h[6].range > rng_h[2].range + DIST_OFF))
+  if(lengL <= lengF)
   {
-    com.message = com.message + " + STAY ON THE MIDDLE LINE";
-    //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-    //com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
-    // calculate the output
-    com.vel.linear.y += (rng_h[6].range < rng_h[2].range)? VEL_MIDDLE: -VEL_MIDDLE;
+    // if the front side is clear and it is out of range from the middle line
+    if(diff_rate < -DIST_OFF_RATE_MID || DIST_OFF_RATE_MID < diff_rate)
+    {
+      com.message = com.message + " + STAY ON THE MIDDLE LINE";
+      com.vel.linear.y += (lengR < lengL)? MAX_VEL_MID: -MAX_VEL_MID;
+    }
+    // if it is slightly off the mid line, apply a proportional value
+    else if(diff_rate < -DIST_OFF_RATE_MID*0.5 || DIST_OFF_RATE_MID*0.5 < diff_rate)
+    {
+      com.message = com.message + " + STAY ON THE MIDDLE LINE";
+      com.vel.linear.y -= MAX_VEL_MID * diff_rate / DIST_OFF_RATE_MID;
+    }
   }
 
   com_pub.publish(com);
