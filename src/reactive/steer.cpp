@@ -25,8 +25,8 @@ Steer::Steer()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("steer", 1);
-  com_sub = n.subscribe("middle_line", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>(TOPIC_STR, 1);
+  list_com_sub[TOPIC_MID] = n.subscribe(TOPIC_MID, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -39,6 +39,9 @@ Steer::Steer()
 void Steer::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
+  quadrotor_tunnel_nav::Com com;
+
+  com = list_com[TOPIC_MID];
 
   // input check
   if(rng_h[7].range > rng_h[6].range * sqrt(2) * DIST_RATE_STRR)

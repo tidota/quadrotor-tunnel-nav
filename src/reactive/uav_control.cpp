@@ -71,7 +71,7 @@ UAV_Control::UAV_Control()
   // set up for publisher, subscriber
   ros::NodeHandle n;
   UAV_Control::vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
-  com_sub = n.subscribe("obstacle_avoidance", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  list_com_sub[TOPIC_OBS] = n.subscribe(TOPIC_OBS, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -84,6 +84,10 @@ UAV_Control::UAV_Control()
 void UAV_Control::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
+  quadrotor_tunnel_nav::Com com;
+
+  com = list_com[TOPIC_OBS];
+
   ROS_INFO("Command: %s", com.message.c_str());
   UAV_Control::vel_pub.publish(com.vel);
 }
