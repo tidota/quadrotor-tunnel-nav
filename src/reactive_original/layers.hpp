@@ -26,8 +26,8 @@
 #define DIST_RATE_TURN 1.1
 #define VEL_TURN 1.0
 
-#define DIST_RATE_STRL 0.9
-#define DIST_RATE_STRR 1.1
+#define DIST_RATE_ADJL 0.9
+#define DIST_RATE_ADJR 1.1
 
 #define DIST_MAX 10.0
 #define DIST_OFF 1.0
@@ -211,10 +211,10 @@ public:
 private:
   void command();
 };
-class Steer: public LAYER_BASE
+class Adjust_Direction: public LAYER_BASE
 {
 public:
-  Steer();
+  Adjust_Direction();
 private:
   void command();
 };

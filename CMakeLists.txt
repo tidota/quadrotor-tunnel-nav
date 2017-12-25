@@ -165,9 +165,9 @@ add_executable(turn src/reactive/turn.cpp)
 add_dependencies(turn ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(turn ${catkin_LIBRARIES})
 
-add_executable(adjust_direction src/reactive/adjust_direction.cpp)
-add_dependencies(adjust_direction ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(adjust_direction ${catkin_LIBRARIES})
+add_executable(steer src/reactive/steer.cpp)
+add_dependencies(steer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(steer ${catkin_LIBRARIES})
 
 add_executable(middle_line src/reactive/middle_line.cpp)
 add_dependencies(middle_line ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

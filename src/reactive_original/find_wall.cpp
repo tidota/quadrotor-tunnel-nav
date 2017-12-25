@@ -1,4 +1,4 @@
-// obstacle_avoidance.cpp
+// find_wall.cpp
 
 #include "layers.hpp"
 
@@ -7,9 +7,9 @@
 // ============================================================================================
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "keep_altitude");
+  ros::init(argc, argv, "find_wall");
 
-  Keep_Alt* obj = new Keep_Alt();
+  Find_Wall* obj = new Find_Wall();
 
   ros::spin();
 
@@ -21,12 +21,12 @@ int main(int argc, char** argv)
 // ============================================================================================
 // Constructor
 // ============================================================================================
-Keep_Alt::Keep_Alt()
+Find_Wall::Find_Wall()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("keep_altitude", 1);
-  com_sub = n.subscribe("turn", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("find_wall", 1);
+  //com_sub = n.subscribe("", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -36,21 +36,15 @@ Keep_Alt::Keep_Alt()
 // it controls the uav based on the received sensor data.
 // it is to be called repeatedly by the timer.
 // ============================================================================================
-void Keep_Alt::command()
+void Find_Wall::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
 
-  // input check
-  if(rng_u[1].range - rng_d[1].range > DIST_OFF_ALT || rng_d[1].range - rng_u[1].range > DIST_OFF_ALT)
-  {
-    com.message = com.message + " + KEEP THE ALTITUDE";
-    //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-    //com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
-    // calculate the output
-    com.vel.linear.z += VEL_ALT * (rng_d[1].range < rng_u[1].range)? 1: -1;
-    //if(rng_h[2] > rng_h[0])
-      //com.vel.linear.x = VEL_STRAIGHT;
-  }
+  // calculate the output
+  com.message = "FIND A WALL";
+  com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+  com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
+  com.vel.linear.y = -VEL_FIND;
 
   com_pub.publish(com);
 }
