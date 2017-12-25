@@ -1,4 +1,4 @@
-// obstacle_avoidance.cpp
+// keep_altitude.cpp
 
 #include "layers.hpp"
 
@@ -40,6 +40,7 @@ void Keep_Alt::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
 
+  // diff_rate is the gap from the mid altitude with respect to z axis
   double mid_leng = (rng_u[1].range + rng_d[1].range)/2;
   double diff_leng = (rng_d[1].range - rng_u[1].range)/2;
   double diff_rate = (mid_leng != 0)? diff_leng/mid_leng: 0;
