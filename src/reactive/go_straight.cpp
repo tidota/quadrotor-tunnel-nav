@@ -26,7 +26,7 @@ Go_Straight::Go_Straight()
   // set up for publisher, subscriber
   ros::NodeHandle n;
   com_pub = n.advertise<quadrotor_tunnel_nav::Com>("go_straight", 1);
-  com_sub = n.subscribe("find_wall", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  //com_sub = n.subscribe("", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -41,14 +41,11 @@ void Go_Straight::command()
   boost::mutex::scoped_lock lock(com_mutex);
 
   // input check
-  if(rng_h[6].range < DIST_MAX)
-  {
-    com.message = "GO STRAIGHT";
-    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
-    // calculate the output
-    com.vel.linear.x = VEL_STRAIGHT;
-  }
+  com.message = "GO STRAIGHT";
+  com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+  com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
+  // calculate the output
+  com.vel.linear.x = VEL_STRAIGHT;
 
   com_pub.publish(com);
 }

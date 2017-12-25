@@ -234,12 +234,5 @@ public:
 private:
   void command();
 };
-class Find_Wall: public LAYER_BASE
-{
-public:
-  Find_Wall();
-private:
-  void command();
-};
 
 #endif // _LAYERS_HPP
