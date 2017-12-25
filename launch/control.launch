@@ -9,6 +9,5 @@
   <node name="steering" pkg="quadrotor_tunnel_nav" type="steer" args="" />
   <node name="staying_on_the_middle_line" pkg="quadrotor_tunnel_nav" type="middle_line" args="" />
   <node name="going_straight" pkg="quadrotor_tunnel_nav" type="go_straight" args="" />
-  <node name="finding_the_right_wall" pkg="quadrotor_tunnel_nav" type="find_wall" args="" />
    
 </launch>
