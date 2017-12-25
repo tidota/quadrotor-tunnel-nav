@@ -1,0 +1,10 @@
+Dec 25, 2017
+
+reactice_original:
+The original work. A layer blocks the command from the higher layer and passes its own command if its specific conditions are satisfied.
+
+reactive_layers:
+Some of the layers combine their command values with those from the higher layers. The others block the values like the original method.
+
+reactive:
+The up-to-date work. Modules are connected like a tree structure. A module can have more than one higher level modules.
