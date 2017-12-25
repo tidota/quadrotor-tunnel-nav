@@ -20,8 +20,9 @@
 
 #define DIST_OBS 0.5
 #define VEL_OBS 0.5
-#define DIST_OFF_ALT 0.5
-#define VEL_ALT 0.3
+
+#define DIST_OFF_RATE_ALT 0.05
+#define MAX_VEL_ALT 0.5
 
 #define DIST_RATE_TURN 1.1
 #define VEL_TURN 1.0
