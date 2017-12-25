@@ -41,9 +41,7 @@ void Go_Straight::command()
   boost::mutex::scoped_lock lock(com_mutex);
 
   // input check
-  com.message = "GO STRAIGHT";
-  com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-  com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
+  com.message = com.message + " + GO STRAIGHT";
   // calculate the output
   com.vel.linear.x = VEL_STRAIGHT;
 
