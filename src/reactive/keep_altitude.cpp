@@ -26,7 +26,7 @@ Keep_Alt::Keep_Alt()
   // set up for publisher, subscriber
   ros::NodeHandle n;
   com_pub = n.advertise<quadrotor_tunnel_nav::Com>(TOPIC_ALT, 1);
-  list_com_sub[TOPIC_TRN] = n.subscribe(TOPIC_TRN, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  //list_com_sub[TOPIC_TRN] = n.subscribe(TOPIC_TRN, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -41,7 +41,7 @@ void Keep_Alt::command()
   boost::mutex::scoped_lock lock(com_mutex);
   quadrotor_tunnel_nav::Com com;
 
-  com = list_com[TOPIC_TRN];
+  //com = list_com[TOPIC_TRN];
 
   // diff_rate is the gap from the mid altitude with respect to z axis
   double mid_leng = (rng_u[1].range + rng_d[1].range)/2;
@@ -52,13 +52,13 @@ void Keep_Alt::command()
   // if it is out of range defined by DIST_OFF_RATE_ALT, apply the max vel
   if(diff_rate < -DIST_OFF_RATE_ALT || DIST_OFF_RATE_ALT < diff_rate)
   {
-    com.message = com.message + " + KEEP THE ALTITUDE";
+    com.message = "KEEP THE ALTITUDE";
     com.vel.linear.z += (diff_rate > DIST_OFF_RATE_ALT)? -MAX_VEL_ALT: MAX_VEL_ALT;
   }
   // if it is slightly off the mid altitude, apply a proportional value
   else if(diff_rate < -DIST_OFF_RATE_ALT*0.1 || DIST_OFF_RATE_ALT*0.1 < diff_rate)
   {
-    com.message = com.message + " + KEEP THE ALTITUDE";
+    com.message = "KEEP THE ALTITUDE";
     com.vel.linear.z -= MAX_VEL_ALT * diff_rate / DIST_OFF_RATE_ALT;
   }
 
