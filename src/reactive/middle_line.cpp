@@ -44,11 +44,11 @@ void Middle_Line::command()
   if(rng_h[2].range <= rng_h[0].range &&
   (rng_h[6].range < rng_h[2].range - DIST_OFF || rng_h[6].range > rng_h[2].range + DIST_OFF))
   {
-    com.message = "STAY ON THE MIDDLE LINE";
-    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
+    com.message = com.message + " + STAY ON THE MIDDLE LINE";
+    //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+    //com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
-    com.vel.linear.y = (rng_h[6].range < rng_h[2].range)? VEL_MIDDLE: -VEL_MIDDLE;
+    com.vel.linear.y += (rng_h[6].range < rng_h[2].range)? VEL_MIDDLE: -VEL_MIDDLE;
   }
 
   com_pub.publish(com);

@@ -43,11 +43,11 @@ void Keep_Alt::command()
   // input check
   if(rng_u[1].range - rng_d[1].range > DIST_OFF_ALT || rng_d[1].range - rng_u[1].range > DIST_OFF_ALT)
   {
-    com.message = "KEEP THE ALTITUDE";
-    com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-    com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
+    com.message = com.message + " + KEEP THE ALTITUDE";
+    //com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+    //com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
-    com.vel.linear.z = VEL_ALT * (rng_d[1].range < rng_u[1].range)? 1: -1;
+    com.vel.linear.z += VEL_ALT * (rng_d[1].range < rng_u[1].range)? 1: -1;
     //if(rng_h[2] > rng_h[0])
       //com.vel.linear.x = VEL_STRAIGHT;
   }
