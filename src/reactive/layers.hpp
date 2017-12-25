@@ -11,6 +11,7 @@
 #include <quadrotor_tunnel_nav/Com.h>
 #include <sensor_msgs/Range.h>
 #include "boost/thread/mutex.hpp"
+#include <map>
 
 #include <signal.h>
 
@@ -53,6 +54,14 @@
 #define TOPIC_RANGE_D0 "/range_dfront"
 #define TOPIC_RANGE_D1 "/range_down"
 #define TOPIC_RANGE_D2 "/range_drear"
+
+
+#define TOPIC_OBS "obstacle_avoidance"
+#define TOPIC_ALT "keep_altitude"
+#define TOPIC_TRN "turn"
+#define TOPIC_GO  "go_straight"
+#define TOPIC_STR "steer"
+#define TOPIC_MID "middle_line"
 
 //////////////////////////////////////////////////////////////////
 // macros
@@ -115,18 +124,22 @@ protected:
   virtual void command() = 0;
 
   ros::Publisher com_pub;
-  ros::Subscriber com_sub;
+  std::map<std::string,ros::Subscriber> list_com_sub;
 
   boost::mutex com_mutex;
-  quadrotor_tunnel_nav::Com com;
+  std::map<std::string,quadrotor_tunnel_nav::Com> list_com;
 
   ros::Timer timer;
 
 public:
-  void updateCom(const quadrotor_tunnel_nav::Com::ConstPtr& new_com)
+  void updateCom(const ros::MessageEvent<quadrotor_tunnel_nav::Com const>& event)
   {
+    const quadrotor_tunnel_nav::Com::ConstPtr& new_com = event.getMessage();
+    const ros::M_string& header = event.getConnectionHeader();
+    std::string topic = header.at("topic");
+
     boost::mutex::scoped_lock lock(com_mutex);
-    com = *new_com;
+    list_com[topic.substr(1)] = *new_com;
   }
 
 private:

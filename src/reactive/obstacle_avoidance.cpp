@@ -25,8 +25,8 @@ Obs_Avoid::Obs_Avoid()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("obstacle_avoidance", 1);
-  com_sub = n.subscribe("keep_altitude", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>(TOPIC_OBS, 1);
+  list_com_sub[TOPIC_ALT] = n.subscribe(TOPIC_ALT, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -39,6 +39,9 @@ Obs_Avoid::Obs_Avoid()
 void Obs_Avoid::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
+  quadrotor_tunnel_nav::Com com;
+
+  com = list_com[TOPIC_ALT];
 
   // input check
   if(
