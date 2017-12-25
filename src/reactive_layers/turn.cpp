@@ -27,8 +27,6 @@ Turn::Turn()
   ros::NodeHandle n;
   com_pub = n.advertise<quadrotor_tunnel_nav::Com>(TOPIC_TRN, 1);
   list_com_sub[TOPIC_GO] = n.subscribe(TOPIC_GO, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
-  list_com_sub[TOPIC_STR] = n.subscribe(TOPIC_STR, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
-  list_com_sub[TOPIC_MID] = n.subscribe(TOPIC_MID, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -41,15 +39,14 @@ Turn::Turn()
 void Turn::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
-  quadrotor_tunnel_nav::Com com1 = list_com[TOPIC_GO];
-  quadrotor_tunnel_nav::Com com2 = list_com[TOPIC_STR];
-  quadrotor_tunnel_nav::Com com3 = list_com[TOPIC_MID];
-  quadrotor_tunnel_nav::Com com = combCom(combCom(com1,com2),com3);
+  quadrotor_tunnel_nav::Com com;
+
+  com = list_com[TOPIC_GO];
 
   // input check
   if(rng_h[6].range > rng_h[0].range && rng_h[7].range > rng_h[6].range * sqrt(2) * DIST_RATE_TURN)
   {
-    com.message = com.message + " | TURN RIGHT";
+    com.message = "TURN RIGHT";
     com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
     com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
@@ -57,7 +54,7 @@ void Turn::command()
   }
   else if(rng_h[6].range > rng_h[0].range && rng_h[7].range <= rng_h[6].range * sqrt(2) * DIST_RATE_TURN)
   {
-    com.message = com.message + " | TURN LEFT";
+    com.message = "TURN LEFT";
     com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
     com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output

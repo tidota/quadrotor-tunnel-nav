@@ -177,10 +177,6 @@ add_executable(go_straight src/reactive/go_straight.cpp)
 add_dependencies(go_straight ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(go_straight ${catkin_LIBRARIES})
 
-add_executable(find_wall src/reactive/find_wall.cpp)
-add_dependencies(find_wall ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(find_wall ${catkin_LIBRARIES})
-
 #############
 ## Install ##
 #############

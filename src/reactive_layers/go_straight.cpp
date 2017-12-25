@@ -1,4 +1,4 @@
-// find_wall.cpp
+// go_straight.cpp
 
 #include "layers.hpp"
 
@@ -7,9 +7,9 @@
 // ============================================================================================
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "find_wall");
+  ros::init(argc, argv, "go_straight");
 
-  Find_Wall* obj = new Find_Wall();
+  Go_Straight* obj = new Go_Straight();
 
   ros::spin();
 
@@ -21,12 +21,12 @@ int main(int argc, char** argv)
 // ============================================================================================
 // Constructor
 // ============================================================================================
-Find_Wall::Find_Wall()
+Go_Straight::Go_Straight()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  com_pub = n.advertise<quadrotor_tunnel_nav::Com>("find_wall", 1);
-  //com_sub = n.subscribe("", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  com_pub = n.advertise<quadrotor_tunnel_nav::Com>(TOPIC_GO, 1);
+  list_com_sub[TOPIC_STR] = n.subscribe(TOPIC_STR, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -36,15 +36,17 @@ Find_Wall::Find_Wall()
 // it controls the uav based on the received sensor data.
 // it is to be called repeatedly by the timer.
 // ============================================================================================
-void Find_Wall::command()
+void Go_Straight::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
+  quadrotor_tunnel_nav::Com com;
 
+  com = list_com[TOPIC_STR];
+
+  // input check
+  com.message = com.message + " + GO STRAIGHT";
   // calculate the output
-  com.message = "FIND A WALL";
-  com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
-  com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
-  com.vel.linear.y = -VEL_FIND;
+  com.vel.linear.x += VEL_STRAIGHT;
 
   com_pub.publish(com);
 }

@@ -27,7 +27,6 @@ Obs_Avoid::Obs_Avoid()
   ros::NodeHandle n;
   com_pub = n.advertise<quadrotor_tunnel_nav::Com>(TOPIC_OBS, 1);
   list_com_sub[TOPIC_ALT] = n.subscribe(TOPIC_ALT, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
-  list_com_sub[TOPIC_TRN] = n.subscribe(TOPIC_TRN, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -40,10 +39,9 @@ Obs_Avoid::Obs_Avoid()
 void Obs_Avoid::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
-  quadrotor_tunnel_nav::Com com1 = list_com[TOPIC_ALT];
-  quadrotor_tunnel_nav::Com com2 = list_com[TOPIC_TRN];
+  quadrotor_tunnel_nav::Com com;
 
-  quadrotor_tunnel_nav::Com com = combCom(com1,com2);
+  com = list_com[TOPIC_ALT];
 
   // input check
   if(
@@ -52,7 +50,7 @@ void Obs_Avoid::command()
     rng_u[0].range < DIST_OBS || rng_u[1].range < DIST_OBS || rng_u[2].range < DIST_OBS || 
     rng_d[0].range < DIST_OBS || rng_d[1].range < DIST_OBS || rng_d[2].range < DIST_OBS)
   {
-    com.message = com.message + " | OBSTACLE AVOIDANCE";
+    com.message = "OBSTACLE AVOIDANCE";
     com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
     com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
