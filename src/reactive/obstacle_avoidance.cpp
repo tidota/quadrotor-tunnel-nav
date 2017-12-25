@@ -43,10 +43,7 @@ void Obs_Avoid::command()
   quadrotor_tunnel_nav::Com com1 = list_com[TOPIC_ALT];
   quadrotor_tunnel_nav::Com com2 = list_com[TOPIC_TRN];
 
-  quadrotor_tunnel_nav::Com com;
-  com = com1.message + " | " + com2.message;
-  com.vel.linear = com1.vel.linear + com2.vel.linear;
-  com.vel.angular = com1.vel.angular + com2.vel.angular;
+  quadrotor_tunnel_nav::Com com = combCom(com1,com2);
 
   // input check
   if(
@@ -55,7 +52,7 @@ void Obs_Avoid::command()
     rng_u[0].range < DIST_OBS || rng_u[1].range < DIST_OBS || rng_u[2].range < DIST_OBS || 
     rng_d[0].range < DIST_OBS || rng_d[1].range < DIST_OBS || rng_d[2].range < DIST_OBS)
   {
-    com.message = "OBSTACLE AVOIDANCE";
+    com.message = com.message + " | OBSTACLE AVOIDANCE";
     com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
     com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output

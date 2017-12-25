@@ -26,7 +26,7 @@ Go_Straight::Go_Straight()
   // set up for publisher, subscriber
   ros::NodeHandle n;
   com_pub = n.advertise<quadrotor_tunnel_nav::Com>(TOPIC_GO, 1);
-  list_com_sub[TOPIC_STR] = n.subscribe(TOPIC_STR, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  //list_com_sub[TOPIC_STR] = n.subscribe(TOPIC_STR, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -40,11 +40,13 @@ void Go_Straight::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
   quadrotor_tunnel_nav::Com com;
+  com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
+  com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
 
-  com = list_com[TOPIC_STR];
+  //com = list_com[TOPIC_STR];
 
   // input check
-  com.message = com.message + " + GO STRAIGHT";
+  com.message = "GO STRAIGHT";
   // calculate the output
   com.vel.linear.x += VEL_STRAIGHT;
 

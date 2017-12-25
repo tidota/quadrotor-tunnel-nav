@@ -131,6 +131,21 @@ protected:
 
   ros::Timer timer;
 
+  quadrotor_tunnel_nav::Com combCom(const quadrotor_tunnel_nav::Com& com1, const quadrotor_tunnel_nav::Com& com2)
+  {
+    quadrotor_tunnel_nav::Com com;
+    com.message = com1.message + " | " + com2.message;
+    com.vel.linear.x = com1.vel.linear.x + com2.vel.linear.x;
+    com.vel.linear.y = com1.vel.linear.y + com2.vel.linear.y;
+    com.vel.linear.z = com1.vel.linear.z + com2.vel.linear.z;
+    com.vel.angular.x = com1.vel.angular.x + com2.vel.angular.x;
+    com.vel.angular.y = com1.vel.angular.y + com2.vel.angular.y;
+    com.vel.angular.z = com1.vel.angular.z + com2.vel.angular.z;
+
+    return com;
+  }
+
+
 public:
   void updateCom(const ros::MessageEvent<quadrotor_tunnel_nav::Com const>& event)
   {
