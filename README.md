@@ -48,6 +48,7 @@ This mechanism lets a specific behavior appear only in its assumed situation. Fo
 
 At the moment (as of Dec 25, 2017), it contains six nodes.
 
+![diagram of nodes](./img/nodes_reactive.png)
 
 
 ## Memorandum
