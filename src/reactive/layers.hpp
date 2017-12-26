@@ -56,12 +56,12 @@
 #define TOPIC_RANGE_D2 "/range_drear"
 
 
-#define TOPIC_OBS "obstacle_avoidance"
-#define TOPIC_ALT "keep_altitude"
+#define TOPIC_OBS "obs_avoid"
+#define TOPIC_ALT "altitude"
 #define TOPIC_TRN "turn"
-#define TOPIC_GO  "go_straight"
+#define TOPIC_GO  "straight"
 #define TOPIC_STR "steer"
-#define TOPIC_MID "middle_line"
+#define TOPIC_MID "middle"
 
 //////////////////////////////////////////////////////////////////
 // macros

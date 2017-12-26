@@ -4,7 +4,7 @@
    
   <node name="main_control" pkg="quadrotor_tunnel_nav" type="main_control" args="" />
   <node name="obstacle_avoidance" pkg="quadrotor_tunnel_nav" type="obs_avoid" args="" />
-  <node name="altitude_adjustment" pkg="quadrotor_tunnel_nav" type="keep_altitude" args="" />
+  <node name="altitude_adjustment" pkg="quadrotor_tunnel_nav" type="altitude" args="" />
   <node name="turning_around" pkg="quadrotor_tunnel_nav" type="turn" args="" />
   <node name="steering" pkg="quadrotor_tunnel_nav" type="steer" args="" />
   <node name="staying_on_the_middle_line" pkg="quadrotor_tunnel_nav" type="middle_line" args="" />
