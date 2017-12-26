@@ -149,17 +149,17 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(uav_control src/reactive/uav_control.cpp)
-add_dependencies(uav_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(uav_control ${catkin_LIBRARIES})
+add_executable(main_control src/reactive/main_control.cpp)
+add_dependencies(main_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(main_control ${catkin_LIBRARIES})
 
 add_executable(obs_avoid src/reactive/obstacle_avoidance.cpp)
 add_dependencies(obs_avoid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(obs_avoid ${catkin_LIBRARIES})
 
-add_executable(keep_altitude src/reactive/keep_altitude.cpp)
-add_dependencies(keep_altitude ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(keep_altitude ${catkin_LIBRARIES})
+add_executable(altitude src/reactive/altitude.cpp)
+add_dependencies(altitude ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(altitude ${catkin_LIBRARIES})
 
 add_executable(turn src/reactive/turn.cpp)
 add_dependencies(turn ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

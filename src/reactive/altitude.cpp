@@ -7,7 +7,7 @@
 // ============================================================================================
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "keep_altitude");
+  ros::init(argc, argv, "altitude");
 
   Keep_Alt* obj = new Keep_Alt();
 
