@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 // definitions of static members in the class
 // ============================================================================================
 Main_Control* Main_Control::p_control = NULL;
-ros::Publisher MAIN_Control::vel_pub;
+ros::Publisher Main_Control::vel_pub;
 
 // ============================================================================================
 // create_control
