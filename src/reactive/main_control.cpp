@@ -1,4 +1,4 @@
-// uav_control.cpp
+// main_control.cpp
 // 161130
 // this is the control code for UAV in the simulated enviornment by gazebo.
 // 
@@ -10,13 +10,13 @@
 // ============================================================================================
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "uav_control");
+  ros::init(argc, argv, "main_control");
 
-  UAV_Control::create_control();
+  Main_Control::create_control();
 
   ros::spin();
 
-  UAV_Control::kill_control();
+  Main_Control::kill_control();
 
   return(0);
 }
@@ -24,8 +24,8 @@ int main(int argc, char** argv)
 // ============================================================================================
 // definitions of static members in the class
 // ============================================================================================
-UAV_Control* UAV_Control::p_control = NULL;
-ros::Publisher UAV_Control::vel_pub;
+Main_Control* Main_Control::p_control = NULL;
+ros::Publisher Main_Control::vel_pub;
 
 // ============================================================================================
 // create_control
@@ -36,17 +36,17 @@ ros::Publisher UAV_Control::vel_pub;
 // note: signal funciton must be called
 //       after the constructor is called where the node hander is created.
 // ============================================================================================
-UAV_Control *UAV_Control::create_control()
+Main_Control *Main_Control::create_control()
 {
-  if(UAV_Control::p_control == NULL)
+  if(Main_Control::p_control == NULL)
   {
     // create a new object
-    UAV_Control::p_control = new UAV_Control();
+    Main_Control::p_control = new Main_Control();
 
     // set up for signal handler
-    signal(SIGINT,UAV_Control::quit);
+    signal(SIGINT,Main_Control::quit);
   }
-  return UAV_Control::p_control;
+  return Main_Control::p_control;
 }
 
 // ============================================================================================
@@ -54,7 +54,7 @@ UAV_Control *UAV_Control::create_control()
 //
 // It releases the memotry after sending a command to stop the UAV
 // ============================================================================================
-void UAV_Control::kill_control()
+void Main_Control::kill_control()
 {
   if(p_control != NULL)
   {
@@ -66,12 +66,12 @@ void UAV_Control::kill_control()
 // ============================================================================================
 // Constructor
 // ============================================================================================
-UAV_Control::UAV_Control()
+Main_Control::Main_Control()
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  UAV_Control::vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
-  com_sub = n.subscribe("obstacle_avoidance", 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
+  Main_Control::vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+  list_com_sub[TOPIC_OBS] = n.subscribe(TOPIC_OBS, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 }
 
 // ============================================================================================
@@ -81,11 +81,15 @@ UAV_Control::UAV_Control()
 // it controls the uav based on the received sensor data.
 // it is to be called repeatedly by the timer.
 // ============================================================================================
-void UAV_Control::command()
+void Main_Control::command()
 {
   boost::mutex::scoped_lock lock(com_mutex);
+  quadrotor_tunnel_nav::Com com;
+
+  com = list_com[TOPIC_OBS];
+
   ROS_INFO("Command: %s", com.message.c_str());
-  UAV_Control::vel_pub.publish(com.vel);
+  Main_Control::vel_pub.publish(com.vel);
 }
 
 // ============================================================================================
@@ -94,16 +98,16 @@ void UAV_Control::command()
 // it is to be called when Ctrl-C is hit on the terminal.
 // it kills the running control and releases the memory.
 // ============================================================================================
-void UAV_Control::quit(int sig)
+void Main_Control::quit(int sig)
 {
   ROS_INFO("UAV Control: signal received, shutting down");
-  UAV_Control::kill_control();
+  Main_Control::kill_control();
 
   geometry_msgs::Twist vel;
   ROS_INFO("Command: STOP");
   vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = -1.0;//0;
   vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
-  UAV_Control::vel_pub.publish(vel);
+  Main_Control::vel_pub.publish(vel);
 
   ros::shutdown();
 }
