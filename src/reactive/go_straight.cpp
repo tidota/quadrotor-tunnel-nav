@@ -48,7 +48,10 @@ void Go_Straight::command()
   // input check
   com.message = "GO STRAIGHT";
   // calculate the output
-  com.vel.linear.x += VEL_STRAIGHT;
+  if(rng_h[0].range <= DIST_MAX)
+    com.vel.linear.x = MAX_VEL_STRAIGHT * rng_h[0].range / DIST_MAX;
+  else
+    com.vel.linear.x = MAX_VEL_STRAIGHT;
 
   com_pub.publish(com);
 }
