@@ -51,14 +51,8 @@ void Keep_Alt::command()
   double diff_rate = (mid_leng != 0)? diff_leng/mid_leng: 0;
 
   // input check
-  // if it is out of range defined by DIST_OFF_RATE_ALT, apply the max vel
+  // if it is out of range defined by DIST_OFF_RATE_ALT, apply a proportional value
   if(diff_rate < -DIST_OFF_RATE_ALT || DIST_OFF_RATE_ALT < diff_rate)
-  {
-    com.message = "KEEP THE ALTITUDE";
-    com.vel.linear.z += (diff_rate > DIST_OFF_RATE_ALT)? -MAX_VEL_ALT: MAX_VEL_ALT;
-  }
-  // if it is slightly off the mid altitude, apply a proportional value
-  else if(diff_rate < -DIST_OFF_RATE_ALT*0.1 || DIST_OFF_RATE_ALT*0.1 < diff_rate)
   {
     com.message = "KEEP THE ALTITUDE";
     com.vel.linear.z -= MAX_VEL_ALT * diff_rate / DIST_OFF_RATE_ALT;
