@@ -58,7 +58,7 @@ void Middle_Line::command()
   if(diff_rate < -DIST_OFF_RATE_MID || DIST_OFF_RATE_MID < diff_rate)
   {
     com.message = "STAY ON THE MIDDLE LINE";
-    com.vel.linear.y -= MAX_VEL_MID * diff_rate / DIST_OFF_RATE_MID;
+    com.vel.linear.y -= MAX_VEL_MID * diff_rate;
   }
 
   com_pub.publish(com);

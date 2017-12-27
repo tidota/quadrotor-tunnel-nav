@@ -43,8 +43,6 @@ void Keep_Alt::command()
   com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
   com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
 
-  //com = list_com[TOPIC_TRN];
-
   // diff_rate is the gap from the mid altitude with respect to z axis
   double mid_leng = (rng_u[1].range + rng_d[1].range)/2;
   double diff_leng = (rng_d[1].range - rng_u[1].range)/2;
@@ -55,7 +53,7 @@ void Keep_Alt::command()
   if(diff_rate < -DIST_OFF_RATE_ALT || DIST_OFF_RATE_ALT < diff_rate)
   {
     com.message = "KEEP THE ALTITUDE";
-    com.vel.linear.z -= MAX_VEL_ALT * diff_rate / DIST_OFF_RATE_ALT;
+    com.vel.linear.z -= MAX_VEL_ALT * diff_rate;
   }
 
   com_pub.publish(com);
