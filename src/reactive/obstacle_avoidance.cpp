@@ -52,7 +52,7 @@ void Obs_Avoid::command()
     rng_u[0].range < DIST_OBS || rng_u[1].range < DIST_OBS || rng_u[2].range < DIST_OBS || 
     rng_d[0].range < DIST_OBS || rng_d[1].range < DIST_OBS || rng_d[2].range < DIST_OBS)
   {
-    com.message = com.message + " | OBSTACLE AVOIDANCE";
+    com.message = " | OBSTACLE AVOIDANCE";
     com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
     com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
