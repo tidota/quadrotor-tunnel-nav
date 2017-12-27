@@ -22,22 +22,23 @@
 #define DIST_OBS 0.5
 #define VEL_OBS 1.5
 
-#define DIST_OFF_RATE_ALT 0.03
-#define MAX_VEL_ALT 0.1
+#define DIST_OFF_RATE_ALT 0.01
+#define MAX_VEL_ALT 3.0
 
 #define DIST_RATE_TURN 1.1
-#define VEL_TURN 1.0
+#define VEL_TURN 3.0
 
 #define DIST_RATE_STRL 0.99
 #define DIST_RATE_STRR 1.01
-#define MAX_VEL_STEER 4.0
+#define MAX_VEL_STEER 3.0
 
 #define DIST_MAX 10.0
 
-#define DIST_OFF_RATE_MID 0.03
-#define MAX_VEL_MID 0.1
+#define DIST_OFF_RATE_MID 0.01
+#define MAX_VEL_MID 3.0
 
-#define MAX_VEL_STRAIGHT 5.0
+#define MAX_VEL_STRAIGHT 1.8
+#define MIN_VEL_STRAIGHT 0.5
 
 #define TOPIC_RANGE_H0 "/range_front"
 #define TOPIC_RANGE_H1 "/range_lfront"
