@@ -20,7 +20,7 @@
 #define TIME_INT 0.05
 
 #define DIST_OBS 0.5
-#define VEL_OBS 0.5
+#define VEL_OBS 1.5
 
 #define DIST_OFF_RATE_ALT 0.05
 #define MAX_VEL_ALT 0.5
