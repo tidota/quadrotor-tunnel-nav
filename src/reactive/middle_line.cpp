@@ -54,16 +54,11 @@ void Middle_Line::command()
 
   // input check
   // if the front side is clear and it is out of range from the middle line
+  // apply a proportional value
   if(diff_rate < -DIST_OFF_RATE_MID || DIST_OFF_RATE_MID < diff_rate)
   {
     com.message = "STAY ON THE MIDDLE LINE";
-    com.vel.linear.y += (lengR < lengL)? MAX_VEL_MID: -MAX_VEL_MID;
-  }
-  // if it is slightly off the mid line, apply a proportional value
-  else if(diff_rate < -DIST_OFF_RATE_MID*0.5 || DIST_OFF_RATE_MID*0.5 < diff_rate)
-  {
-    com.message = "STAY ON THE MIDDLE LINE";
-    com.vel.linear.y -= MAX_VEL_MID * diff_rate / DIST_OFF_RATE_MID;
+    com.vel.linear.y -= MAX_VEL_MID * diff_rate;
   }
 
   com_pub.publish(com);
