@@ -46,10 +46,12 @@ void Middle_Line::command()
   double lengL = (rng_h[2].range < rng_h[1].range/sqrt(2))? rng_h[2].range: rng_h[1].range/sqrt(2);
   double lengR = rng_h[6].range;
   double lengF = rng_h[0].range;
+  
+  double leng2comp = (lengL < lengF)? lengL: lengF;
 
   // diff_rate is the gap from the mid with respect to y axis (left is positive)
-  double mid_leng = (lengL + lengR)/2;
-  double diff_leng = (lengR - lengL)/2;
+  double mid_leng = (leng2comp + lengR)/2;
+  double diff_leng = (lengR - leng2comp)/2;
   double diff_rate = (mid_leng != 0)? diff_leng/mid_leng: 0;
 
   // input check
