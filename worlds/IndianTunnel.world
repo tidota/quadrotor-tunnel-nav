@@ -25,8 +25,8 @@
     </physics>
     <light type="directional" name="directional_light_1">
       <pose>0 20 20 0.1 0.1 0</pose>
-      <diffuse>1 1 1 1</diffuse>
-      <specular>1 1 1 1</specular>
+      <diffuse>0.8 0.3 0 1</diffuse>
+      <specular>0.0 0.0 0.0 1</specular>
       <attenuation>
         <range>300</range>
       </attenuation>
