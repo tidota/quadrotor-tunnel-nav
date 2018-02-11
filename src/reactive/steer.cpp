@@ -43,7 +43,7 @@ void Steer::command()
   com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
   com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
 
-  double rate = rng_h[7].range / rng_h[6].range / sqrt(2);
+  double rate = rng_h[7].range / rng_h[5].range;
 
   // input check
   if(rate > DIST_RATE_STRR)
