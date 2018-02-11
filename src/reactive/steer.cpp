@@ -38,12 +38,15 @@ Steer::Steer()
 // ============================================================================================
 void Steer::command()
 {
-  boost::mutex::scoped_lock lock(com_mutex);
-  quadrotor_tunnel_nav::Com com;
+  boost::mutex::scoped_lock lock(com_mutex); quadrotor_tunnel_nav::Com com;
   com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
   com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
 
   double rate = rng_h[7].range / rng_h[5].range;
+  if(fmax(rng_u[0].range, rng_d[0].range)/sqrt(2) < DIST_MIN_STEER)
+  {
+    rate = 0;
+  }
 
   // input check
   if(rate > DIST_RATE_STRR)

@@ -25,9 +25,11 @@
 #define DIST_OFF_RATE_ALT 0.01
 #define MAX_VEL_ALT 3.0
 
+#define DIST_MIN_TURN 0.7
 #define DIST_RATE_TURN 1.1
 #define VEL_TURN 3.0
 
+#define DIST_MIN_STEER 0.7
 #define DIST_RATE_STRL 0.99
 #define DIST_RATE_STRR 1.01
 #define MAX_VEL_STEER 3.0
