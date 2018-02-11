@@ -57,7 +57,8 @@ void Turn::command()
     // calculate the output
     com.vel.angular.z = VEL_TURN;
   }
-  else
+  else if(rng_u[0].range <= rng_u[1].range * sqrt(2) * DIST_RATE_TURN &&
+          rng_d[0].range <= rng_d[1].range * sqrt(2) * DIST_RATE_TURN)
   {
     length_comp = fmax(rng_h[0].range, length_comp);
 
