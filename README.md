@@ -1,40 +1,21 @@
 # What is this?
+UAV tunnel navigation control, running on ROS. Simulated environments for Gazebo are included.
 
-Code running on ROS to simulate UAV navigation in a tunnel modeled by Blender.
-The program provides a reactive control for a UAV which takes an action as it receives sensory data from the environment so it can follow the wall of the tunnel while avoiding collision.
+---
 
-![sim view](./img/result3.png)
+# Environments
+## Y-tunnel
+![](./img/simu_Y.png)
+A tunnel with two branches. It was manually modeled by using Blender.
 
-## Required Environment
-- OS: Ubuntu 16.04
-- ROS version: Kinetic
+## Indian Tunnel
+![](./img/simu_Indian.png)
+The Indian lava tube, based on [the ranging sensor data provided by CMU](http://www.frc.ri.cmu.edu/projects/NIAC_Caves/). The details of generation of this 3D model can be found here:
+https://github.com/tidota/poisson-sampling
 
-## Setup
-This package requires hector-quadrotor. Check [the details](SETUP.md).
+---
 
-## Installation of this package
-```
-cd ~/catkin/src
-git clone git@github.com:tidota/quadrotor-tunnel-nav.git
-cd ..
-catkin_make
-```
-
-## How to run
-You need to launch two parts in separated terminal windows: gazebo and controller.
-
-gazebo:
-```
-roslaunch quadrotor_tunnel_nav uav_Y-tunnel.launch
-```
-controller:<br>
-The hector-quadrotor (built from the source) apparently [disables the motors in default](https://answers.ros.org/question/256590/hector-quadcopter-not-responding-to-cmd_vel-messages/) and it is required to enable them.
-```
-rosservice call /enable_motors true
-roslaunch quadrotor_tunnel_nav control.launch
-```
-Then, you can see a quadrotor flying inside a tunnel in the simulator window.
-
+# Navigation Algorithms/Code
 ## Reactive Agent
 The program is composed of several nodes each of which represent a node to take care of a specific behavior.
 Every node takes the same sensory data and makes its own decision or control outputs (geometry_msgs/Twist).
@@ -56,6 +37,53 @@ At the moment (as of Dec 25, 2017), it contains six nodes.
 
 ![diagram of nodes](./img/nodes_reactive.png)
 
+## Other approaches?
+TBA
 
-## Memorandum
+---
+
+# Installation
+## Required Environment
+- OS: Ubuntu 16.04
+- ROS version: Kinetic
+
+## Setup
+This package requires hector-quadrotor. Check [the details](SETUP.md).
+
+## Installation of this package
+```
+cd ~/catkin/src
+git clone git@github.com:tidota/quadrotor-tunnel-nav.git
+cd ..
+catkin_make
+```
+
+---
+
+# How to run
+You need to launch two parts in separated terminal windows: Gazebo (simulation environment) and controller.
+
+## Gazebo:
+
+Y-tunnel
+```
+roslaunch quadrotor_tunnel_nav uav_Y-tunnel.launch
+```
+Indian Tunnel
+```
+roslaunch quadrotor_tunnel_nav uav_IndianTunnel.launch
+```
+
+## Controller:
+The hector-quadrotor (built from the source) apparently [disables the motors in default](https://answers.ros.org/question/256590/hector-quadcopter-not-responding-to-cmd_vel-messages/) and it is required to enable them.
+```
+rosservice call /enable_motors true
+roslaunch quadrotor_tunnel_nav control.launch
+```
+Then, you can see a quadrotor flying inside a tunnel in the simulator window.
+
+---
+
+
+# Memorandum
 [Misc notes of ROS commands](MEMORANDUM.md)
