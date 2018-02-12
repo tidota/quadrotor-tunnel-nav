@@ -56,69 +56,29 @@ void Obs_Avoid::command()
     com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
     com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
     // calculate the output
-    if(rng_h[0].range < DIST_OBS)
+    for(int i = 0; i < 8; i++)
     {
-      com.vel.linear.x -= VEL_OBS;
+      if(rng_h[i].range < DIST_OBS)
+      {
+        com.vel.linear.x -= VEL_OBS*cos(M_PI/4.0*i);
+        com.vel.linear.y -= VEL_OBS*sin(M_PI/4.0*i);
+      }
     }
-    if(rng_h[1].range < DIST_OBS)
+    for(int i = 0; i < 3; i++)
     {
-      com.vel.linear.x -= VEL_OBS/sqrt(2);
-      com.vel.linear.y -= VEL_OBS/sqrt(2);
+      if(rng_u[i].range < DIST_OBS)
+      {
+        com.vel.linear.x -= VEL_OBS*cos(M_PI/4.0 + M_PI/4.0*i);
+        com.vel.linear.z -= VEL_OBS*sin(M_PI/4.0 + M_PI/4.0*i);
+      }
     }
-    if(rng_h[2].range < DIST_OBS)
+    for(int i = 0; i < 3; i++)
     {
-      com.vel.linear.y -= VEL_OBS;
-    }
-    if(rng_h[3].range < DIST_OBS)
-    {
-      com.vel.linear.x += VEL_OBS/sqrt(2);
-      com.vel.linear.y -= VEL_OBS/sqrt(2);
-    }
-    if(rng_h[4].range < DIST_OBS)
-    {
-      com.vel.linear.y += VEL_OBS;
-    }
-    if(rng_h[5].range < DIST_OBS)
-    {
-      com.vel.linear.x += VEL_OBS/sqrt(2);
-      com.vel.linear.y += VEL_OBS/sqrt(2);
-    }
-    if(rng_h[6].range < DIST_OBS)
-    {
-      com.vel.linear.y += VEL_OBS;
-    }
-    if(rng_h[7].range < DIST_OBS)
-    {
-      com.vel.linear.x -= VEL_OBS/sqrt(2);
-      com.vel.linear.y += VEL_OBS/sqrt(2);
-    }
-    if(rng_u[0].range < DIST_OBS)
-    {
-      com.vel.linear.x -= VEL_OBS/sqrt(2);
-      com.vel.linear.z -= VEL_OBS/sqrt(2);
-    }
-    if(rng_u[1].range < DIST_OBS)
-    {
-      com.vel.linear.z -= VEL_OBS;
-    }
-    if(rng_u[2].range < DIST_OBS)
-    {
-      com.vel.linear.x += VEL_OBS/sqrt(2);
-      com.vel.linear.z -= VEL_OBS/sqrt(2);
-    }
-    if(rng_d[0].range < DIST_OBS)
-    {
-      com.vel.linear.x -= VEL_OBS/sqrt(2);
-      com.vel.linear.z += VEL_OBS/sqrt(2);
-    }
-    if(rng_d[1].range < DIST_OBS)
-    {
-      com.vel.linear.z += VEL_OBS;
-    }
-    if(rng_d[2].range < DIST_OBS)
-    {
-      com.vel.linear.x += VEL_OBS/sqrt(2);
-      com.vel.linear.z += VEL_OBS/sqrt(2);
+      if(rng_d[i].range < DIST_OBS)
+      {
+        com.vel.linear.x -= VEL_OBS*cos(M_PI/4.0 + M_PI/4.0*i);
+        com.vel.linear.z += VEL_OBS*sin(M_PI/4.0 + M_PI/4.0*i);
+      }
     }
   }
 
