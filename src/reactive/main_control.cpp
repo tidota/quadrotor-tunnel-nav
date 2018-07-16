@@ -1,7 +1,7 @@
 // main_control.cpp
 // 161130
 // this is the control code for UAV in the simulated enviornment by gazebo.
-// 
+//
 
 #include "layers.hpp"
 
@@ -111,6 +111,3 @@ void Main_Control::quit(int sig)
 
   ros::shutdown();
 }
-
-
-

@@ -1,7 +1,7 @@
 // layers.hpp
 // 170104
 // basic definitions and class definitions
-// 
+//
 
 #ifndef _LAYERS_HPP
 #define _LAYERS_HPP
@@ -43,20 +43,20 @@
 #define MAX_VEL_STRAIGHT 1.8
 #define MIN_VEL_STRAIGHT 0.5
 
-#define TOPIC_RANGE_H0 "/range_front"
-#define TOPIC_RANGE_H1 "/range_lfront"
-#define TOPIC_RANGE_H2 "/range_left"
-#define TOPIC_RANGE_H3 "/range_lrear"
-#define TOPIC_RANGE_H4 "/range_rear"
-#define TOPIC_RANGE_H5 "/range_rrear"
-#define TOPIC_RANGE_H6 "/range_right"
-#define TOPIC_RANGE_H7 "/range_rfront"
-#define TOPIC_RANGE_U0 "/range_ufront"
-#define TOPIC_RANGE_U1 "/range_up"
-#define TOPIC_RANGE_U2 "/range_urear"
-#define TOPIC_RANGE_D0 "/range_dfront"
-#define TOPIC_RANGE_D1 "/range_down"
-#define TOPIC_RANGE_D2 "/range_drear"
+#define TOPIC_RANGE_H0 "range_front"
+#define TOPIC_RANGE_H1 "range_lfront"
+#define TOPIC_RANGE_H2 "range_left"
+#define TOPIC_RANGE_H3 "range_lrear"
+#define TOPIC_RANGE_H4 "range_rear"
+#define TOPIC_RANGE_H5 "range_rrear"
+#define TOPIC_RANGE_H6 "range_right"
+#define TOPIC_RANGE_H7 "range_rfront"
+#define TOPIC_RANGE_U0 "range_ufront"
+#define TOPIC_RANGE_U1 "range_up"
+#define TOPIC_RANGE_U2 "range_urear"
+#define TOPIC_RANGE_D0 "range_dfront"
+#define TOPIC_RANGE_D1 "range_down"
+#define TOPIC_RANGE_D2 "range_drear"
 
 
 #define TOPIC_OBS "obs_avoid"
@@ -157,7 +157,7 @@ public:
     std::string topic = header.at("topic");
 
     boost::mutex::scoped_lock lock(com_mutex);
-    list_com[topic.substr(1)] = *new_com;
+    list_com[topic.substr(topic.rfind("/") + 1)] = *new_com;
   }
 
 private:
