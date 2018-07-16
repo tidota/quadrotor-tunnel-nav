@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="y_tunnel">
+    <static>true</static>
+    <link name="y_tunnel_link">
+      <pose>0 0 0 0 0 0</pose>
+      <collision name="y_tunnel_collision">
+        <geometry>
+          <mesh>
+            <uri>model://y_tunnel/y_tunnel.dae</uri>
+            <scale>4 4 4</scale>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="y_tunnel_visual">
+        <geometry>
+          <mesh>
+            <uri>model://y_tunnel/y_tunnel.dae</uri>
+            <scale>4 4 4</scale>
+          </mesh>
+        </geometry>
+        <cast_shadows>false</cast_shadows>
+        <material>
+          <ambient>0.3 0.5 0.3 1</ambient>
+          <diffuse>0.5 0.7 0.5 1</diffuse>
+          <specular>0.5 0.7 0.5 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

@@ -7,17 +7,23 @@
       <collision name="indian_tunnel_collision">
         <geometry>
           <mesh>
-            <uri>model://indian_tunnel/IndianTunnel.dae</uri>
+            <uri>model://indian_tunnel/indian_tunnel.dae</uri>
           </mesh>
         </geometry>
       </collision>
       <visual name="indian_tunnel_visual">
         <geometry>
           <mesh>
-            <uri>model://indian_tunnel/IndianTunnel.dae</uri>
+            <uri>model://indian_tunnel/indian_tunnel.dae</uri>
           </mesh>
         </geometry>
         <cast_shadows>false</cast_shadows>
+        <material>
+          <ambient>0.5 0.3 0.3 1</ambient>
+          <diffuse>0.7 0.5 0.5 1</diffuse>
+          <specular>0.7 0.5 0.5 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
       </visual>
     </link>
   </model>
