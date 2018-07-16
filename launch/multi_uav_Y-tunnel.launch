@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Start Gazebo with wg world running in (max) realtime -->
+  <include file="$(find hector_gazebo_worlds)/launch/start.launch">
+   <arg name="world" value="$(find quadrotor_tunnel_nav)/worlds/Y-tunnel.world"/>
+  </include>
+
+  <!-- Spawn simulated quadrotor uav -->
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+    <arg name="ns" value="robot1"/>
+    <arg name="x" value="0"/><arg name="y" value="0"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+    <arg name="ns" value="robot2"/>
+    <arg name="x" value="0"/><arg name="y" value="2"/>
+  </include>
+
+</launch>
