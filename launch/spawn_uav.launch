@@ -9,6 +9,7 @@
   <group ns="$(arg ns)">
     <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch">
       <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensor.gazebo.xacro"/>
+      <arg name="name" value="$(arg ns)"/>
       <arg name="x" value="$(arg x)"/>
       <arg name="y" value="$(arg y)"/>
       <arg name="z" value="$(arg z)"/>
