@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="indian_tunnel">
+    <static>true</static>
+    <link name="indian_tunnel_link">
+      <pose>0 0 0 0 0 0</pose>
+      <collision name="indian_tunnel_collision">
+        <geometry>
+          <mesh>
+            <uri>model://indian_tunnel/IndianTunnel.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="indian_tunnel_visual">
+        <geometry>
+          <mesh>
+            <uri>model://indian_tunnel/IndianTunnel.dae</uri>
+          </mesh>
+        </geometry>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+    </link>
+  </model>
+</sdf>
