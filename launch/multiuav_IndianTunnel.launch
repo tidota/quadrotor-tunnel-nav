@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Start Gazebo with wg world running in (max) realtime -->
+  <include file="$(find hector_gazebo_worlds)/launch/start.launch">
+   <arg name="world" value="$(find quadrotor_tunnel_nav)/worlds/IndianTunnel.world"/>
+  </include>
+
+  <!-- Spawn simulated quadrotor uav -->
+  <group ns="robot1">
+    <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch">
+      <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensor.gazebo.xacro"/>
+    </include>
+  </group>
+
+</launch>
