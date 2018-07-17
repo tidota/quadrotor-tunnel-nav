@@ -38,5 +38,7 @@
     <include>
       <uri>model://indian_tunnel</uri>
     </include>
+
+    <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so"/>
   </world>
 </sdf>

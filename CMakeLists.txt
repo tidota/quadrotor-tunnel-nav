@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   sensor_msgs
   gazebo_ros
+  gazebo_plugins
   hector_gazebo_plugins
   hector_quadrotor_description
   hector_quadrotor_gazebo
@@ -17,6 +18,11 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
 )
+
+file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/include)
+
+find_package(gazebo REQUIRED)
+find_package(ignition-transport4 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
@@ -124,7 +130,46 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  ${GAZEBO_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+)
+
+link_directories(
+  ${GAZEBO_LIBRARY_DIRS}
+)
+
+catkin_package(
+  CATKIN_DEPENDS
+    message_runtime
+  INCLUDE_DIRS
+  LIBRARIES
+  CFG_EXTRAS
+    ${PROJECT_NAME}-extras.cmake
+)
+# Create a static library with the Protobuf messages used internally.
+set(protobuf_lib_name QuadrotorTunnelNavProtobuf)
+add_subdirectory(src/adhoc/protobuf)
+set_source_files_properties(${PROTO_SOURCES} ${PROTO_HEADERS}
+                            PROPERTIES GENERATED TRUE)
+add_library(${protobuf_lib_name} STATIC ${PROTO_SOURCES})
+add_dependencies(${protobuf_lib_name} protobuf_compilation)
+set_target_properties(${protobuf_lib_name}
+  PROPERTIES POSITION_INDEPENDENT_CODE ON COMPILE_FLAGS "-Wno-unused-parameter")
+
+# Create the libAdHocNetPlugin.so library.
+set(adhocnet_plugin_name AdHocNetPlugin)
+add_library(${adhocnet_plugin_name} src/adhoc/AdHocNetPlugin.cc)
+target_include_directories(${adhocnet_plugin_name}
+  PRIVATE ${CATKIN_DEVEL_PREFIX}/include)
+target_include_directories(${adhocnet_plugin_name}
+  PRIVATE src/adhoc)
+target_link_libraries(${adhocnet_plugin_name}
+  ${catkin_LIBRARIES}
+  ${protobuf_lib_name}
+  ${ignition-transport4_LIBRARIES}
+)
+add_dependencies(${adhocnet_plugin_name}
+  protobuf_compilation
 )
 
 ## Declare a C++ library
