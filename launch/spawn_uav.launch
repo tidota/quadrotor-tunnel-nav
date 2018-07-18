@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="ns" default="robot" />
+  <arg name="ns" default="robot" />>
+  <arg name="model" default="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensor.gazebo.xacro"/>
   <arg name="x" default="0" />
   <arg name="y" default="0" />
   <arg name="z" default="0.3" />
@@ -8,7 +9,7 @@
   <!-- Spawn simulated quadrotor uav -->
   <group ns="$(arg ns)">
     <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch">
-      <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensor.gazebo.xacro"/>
+      <arg name="model" value="$(arg model)"/>
       <arg name="name" value="$(arg ns)"/>
       <arg name="x" value="$(arg x)"/>
       <arg name="y" value="$(arg y)"/>
