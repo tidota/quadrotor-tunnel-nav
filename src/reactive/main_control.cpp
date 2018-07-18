@@ -3,6 +3,7 @@
 // this is the control code for UAV in the simulated enviornment by gazebo.
 //
 
+#include <hector_uav_msgs/EnableMotors.h>
 #include "layers.hpp"
 
 // ============================================================================================
@@ -11,6 +12,14 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "main_control");
+
+  // enable the motors
+  ros::NodeHandle n;
+  ros::ServiceClient client = n.serviceClient<hector_uav_msgs::EnableMotors>("enable_motors");
+  client.waitForExistence();
+  hector_uav_msgs::EnableMotors srv;
+  srv.request.enable = true;
+  bool success = client.call(srv);
 
   Main_Control::create_control();
 

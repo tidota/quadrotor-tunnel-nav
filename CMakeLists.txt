@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   hector_quadrotor_description
   hector_quadrotor_gazebo
   hector_gazebo_worlds
+  hector_uav_msgs
   roscpp
   rospy
   std_msgs

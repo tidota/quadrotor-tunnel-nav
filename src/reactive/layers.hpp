@@ -6,14 +6,18 @@
 #ifndef _LAYERS_HPP
 #define _LAYERS_HPP
 
-#include <ros/ros.h>
-#include <geometry_msgs/Twist.h>
-#include <quadrotor_tunnel_nav/Com.h>
-#include <sensor_msgs/Range.h>
-#include "boost/thread/mutex.hpp"
+#include <signal.h>
+
 #include <map>
 
-#include <signal.h>
+#include <geometry_msgs/Twist.h>
+#include <quadrotor_tunnel_nav/Com.h>
+#include <ros/ros.h>
+#include <sensor_msgs/Range.h>
+#include <std_srvs/SetBool.h>
+
+#include <boost/thread/mutex.hpp>
+
 
 ///////////////////////////////////////////////////////////////
 // Constants
