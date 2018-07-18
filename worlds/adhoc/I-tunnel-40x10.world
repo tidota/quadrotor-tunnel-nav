@@ -5,7 +5,6 @@
       <background>0.1 0.1 0.1 1</background>
       <shadows>true</shadows>
     </scene>
-
     <physics type="ode">
       <gravity>0 0 -9.81</gravity>
       <ode>
@@ -36,9 +35,7 @@
     </light>
 
     <include>
-      <uri>model://indian_tunnel</uri>
+      <uri>model://i_tunnel_40x10</uri>
     </include>
-
-    <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so"/>
   </world>
 </sdf>
