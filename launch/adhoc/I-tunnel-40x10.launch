@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find hector_gazebo_worlds)/launch/start.launch">
+   <arg name="world" value="$(find quadrotor_tunnel_nav)/worlds/adhoc/I-tunnel-40x10.world"/>
+  </include>
+
+  <!-- Spawn simulated quadrotor uav -->
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+    <arg name="ns" value="robot1"/>
+    <arg name="x" value="0"/><arg name="y" value="0"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+    <arg name="ns" value="robot2"/>
+    <arg name="x" value="2"/><arg name="y" value="0"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+    <arg name="ns" value="robot3"/>
+    <arg name="x" value="4"/><arg name="y" value="0"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+    <arg name="ns" value="robot4"/>
+    <arg name="x" value="6"/><arg name="y" value="0"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+    <arg name="ns" value="robot5"/>
+    <arg name="x" value="8"/><arg name="y" value="0"/>
+  </include>
+
+</launch>
