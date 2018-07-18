@@ -172,6 +172,22 @@ add_dependencies(${adhocnet_plugin_name}
   protobuf_compilation
 )
 
+# Create the libAdHocClientPlugin.so library.
+set(adhocclient_plugin_name AdHocClientPlugin)
+add_library(${adhocclient_plugin_name} src/adhoc/AdHocNetPlugin.cc)
+target_include_directories(${adhocclient_plugin_name}
+  PRIVATE ${CATKIN_DEVEL_PREFIX}/include)
+target_include_directories(${adhocclient_plugin_name}
+  PRIVATE src/adhoc)
+target_link_libraries(${adhocclient_plugin_name}
+  ${catkin_LIBRARIES}
+  ${protobuf_lib_name}
+  ${ignition-transport4_LIBRARIES}
+)
+add_dependencies(${adhocclient_plugin_name}
+  protobuf_compilation
+)
+
 ## Declare a C++ library
 # add_library(quadrotor_tunnel_nav
 #   src/${PROJECT_NAME}/quadrotor_tunnel_nav.cpp
