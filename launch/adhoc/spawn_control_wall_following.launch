@@ -9,8 +9,8 @@
     <node name="altitude_adjustment" pkg="quadrotor_tunnel_nav" type="altitude_node" args="" />
     <node name="turning_around" pkg="quadrotor_tunnel_nav" type="turn_node" args="" />
     <node name="steering" pkg="quadrotor_tunnel_nav" type="steer_node" args="" />
-    <node name="staying_on_the_middle_line" pkg="quadrotor_tunnel_nav" type="middle_line_node" args="" />
-    <node name="going_straight" pkg="quadrotor_tunnel_nav" type="go_straight_node" args="" />
+    <node name="staying_at_the_right_side" pkg="quadrotor_tunnel_nav" type="right_wall_node" args="" />
+    <node name="keep_going" pkg="quadrotor_tunnel_nav" type="keep_going_node" args="" />
   </group>
 
 </launch>

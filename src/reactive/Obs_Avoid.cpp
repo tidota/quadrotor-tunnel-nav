@@ -1,22 +1,4 @@
-// obstacle_avoidance.cpp
-
-#include "layers.hpp"
-
-// ============================================================================================
-// main
-// ============================================================================================
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "obstacle_avoidance");
-
-  Obs_Avoid* obj = new Obs_Avoid();
-
-  ros::spin();
-
-  delete obj;
-
-  return(0);
-}
+#include "reactive/Obs_Avoid.hpp"
 
 // ============================================================================================
 // Constructor
@@ -49,7 +31,7 @@ void Obs_Avoid::command()
   if(
     rng_h[0].range < DIST_OBS || rng_h[1].range < DIST_OBS || rng_h[2].range < DIST_OBS || rng_h[3].range < DIST_OBS ||
     rng_h[4].range < DIST_OBS || rng_h[5].range < DIST_OBS || rng_h[6].range < DIST_OBS || rng_h[7].range < DIST_OBS ||
-    rng_u[0].range < DIST_OBS || rng_u[1].range < DIST_OBS || rng_u[2].range < DIST_OBS || 
+    rng_u[0].range < DIST_OBS || rng_u[1].range < DIST_OBS || rng_u[2].range < DIST_OBS ||
     rng_d[0].range < DIST_OBS || rng_d[1].range < DIST_OBS || rng_d[2].range < DIST_OBS)
   {
     com.message = " | OBSTACLE AVOIDANCE";
@@ -84,4 +66,3 @@ void Obs_Avoid::command()
 
   com_pub.publish(com);
 }
-

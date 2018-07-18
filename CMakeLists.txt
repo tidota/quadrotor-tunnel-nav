@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(quadrotor_tunnel_nav)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra")
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -133,6 +135,7 @@ catkin_package(
 include_directories(
   ${GAZEBO_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  include
 )
 
 link_directories(
@@ -211,33 +214,67 @@ add_dependencies(${adhocclient_plugin_name}
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(main_control src/reactive/main_control.cpp)
-add_dependencies(main_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(main_control ${catkin_LIBRARIES})
+add_executable(main_control_node src/reactive/mains/main_control.cpp)
+add_dependencies(main_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(main_control_node ${catkin_LIBRARIES})
 
-add_executable(obs_avoid src/reactive/obstacle_avoidance.cpp)
-add_dependencies(obs_avoid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(obs_avoid ${catkin_LIBRARIES})
+add_library(obs_avoid_lib src/reactive/Obs_Avoid.cpp)
+add_dependencies(obs_avoid_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(obs_avoid_lib ${catkin_LIBRARIES})
+add_executable(obs_avoid_node src/reactive/mains/obstacle_avoidance.cpp)
+add_dependencies(obs_avoid_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} obs_avoid_lib)
+target_link_libraries(obs_avoid_node ${catkin_LIBRARIES} obs_avoid_lib)
 
-add_executable(altitude src/reactive/altitude.cpp)
-add_dependencies(altitude ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(altitude ${catkin_LIBRARIES})
+add_library(altitude_lib src/reactive/Keep_Alt.cpp)
+add_dependencies(altitude_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(altitude_lib ${catkin_LIBRARIES})
+add_executable(altitude_node src/reactive/mains/altitude.cpp)
+add_dependencies(altitude_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} altitude_lib)
+target_link_libraries(altitude_node ${catkin_LIBRARIES} altitude_lib)
 
-add_executable(turn src/reactive/turn.cpp)
-add_dependencies(turn ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(turn ${catkin_LIBRARIES})
+add_library(turn_lib src/reactive/Turn.cpp)
+add_dependencies(turn_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(turn_lib ${catkin_LIBRARIES})
+add_executable(turn_node src/reactive/mains/turn.cpp)
+add_dependencies(turn_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} turn_lib)
+target_link_libraries(turn_node ${catkin_LIBRARIES} turn_lib)
 
-add_executable(steer src/reactive/steer.cpp)
-add_dependencies(steer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(steer ${catkin_LIBRARIES})
+add_library(steer_lib src/reactive/Steer.cpp)
+add_dependencies(steer_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(steer_lib ${catkin_LIBRARIES})
+add_executable(steer_node src/reactive/mains/steer.cpp)
+add_dependencies(steer_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} steer_lib)
+target_link_libraries(steer_node ${catkin_LIBRARIES} steer_lib)
 
-add_executable(middle_line src/reactive/middle_line.cpp)
-add_dependencies(middle_line ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(middle_line ${catkin_LIBRARIES})
+add_library(middle_line_lib src/reactive/Middle_Line.cpp)
+add_dependencies(middle_line_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(middle_line_lib ${catkin_LIBRARIES})
+add_executable(middle_line_node src/reactive/mains/middle_line.cpp)
+add_dependencies(middle_line_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} middle_line_lib)
+target_link_libraries(middle_line_node ${catkin_LIBRARIES} middle_line_lib)
 
-add_executable(go_straight src/reactive/go_straight.cpp)
-add_dependencies(go_straight ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(go_straight ${catkin_LIBRARIES})
+add_library(go_straight_lib src/reactive/Go_Straight.cpp)
+add_dependencies(go_straight_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(go_straight_lib ${catkin_LIBRARIES})
+add_executable(go_straight_node src/reactive/mains/go_straight.cpp)
+add_dependencies(go_straight_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} go_straight_lib)
+target_link_libraries(go_straight_node ${catkin_LIBRARIES} go_straight_lib)
+
+
+# Replacements
+add_library(right_wall_lib src/wall_follow/Right_Wall.cpp)
+add_dependencies(right_wall_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} middle_line_lib)
+target_link_libraries(right_wall_lib ${catkin_LIBRARIES} middle_line_lib)
+add_executable(right_wall_node src/wall_follow/mains/right_wall.cpp)
+add_dependencies(right_wall_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} right_wall_lib)
+target_link_libraries(right_wall_node ${catkin_LIBRARIES} right_wall_lib)
+
+add_library(keep_going_lib src/wall_follow/Keep_Going.cpp)
+add_dependencies(keep_going_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} go_straight_lib)
+target_link_libraries(keep_going_lib ${catkin_LIBRARIES} go_straight_lib)
+add_executable(keep_going_node src/wall_follow/mains/keep_going.cpp)
+add_dependencies(keep_going_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} keep_going_lib)
+target_link_libraries(keep_going_node ${catkin_LIBRARIES} keep_going_lib)
 
 #############
 ## Install ##
