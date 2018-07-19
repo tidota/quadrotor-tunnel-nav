@@ -18,4 +18,16 @@
   <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_control_wall_following.launch">
     <arg name="ns" value="robot6"/>
   </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_control_wall_following.launch">
+    <arg name="ns" value="robot7"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_control_wall_following.launch">
+    <arg name="ns" value="robot8"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_control_wall_following.launch">
+    <arg name="ns" value="robot9"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_control_wall_following.launch">
+    <arg name="ns" value="robot10"/>
+  </include>
 </launch>
