@@ -1,8 +1,8 @@
 #include <gazebo/common/Assert.hh>
 #include <gazebo/common/Events.hh>
 
-#include "CommonTypes.hh"
-#include "AdHocNetPlugin.hh"
+#include "adhoc/CommonTypes.hh"
+#include "adhoc/AdHocNetPlugin.hh"
 #include "quadrotor_tunnel_nav/protobuf/datagram.pb.h"
 
 using namespace gazebo;

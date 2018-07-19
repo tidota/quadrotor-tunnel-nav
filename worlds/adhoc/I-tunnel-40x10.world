@@ -37,5 +37,7 @@
     <include>
       <uri>model://i_tunnel_40x10</uri>
     </include>
+
+    <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so"/>
   </world>
 </sdf>

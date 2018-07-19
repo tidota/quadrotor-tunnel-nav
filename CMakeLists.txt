@@ -178,7 +178,7 @@ add_dependencies(${adhocnet_plugin_name}
 
 # Create the libAdHocClientPlugin.so library.
 set(adhocclient_plugin_name AdHocClientPlugin)
-add_library(${adhocclient_plugin_name} src/adhoc/AdHocNetPlugin.cc)
+add_library(${adhocclient_plugin_name} src/adhoc/AdHocClientPlugin.cc)
 target_include_directories(${adhocclient_plugin_name}
   PRIVATE ${CATKIN_DEVEL_PREFIX}/include)
 target_include_directories(${adhocclient_plugin_name}

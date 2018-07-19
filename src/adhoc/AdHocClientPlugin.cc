@@ -18,14 +18,20 @@
 #include <iostream>
 #include <string>
 
-#include "AdHocClientPlugin.hh"
-#include "CommonTypes.hh"
+#include "adhoc/AdHocClientPlugin.hh"
+#include "adhoc/CommonTypes.hh"
 #include "quadrotor_tunnel_nav/protobuf/datagram.pb.h"
+
+using namespace gazebo;
+
+GZ_REGISTER_MODEL_PLUGIN(AdHocClientPlugin)
 
 //////////////////////////////////////////////////
 void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
   this->model = _model;
+
+  gzmsg << "Starting Ad Hoc Net client for " << this->model->GetScopedName() << std::endl;
 
   // Sanity check: Verity that local address is not empty.
   if (_sdf->HasElement("local_address"))
@@ -69,7 +75,7 @@ bool AdHocClientPlugin::SendTo(const std::string &_data,
     return false;
   }
 
-  msgs::Datagram msg;
+  adhoc::msgs::Datagram msg;
   msg.set_src_address(this->Host());
   msg.set_dst_address(_dstAddress);
   msg.set_dst_port(_port);
@@ -79,7 +85,7 @@ bool AdHocClientPlugin::SendTo(const std::string &_data,
 }
 
 //////////////////////////////////////////////////
-void AdHocClientPlugin::OnMessage(const msgs::Datagram &_msg)
+void AdHocClientPlugin::OnMessage(const adhoc::msgs::Datagram &_msg)
 {
   auto endPoint = _msg.dst_address() + ":" + std::to_string(_msg.dst_port());
 

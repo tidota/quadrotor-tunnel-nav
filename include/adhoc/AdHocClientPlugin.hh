@@ -21,11 +21,13 @@
 #include <functional>
 #include <iostream>
 #include <map>
-#include <string>
+
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/physics/physics.hh>
 #include <ignition/transport/Node.hh>
 
-#include "subt_gazebo/CommonTypes.hh"
-#include "subt_gazebo/protobuf/datagram.pb.h"
+#include "adhoc/CommonTypes.hh"
+#include "quadrotor_tunnel_nav/protobuf/datagram.pb.h"
 
 namespace gazebo
 {
@@ -143,7 +145,7 @@ namespace gazebo
 
     /// \brief Function called each time a new datagram message is received.
     /// \param[in] _msg The incoming message.
-    private: void OnMessage(const msgs::Datagram &_msg);
+    private: void OnMessage(const adhoc::msgs::Datagram &_msg);
 
     /// \def Callback_t
     /// \brief The callback specified by the user when new data is available.
@@ -159,7 +161,7 @@ namespace gazebo
                          const std::string &_data)>;
 
     /// \brief The local address.
-    private: const std::string localAddress;
+    private: std::string localAddress;
 
     /// \brief Maximum transmission payload size (octets) for each message.
     private: static const uint32_t kMtu = 1500;
@@ -170,6 +172,9 @@ namespace gazebo
     /// \brief User callbacks. The key is the topic name
     /// (e.g.: "/subt/192.168.2.1/4000") and the value is the user callback.
     private: std::map<std::string, Callback_t> callbacks;
+
+    /// \brief Model pointer.
+    private: physics::ModelPtr model;
   };
 }
 #endif
