@@ -4,7 +4,35 @@
 //
 
 #include <hector_uav_msgs/EnableMotors.h>
-#include "layers.hpp"
+#include "reactive/layers.hpp"
+
+// ============================================================================================
+// Main_Control class
+// it contains everything necessary for control
+// ============================================================================================
+class Main_Control : public LAYER_BASE
+{
+public:
+  // the instance of this class must be single
+  // so this function must be called to create the object.
+  static Main_Control *create_control();
+
+  // to release the memory, call this function.
+  static void kill_control();
+
+protected:
+  static ros::Publisher vel_pub;
+
+private:
+  Main_Control();
+
+  virtual void command();
+
+  static void quit(int);
+
+  static Main_Control *p_control;
+
+};
 
 // ============================================================================================
 // main

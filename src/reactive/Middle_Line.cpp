@@ -1,22 +1,4 @@
-// middle_line.cpp
-
-#include "layers.hpp"
-
-// ============================================================================================
-// main
-// ============================================================================================
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "middle_line");
-
-  Middle_Line* obj = new Middle_Line();
-
-  ros::spin();
-
-  delete obj;
-
-  return(0);
-}
+#include "reactive/Middle_Line.hpp"
 
 // ============================================================================================
 // Constructor
@@ -48,7 +30,7 @@ void Middle_Line::command()
     double lengL = (rng_h[2].range < rng_h[1].range/sqrt(2))? rng_h[2].range: rng_h[1].range/sqrt(2);
     double lengR = rng_h[6].range;
     double lengF = rng_h[0].range;
-  
+
     double leng2comp = (lengL < lengF)? lengL: lengF;
 
     // diff_rate is the gap from the mid with respect to y axis (left is positive)
@@ -68,4 +50,3 @@ void Middle_Line::command()
 
   com_pub.publish(com);
 }
-

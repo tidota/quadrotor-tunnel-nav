@@ -1,22 +1,6 @@
 // turn.cpp
 
-#include "layers.hpp"
-
-// ============================================================================================
-// main
-// ============================================================================================
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "turn");
-
-  Turn* obj = new Turn();
-
-  ros::spin();
-
-  delete obj;
-
-  return(0);
-}
+#include "reactive/Turn.hpp"
 
 // ============================================================================================
 // Constructor
@@ -82,4 +66,3 @@ void Turn::command()
 
   com_pub.publish(com);
 }
-

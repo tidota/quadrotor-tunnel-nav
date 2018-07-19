@@ -7,26 +7,27 @@
   <!-- Spawn simulated quadrotor uav -->
   <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
     <arg name="ns" value="robot1"/>
-    <arg name="x" value="0"/><arg name="y" value="0"/>
+    <arg name="x" value="0"/><arg name="y" value="-3"/>
   </include>
   <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
     <arg name="ns" value="robot2"/>
-    <arg name="x" value="-2"/><arg name="y" value="0"/>
+    <arg name="x" value="-4"/><arg name="y" value="-3"/>
   </include>
   <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
     <arg name="ns" value="robot3"/>
-    <arg name="x" value="-4"/><arg name="y" value="0"/>
+    <arg name="x" value="-8"/><arg name="y" value="-3"/>
   </include>
   <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
     <arg name="ns" value="robot4"/>
-    <arg name="x" value="-6"/><arg name="y" value="0"/>
+    <arg name="x" value="-12"/><arg name="y" value="-3"/>
   </include>
   <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
     <arg name="ns" value="robot5"/>
-    <arg name="x" value="-8"/><arg name="y" value="0"/>
-  </include>  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
-      <arg name="ns" value="robot6"/>
-      <arg name="x" value="-10"/><arg name="y" value="0"/>
+    <arg name="x" value="-16"/><arg name="y" value="-3"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+    <arg name="ns" value="robot6"/>
+    <arg name="x" value="-16"/><arg name="y" value="0"/><arg name="Y" value="$(eval -3.14159265 / 2)"/>
   </include>
 
 

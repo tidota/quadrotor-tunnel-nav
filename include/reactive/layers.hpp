@@ -122,7 +122,7 @@ public:
     subscribe_D(1)
     subscribe_D(2)
   }
-  ~LAYER_BASE()
+  virtual ~LAYER_BASE()
   {
     timer.stop();
   }
@@ -194,80 +194,6 @@ public:
   def_updateRange_D(0)
   def_updateRange_D(1)
   def_updateRange_D(2)
-};
-
-// ============================================================================================
-// Main_Control class
-// it contains everything necessary for control
-// ============================================================================================
-class Main_Control : public LAYER_BASE
-{
-public:
-  // the instance of this class must be single
-  // so this function must be called to create the object.
-  static Main_Control *create_control();
-
-  // to release the memory, call this function.
-  static void kill_control();
-
-protected:
-  static ros::Publisher vel_pub;
-
-private:
-  Main_Control();
-
-  void command();
-
-  static void quit(int);
-
-  static Main_Control *p_control;
-
-};
-
-// ============================================================================================
-// LAYER classes
-// ============================================================================================
-class Obs_Avoid: public LAYER_BASE
-{
-public:
-  Obs_Avoid();
-private:
-  void command();
-};
-class Keep_Alt: public LAYER_BASE
-{
-public:
-  Keep_Alt();
-private:
-  void command();
-};
-class Turn: public LAYER_BASE
-{
-public:
-  Turn();
-private:
-  void command();
-};
-class Steer: public LAYER_BASE
-{
-public:
-  Steer();
-private:
-  void command();
-};
-class Middle_Line: public LAYER_BASE
-{
-public:
-  Middle_Line();
-private:
-  void command();
-};
-class Go_Straight: public LAYER_BASE
-{
-public:
-  Go_Straight();
-private:
-  void command();
 };
 
 #endif // _LAYERS_HPP

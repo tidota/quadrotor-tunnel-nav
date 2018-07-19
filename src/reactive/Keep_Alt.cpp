@@ -1,22 +1,6 @@
 // keep_altitude.cpp
 
-#include "layers.hpp"
-
-// ============================================================================================
-// main
-// ============================================================================================
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "altitude");
-
-  Keep_Alt* obj = new Keep_Alt();
-
-  ros::spin();
-
-  delete obj;
-
-  return(0);
-}
+#include "reactive/Keep_Alt.hpp"
 
 // ============================================================================================
 // Constructor
@@ -58,4 +42,3 @@ void Keep_Alt::command()
 
   com_pub.publish(com);
 }
-
