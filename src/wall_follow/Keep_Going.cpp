@@ -26,6 +26,11 @@ void Keep_Going::command()
     range = rng_h[6].range;
   double rate = range/rng_h[6].range;
 
+  if (rng_h[0].range < DIST_WALL * 0.9)
+    rate = 0.5;
+  if (rng_h[7].range < DIST_WALL * sqrt(2.0) * 0.9)
+    rate = 0.3;
+
   // input check
   com.message = "KEEP GOING";
   // calculate the output
