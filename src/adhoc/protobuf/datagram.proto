@@ -25,15 +25,18 @@ package adhoc.msgs;
 
 message Datagram
 {
+  /// \brief scoped name of model.
+  required string model_name  = 1;
+
   /// \brief Address of the sender.
-  required string src_address = 1;
+  required uint32 src_address = 2;
 
   /// \brief Address of the destination.
-  required string dst_address = 2;
+  required uint32 dst_address = 3;
 
-  /// \brief Destination port.
-  required uint32 dst_port    = 3;
+  /// \brief number of hops
+  required uint32 hops        = 4;
 
   /// \brief Payload.
-  required string data        = 4;
+  required string data        = 5;
 }

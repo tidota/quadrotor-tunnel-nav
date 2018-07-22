@@ -6,7 +6,7 @@
 #include <gazebo/common/Event.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
-#include <ignition/transport/Node.hh>
+#include <gazebo/transport/transport.hh>
 #include <sdf/sdf.hh>
 
 namespace adhoc
@@ -43,7 +43,7 @@ namespace gazebo
     private: event::ConnectionPtr updateConnection;
 
     /// \brief An Ignition Transport node for communications.
-    private: ignition::transport::Node node;
+    private: transport::Node node;
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.

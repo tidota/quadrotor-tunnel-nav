@@ -16,7 +16,7 @@
 */
 
 #include <iostream>
-#include <string>
+#include <sstream>
 
 #include "adhoc/AdHocClientPlugin.hh"
 #include "adhoc/CommonTypes.hh"
@@ -31,70 +31,39 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
   this->model = _model;
 
-  gzmsg << "Starting Ad Hoc Net client for " << this->model->GetScopedName() << std::endl;
+  // assuming the model name has a number as suffix.
+  std::istringstream(this->model->GetName().substr(5)) >> this->id;
 
-  // Sanity check: Verity that local address is not empty.
-  if (_sdf->HasElement("local_address"))
-  {
-    this->localAddress = _sdf->Get<std::string>("local_address");
-  }
-  else
-  {
-    std::cerr << "AdHocClientPlugin::AdHocClientPlugin() error: Local address shouldn't "
-              << "be empty" << std::endl;
-  }
+  gzmsg << "Starting Ad Hoc Net client " << this->id
+        << " for " << this->model->GetScopedName() << std::endl;
+
+  this->node = transport::NodePtr(new transport::Node());
+  this->node->Init();
+  this->pub = this->node->Advertise<adhoc::msgs::Datagram>(this->model->GetName() + "/comm_out");
+
+  this->msg.set_model_name(this->model->GetScopedName());
+  this->msg.set_src_address(this->id);
+  this->msg.set_hops(0);
+  this->msg.set_data("req");
+  this->lastSent = this->model->GetWorld()->GetSimTime();
 }
 
 
 //////////////////////////////////////////////////
-void OnUpdate()
+void AdHocClientPlugin::OnUpdate()
 {
   // at some interval, initiate a communication.
-}
-
-//////////////////////////////////////////////////
-std::string AdHocClientPlugin::Host() const
-{
-  return this->localAddress;
-}
-
-//////////////////////////////////////////////////
-bool AdHocClientPlugin::SendTo(const std::string &_data,
-    const std::string &_dstAddress, const uint32_t _port)
-{
-  // Sanity check: Make sure that we're using a valid address.
-  if (this->Host().empty())
-    return false;
-
-  // Restrict the maximum size of a message.
-  if (_data.size() > this->kMtu)
+  common::Time current = this->model->GetWorld()->GetSimTime();
+  if (current.Double() - this->lastSent.Double() > 1.0)
   {
-    std::cerr << "[" << this->Host() << "] AdHocClientPlugin::SendTo() error: "
-              << "Payload size (" << _data.size() << ") is greater than the "
-              << "maximum allowed (" << this->kMtu << ")" << std::endl;
-    return false;
+    this->msg.set_dst_address(100);
+    this->pub->Publish(this->msg);
+    this->lastSent = current;
   }
-
-  adhoc::msgs::Datagram msg;
-  msg.set_src_address(this->Host());
-  msg.set_dst_address(_dstAddress);
-  msg.set_dst_port(_port);
-  msg.set_data(_data);
-
-  return this->node.Request(kBrokerService, msg);
 }
 
 //////////////////////////////////////////////////
 void AdHocClientPlugin::OnMessage(const adhoc::msgs::Datagram &_msg)
 {
-  auto endPoint = _msg.dst_address() + ":" + std::to_string(_msg.dst_port());
-
-  for (auto cb : this->callbacks)
-  {
-    if (cb.first == endPoint && cb.second)
-    {
-      cb.second(_msg.src_address(), _msg.dst_address(),
-                _msg.dst_port(), _msg.data());
-    }
-  }
+  gzmsg << "Message received" << std::endl;
 }
