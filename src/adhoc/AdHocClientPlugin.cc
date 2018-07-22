@@ -46,6 +46,10 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->msg.set_hops(0);
   this->msg.set_data("req");
   this->lastSent = this->model->GetWorld()->GetSimTime();
+
+
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+    std::bind(&AdHocClientPlugin::OnUpdate, this));
 }
 
 
@@ -63,7 +67,7 @@ void AdHocClientPlugin::OnUpdate()
 }
 
 //////////////////////////////////////////////////
-void AdHocClientPlugin::OnMessage(const adhoc::msgs::Datagram &_msg)
+void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
 {
   gzmsg << "Message received" << std::endl;
 }

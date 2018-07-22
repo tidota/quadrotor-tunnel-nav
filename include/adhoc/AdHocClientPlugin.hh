@@ -21,6 +21,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
@@ -42,7 +43,7 @@ namespace gazebo
 
     /// \brief Function called each time a new datagram message is received.
     /// \param[in] _msg The incoming message.
-    private: void OnMessage(const adhoc::msgs::Datagram &_msg);
+    private: void OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
 
     /// \brief An Ignition Transport node for communications.
     private: transport::NodePtr node;
@@ -63,6 +64,10 @@ namespace gazebo
     private: adhoc::msgs::Datagram msg;
 
     /// \brief the time when the node last sent a message.
-    private: common::Time lastSent;  };
+    private: common::Time lastSent;
+
+    /// \brief pointer to the update even connection.
+    private: event::ConnectionPtr updateConnection;
+  };
 }
 #endif

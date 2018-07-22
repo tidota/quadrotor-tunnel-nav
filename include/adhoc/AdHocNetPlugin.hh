@@ -1,8 +1,10 @@
 #ifndef ADHOCNETPLUGIN_HH_
 #define ADHOCNETPLUGIN_HH_
 
-#include <mutex>
 #include <queue>
+#include <mutex>
+#include <memory>
+
 #include <gazebo/common/Event.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
@@ -34,7 +36,7 @@ namespace gazebo
 
     /// \brief Callback executed when a new request is received.
     /// \param _req The datagram contained in the request.
-    private: void OnMessage(const adhoc::msgs::Datagram &_req);
+    private: void OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_req);
 
     /// \brief World pointer.
     private: physics::WorldPtr world;
@@ -43,7 +45,13 @@ namespace gazebo
     private: event::ConnectionPtr updateConnection;
 
     /// \brief An Ignition Transport node for communications.
-    private: transport::Node node;
+    private: transport::NodePtr node;
+
+    /// \brief publisher map to send data.
+    private: std::map< std::string, transport::PublisherPtr > pubMap;
+
+    /// \brief subscriber map to receive data.
+    private: std::map< std::string, transport::SubscriberPtr > subMap;
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.

@@ -15,6 +15,22 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/)
   GZ_ASSERT(_world, "AdHocNetPlugin world pointer is NULL");
   this->world = _world;
 
+  this->node = transport::NodePtr(new transport::Node());
+  this->node->Init();
+  for (int i = 1; i <= 10; ++i)
+  {
+    this->pubMap["robot" + std::to_string(i)]
+      = this->node->Advertise<adhoc::msgs::Datagram>(
+        "robot" + std::to_string(i) + "/comm_in");
+    this->subMap["robot" + std::to_string(i)]
+      = this->node->Subscribe<adhoc::msgs::Datagram>(
+        "robot" + std::to_string(i) + "/comm_out",
+        &AdHocNetPlugin::OnMessage, this);
+  }
+
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+    std::bind(&AdHocNetPlugin::OnUpdate, this));
+
   gzmsg << "Starting Ad Hoc Net server" << std::endl;
 
 }
@@ -41,9 +57,10 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
 }
 
 /////////////////////////////////////////////////
-void AdHocNetPlugin::OnMessage(const adhoc::msgs::Datagram &_req)
+void AdHocNetPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_req)
 {
   // Just save the message, it will be processed later.
   std::lock_guard<std::mutex> lk(this->mutex);
-  this->incomingMsgs.push(_req);
+  this->incomingMsgs.push(*_req);
+  gzmsg << "Message received from " << _req->model_name() << "(" << _req->src_address() << ")" << std::endl;
 }
