@@ -187,6 +187,7 @@ target_link_libraries(${adhocclient_plugin_name}
   ${catkin_LIBRARIES}
   ${protobuf_lib_name}
   ${ignition-transport4_LIBRARIES}
+  ssl crypto
 )
 add_dependencies(${adhocclient_plugin_name}
   protobuf_compilation

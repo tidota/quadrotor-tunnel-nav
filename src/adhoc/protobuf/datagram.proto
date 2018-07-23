@@ -37,6 +37,9 @@ message Datagram
   /// \brief number of hops
   required uint32 hops        = 4;
 
+  /// \brief index of message
+  required uint32 index       = 5;
+
   /// \brief Payload.
-  required string data        = 5;
+  required string data        = 6;
 }

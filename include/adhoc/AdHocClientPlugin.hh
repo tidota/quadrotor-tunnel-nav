@@ -49,6 +49,15 @@ namespace gazebo
     /// \param[in] _msg The incoming message.
     private: void OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
 
+    /// \brief Make a hash string based on the message.
+    private: void CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash);
+
+    /// \brief Check if the given hash value is already registered.
+    private: bool HasHash(const unsigned char *_hash);
+
+    /// \brief Register a hash value.
+    private: void RegistHash(const unsigned char *_hash);
+
     /// \brief An Ignition Transport node for communications.
     private: transport::NodePtr node;
 
@@ -63,6 +72,12 @@ namespace gazebo
 
     /// \brief id in the network
     private: unsigned int id;
+
+    /// \brief index of message
+    private: unsigned int messageCount;
+
+    /// \brief list of hash values
+    private: std::vector<std::string> hashList;
 
     /// \brief message to send
     private: adhoc::msgs::Datagram msg_req;
