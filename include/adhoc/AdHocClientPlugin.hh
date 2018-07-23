@@ -22,6 +22,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <queue>
 
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
@@ -41,6 +42,9 @@ namespace gazebo
     /// \brief Callback for World Update events.
     private: void OnUpdate();
 
+    /// \brief Process all incoming messages.
+    private: void ProcessIncomingMsgs();
+
     /// \brief Function called each time a new datagram message is received.
     /// \param[in] _msg The incoming message.
     private: void OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
@@ -58,7 +62,7 @@ namespace gazebo
     private: physics::ModelPtr model;
 
     /// \brief id in the network
-    private: int id;
+    private: unsigned int id;
 
     /// \brief message to send
     private: adhoc::msgs::Datagram msg_req;
@@ -71,6 +75,13 @@ namespace gazebo
 
     /// \brief pointer to the update even connection.
     private: event::ConnectionPtr updateConnection;
+
+    /// \brief Collection of incoming messages received during the last
+    /// simulation step.
+    private: std::queue<adhoc::msgs::Datagram> incomingMsgs;
+
+    /// \brief Protect data from races.
+    private: std::mutex mutex;
   };
 }
 #endif

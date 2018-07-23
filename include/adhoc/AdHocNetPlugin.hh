@@ -1,9 +1,9 @@
 #ifndef ADHOCNETPLUGIN_HH_
 #define ADHOCNETPLUGIN_HH_
 
-#include <queue>
 #include <mutex>
 #include <memory>
+#include <queue>
 
 #include <gazebo/common/Event.hh>
 #include <gazebo/common/Plugin.hh>
