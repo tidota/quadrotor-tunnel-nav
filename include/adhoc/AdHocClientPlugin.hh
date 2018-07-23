@@ -61,7 +61,10 @@ namespace gazebo
     private: int id;
 
     /// \brief message to send
-    private: adhoc::msgs::Datagram msg;
+    private: adhoc::msgs::Datagram msg_req;
+
+    /// \brief message to send
+    private: adhoc::msgs::Datagram msg_res;
 
     /// \brief the time when the node last sent a message.
     private: common::Time lastSent;

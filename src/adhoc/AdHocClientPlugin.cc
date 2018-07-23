@@ -40,11 +40,18 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init();
   this->pub = this->node->Advertise<adhoc::msgs::Datagram>(this->model->GetName() + "/comm_out");
+  this->sub = this->node->Subscribe<adhoc::msgs::Datagram>(this->model->GetName() + "/comm_in", &AdHocClientPlugin::OnMessage, this);
 
-  this->msg.set_model_name(this->model->GetScopedName());
-  this->msg.set_src_address(this->id);
-  this->msg.set_hops(0);
-  this->msg.set_data("req");
+  this->msg_req.set_model_name(this->model->GetName());
+  this->msg_req.set_src_address(this->id);
+  this->msg_req.set_hops(0);
+  this->msg_req.set_data("request");
+
+  this->msg_res.set_model_name(this->model->GetName());
+  this->msg_res.set_src_address(this->id);
+  this->msg_res.set_hops(0);
+  this->msg_res.set_data("response");
+
   this->lastSent = this->model->GetWorld()->GetSimTime();
 
 
@@ -60,8 +67,8 @@ void AdHocClientPlugin::OnUpdate()
   common::Time current = this->model->GetWorld()->GetSimTime();
   if (current.Double() - this->lastSent.Double() > 1.0)
   {
-    this->msg.set_dst_address(100);
-    this->pub->Publish(this->msg);
+    this->msg_req.set_dst_address((this->id - 1 + 3) % 10 + 1);
+    this->pub->Publish(this->msg_req);
     this->lastSent = current;
   }
 }
@@ -69,5 +76,27 @@ void AdHocClientPlugin::OnUpdate()
 //////////////////////////////////////////////////
 void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
 {
-  gzmsg << "Message received" << std::endl;
+  if (this->id == _msg->dst_address())
+  {
+    if (_msg->data() == "request")
+    {
+      gzmsg << this->model->GetName() << " got a request from " << _msg->model_name() << ". Replying..." << std::endl;
+      this->msg_res.set_dst_address(_msg->src_address());
+      this->pub->Publish(this->msg_res);
+    }
+    else if (_msg->data() == "response")
+    {
+      gzmsg << this->model->GetName() << " got a response from " << _msg->model_name() << std::endl;
+    }
+    else
+    {
+      gzmsg << this->model->GetName() << " got invalid data." << std::endl;
+    }
+  }
+  else if (_msg->hops() < 10)
+  {
+    adhoc::msgs::Datagram forwardMsg = *_msg;
+    forwardMsg.set_hops(_msg->hops() + 1);
+    this->pub->Publish(forwardMsg);
+  }
 }

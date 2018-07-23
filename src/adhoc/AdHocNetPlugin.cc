@@ -51,7 +51,34 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
   {
     // Forward the messages.
     auto const &msg = this->incomingMsgs.front();
-    auto endPoint = msg.dst_address();
+
+    physics::ModelPtr sender = this->world->GetModel(msg.model_name());
+
+    if (sender)
+    {
+      for (int i = 1; i <= 10; ++i)
+      {
+        std::string name = "robot" + std::to_string(i);
+
+        if (name == sender->GetName())
+          continue;
+
+        physics::ModelPtr robot = this->world->GetModel(name);
+
+        if (robot)
+        {
+          // forward the message if the robot is within the range of the sender.
+          auto diffVec = robot->GetWorldPose().CoordPositionSub(sender->GetWorldPose());
+          double length = diffVec.GetLength();
+
+          if (length <= 10.0)
+          {
+            this->pubMap[robot->GetName()]->Publish(msg);
+          }
+        }
+      }
+    }
+
     this->incomingMsgs.pop();
   }
 }
@@ -62,5 +89,4 @@ void AdHocNetPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram con
   // Just save the message, it will be processed later.
   std::lock_guard<std::mutex> lk(this->mutex);
   this->incomingMsgs.push(*_req);
-  gzmsg << "Message received from " << _req->model_name() << "(" << _req->src_address() << ")" << std::endl;
 }
