@@ -102,7 +102,7 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
       {
         if (msg.data() == "request")
         {
-          gzmsg << this->model->GetName() << " got a request from " << msg.model_name() << "<< client " << msg.src_address() << "(" << msg.hops() << " hops)"<< ". Replying..." << std::endl;
+          gzmsg << this->model->GetName() << " got a request from src " << msg.src_address() << "(" << msg.hops() << " hops)"<< ". Replying..." << std::endl;
           this->msg_res.set_dst_address(msg.src_address());
           this->msg_res.set_index(this->messageCount);
           this->msg_res.set_hops(1);
@@ -115,13 +115,14 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
         }
         else
         {
-          gzmsg << this->model->GetName() << " got invalid data." << std::endl;
+          gzerr << this->model->GetName() << " got invalid data." << std::endl;
         }
       }
       else if (msg.hops() < 10)
       {
-        gzmsg << this->model->GetName() << " forwarding a message (" << msg.hops() << " hops)" << std::endl;
+        // gzmsg << this->model->GetName() << " forwarding a message (" << msg.hops() << " hops)" << std::endl;
         adhoc::msgs::Datagram forwardMsg(msg);
+        forwardMsg.set_model_name(this->model->GetName());
         forwardMsg.set_hops(msg.hops() + 1);
         this->pub->Publish(forwardMsg);
       }
