@@ -27,6 +27,8 @@ public:
 protected:
   static ros::Publisher vel_pub;
 
+  static ros::Subscriber enable_sub;
+
 private:
   Main_Control(const bool _enable);
 
@@ -71,6 +73,7 @@ int main(int argc, char** argv)
 // ============================================================================================
 Main_Control* Main_Control::p_control = NULL;
 ros::Publisher Main_Control::vel_pub;
+ros::Subscriber Main_Control::enable_sub;
 
 // ============================================================================================
 // create_control
@@ -118,7 +121,7 @@ Main_Control::Main_Control(const bool _enable): enable(_enable)
   Main_Control::vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
   list_com_sub[TOPIC_OBS] = n.subscribe(TOPIC_OBS, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 
-  n.subscribe("control_switch", 1, &Main_Control::OnMessage, this);
+  Main_Control::enable_sub = n.subscribe("control_switch", 1, &Main_Control::OnMessage, this);
 }
 
 // ============================================================================================
