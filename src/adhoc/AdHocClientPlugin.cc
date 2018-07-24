@@ -15,7 +15,9 @@
  *
 */
 
+#include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <iostream>
 #include <sstream>
 
@@ -80,6 +82,8 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->totalPackets = 0;
   this->totalHops = 0;
   this->totalTravelTime = 0.0;
+
+  std::srand(std::time(nullptr));
 }
 
 //////////////////////////////////////////////////
@@ -131,7 +135,11 @@ void AdHocClientPlugin::OnUpdate()
     if (this->started && !this->finished
       && current.Double() - this->lastSent.Double() > 0.5)
     {
-      this->msg_req.set_dst_address((this->id - 1 + 5) % 10 + 1);
+      unsigned int dst = std::rand() % 9;
+      if (dst >= this->id - 1)
+        dst = (dst + 1) % 10;
+      dst++;
+      this->msg_req.set_dst_address(dst);
       this->msg_req.set_index(this->messageCount);
       this->msg_req.set_hops(1);
       this->msg_req.set_time(current.Double());
