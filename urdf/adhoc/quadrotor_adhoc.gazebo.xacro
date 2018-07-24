@@ -6,6 +6,7 @@
     <gazebo>
       <plugin name="adhocclient_plugin" filename="libAdHocClientPlugin.so">
         <enable>false</enable>
+        <delay>0.5</delay>
       </plugin>
     </gazebo>
 </robot>
