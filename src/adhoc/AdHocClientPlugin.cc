@@ -167,6 +167,7 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
           this->msg_res.set_dst_address(msg.src_address());
           this->msg_res.set_index(this->messageCount);
           this->msg_res.set_hops(msg.hops() + 1);
+          this->msg_res.set_time(msg.time());
           this->pub->Publish(this->msg_res);
           this->messageCount++;
         }
