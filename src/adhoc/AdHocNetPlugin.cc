@@ -80,6 +80,8 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
   if (!this->started && !this->finished && flag->data)
   {
     this->started = true;
+    this->InitTopoList();
+    this->CheckTopoChange();
     this->startTime = this->world->GetSimTime();
 
     // start recording
@@ -124,8 +126,9 @@ void AdHocNetPlugin::OnUpdate()
     }
   }
 
-  if (this->CheckTopoChange())
+  if (this->started && !this->finished && this->CheckTopoChange())
   {
+    gzmsg << "changed" << std::endl;
     this->topoChangeCount++;
   }
 
@@ -158,7 +161,7 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
         {
           // forward the message if the robot is within the range of the sender.
           auto diffVec = robot->GetWorldPose().CoordPositionSub(sender->GetWorldPose());
-          double length = diffVec.GetLength();
+          double length = fabs(diffVec.GetLength());
 
           if (length <= this->commRange)
           {
@@ -230,7 +233,7 @@ void AdHocNetPlugin::InitTopoList()
   {
     for (int j = i + 1; j <= 10; ++j)
     {
-      topoList[std::to_string(i)+":"+std::to_string(j)] = false;
+      this->topoList[std::to_string(i)+":"+std::to_string(j)] = false;
     }
   }
 }
@@ -250,13 +253,13 @@ bool AdHocNetPlugin::CheckTopoChange()
         continue;
 
       auto diffVec = robot1->GetWorldPose().CoordPositionSub(robot2->GetWorldPose());
-      double length = diffVec.GetLength();
+      double length = fabs(diffVec.GetLength());
 
       bool inRange = (length <= this->commRange);
-      if (inRange != topoList[std::to_string(i)+":"+std::to_string(j)])
+      if (inRange != this->topoList[std::to_string(i)+":"+std::to_string(j)])
       {
         changed = true;
-        topoList[std::to_string(i)+":"+std::to_string(j)] = inRange;
+        this->topoList[std::to_string(i)+":"+std::to_string(j)] = inRange;
       }
     }
   }
