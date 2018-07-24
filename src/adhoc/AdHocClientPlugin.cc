@@ -32,10 +32,12 @@ GZ_REGISTER_MODEL_PLUGIN(AdHocClientPlugin)
 //////////////////////////////////////////////////
 void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
+  this->model = _model;
+  // assuming the model name has a number as suffix.
+  std::istringstream(this->model->GetName().substr(5)) >> this->id;
+
   gzmsg << "Starting Ad Hoc Net client " << this->id
         << " for " << this->model->GetScopedName() << std::endl;
-
-  this->model = _model;
 
   this->started = true;
   this->finished = false;
@@ -48,8 +50,6 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     = this->n.subscribe(
         "/start_comm", 1, &AdHocClientPlugin::OnStartStopMessage, this);
 
-  // assuming the model name has a number as suffix.
-  std::istringstream(this->model->GetName().substr(5)) >> this->id;
 
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init();
