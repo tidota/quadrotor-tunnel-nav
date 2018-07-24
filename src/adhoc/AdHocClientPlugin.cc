@@ -121,7 +121,8 @@ void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Boo
       msgs::GzString msg;
       std::stringstream ss;
       ss << "--- Client ---" << std::endl;
-      ss << "Total # of Packets: " << this->totalMessages << std::endl;
+      ss << "Total # of Sent Messages: " << this->messageCount << std::endl;
+      ss << "Total # of Received Messages: " << this->totalMessages << std::endl;
       ss << "Total # of Hops: " << this->totalHops << std::endl;
       ss << "Ave # of hops per Message: " << ((double)this->totalHops)/this->totalMessages << std::endl;
       ss << "Total Round Trip Time: " << this->totalRoundTripTime << std::endl;
@@ -194,14 +195,16 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
         }
         else if (msg.data() == "response")
         {
+          common::Time current = this->model->GetWorld()->GetSimTime();
           msgs::GzString m;
           std::string str = this->model->GetName();
-          str = str + " got a response from src " + std::to_string(msg.src_address()) + " (" + std::to_string(msg.hops()) + " hops in total)";
+          str = str + ": response from src " + std::to_string(msg.src_address())
+            + " (" + std::to_string(msg.hops()) + " hops and "
+            + std::to_string(msg.time() - current.Double()) + " sec in total)";
           m.set_data(str);
           this->clientOutputPub->Publish(m);
           this->totalMessages++;
           this->totalHops += msg.hops();
-          common::Time current = this->model->GetWorld()->GetSimTime();
           this->totalRoundTripTime += current.Double() - msg.time();
         }
         else
