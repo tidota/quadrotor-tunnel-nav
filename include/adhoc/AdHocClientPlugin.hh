@@ -43,7 +43,7 @@ namespace gazebo
     public: virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
 
     // to receive a message to start operation.
-    public: void OnStartMessage(const ros::MessageEvent<std_msgs::Bool const>& event);
+    public: void OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool const>& event);
 
     /// \brief Callback for World Update events.
     private: void OnUpdate();
@@ -106,9 +106,12 @@ namespace gazebo
 
     private: ros::NodeHandle n;
 
-    private: bool enable;
+    private: bool started;
+    private: bool finished;
 
     private: ros::Subscriber enableSub;
+
+    private: std::mutex mutexStartStop;
   };
 }
 #endif

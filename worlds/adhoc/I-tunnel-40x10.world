@@ -38,6 +38,8 @@
       <uri>model://i_tunnel_40x10</uri>
     </include>
 
-    <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so"/>
+    <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so">
+      <enable>false</enable>
+    </plugin>
   </world>
 </sdf>

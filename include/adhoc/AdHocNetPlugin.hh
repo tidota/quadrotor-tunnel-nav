@@ -5,6 +5,9 @@
 #include <memory>
 #include <queue>
 
+#include <ros/ros.h>
+#include <std_msgs/Bool.h>
+
 #include <gazebo/common/Event.hh>
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
@@ -27,6 +30,9 @@ namespace gazebo
   {
     // Documentation inherited
     public: virtual void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf);
+
+    // to receive a message to start operation.
+    public: void OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool const>& event);
 
     /// \brief Callback for World Update events.
     private: void OnUpdate();
@@ -59,6 +65,15 @@ namespace gazebo
 
     /// \brief Protect data from races.
     private: std::mutex mutex;
+
+    private: ros::NodeHandle n;
+
+    private: bool started;
+    private: bool finished;
+
+    private: ros::Subscriber enableSub;
+
+    private: std::mutex mutexStartStop;
   };
 }
 #endif

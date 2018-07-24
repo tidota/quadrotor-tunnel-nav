@@ -10,10 +10,21 @@ using namespace gazebo;
 GZ_REGISTER_WORLD_PLUGIN(AdHocNetPlugin)
 
 /////////////////////////////////////////////////
-void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/)
+void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   GZ_ASSERT(_world, "AdHocNetPlugin world pointer is NULL");
   this->world = _world;
+
+  this->started = true;
+  this->finished = false;
+  if (_sdf->HasElement("enable"))
+  {
+    this->started = _sdf->Get<bool>("enable");
+  }
+
+  this->enableSub
+    = this->n.subscribe(
+        "/start_comm", 1, &AdHocNetPlugin::OnStartStopMessage, this);
 
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init();
@@ -33,6 +44,28 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/)
 
   gzmsg << "Starting Ad Hoc Net server" << std::endl;
 
+}
+
+//////////////////////////////////////////////////
+void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
+{
+  const std_msgs::Bool::ConstPtr& flag = event.getMessage();
+
+  std::lock_guard<std::mutex> lk(this->mutexStartStop);
+  if (!this->started && !this->finished && flag->data)
+  {
+    this->started = true;
+
+    // start recording
+    gzmsg << "Network started" << std::endl;
+  }
+  else if (this->started && !this->finished && !flag->data)
+  {
+    this->finished = true;
+
+    // finish recording
+    gzmsg << "Network done" << std::endl;
+  }
 }
 
 /////////////////////////////////////////////////

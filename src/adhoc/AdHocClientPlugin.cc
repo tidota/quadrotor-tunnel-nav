@@ -34,16 +34,16 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
   this->model = _model;
 
-  this->enable = true;
+  this->started = true;
+  this->finished = false;
   if (_sdf->HasElement("enable"))
   {
-    this->enable = _sdf->Get<bool>("enable");
+    this->started = _sdf->Get<bool>("enable");
   }
-  gzmsg << "enable: " << this->enable << std::endl;
 
   this->enableSub
     = this->n.subscribe(
-        "/start_comm", 1, &AdHocClientPlugin::OnStartMessage, this);
+        "/start_comm", 1, &AdHocClientPlugin::OnStartStopMessage, this);
 
   // assuming the model name has a number as suffix.
   std::istringstream(this->model->GetName().substr(5)) >> this->id;
@@ -75,10 +75,31 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 }
 
 //////////////////////////////////////////////////
-void AdHocClientPlugin::OnStartMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
+void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
 {
   const std_msgs::Bool::ConstPtr& flag = event.getMessage();
-  this->enable = flag->data;
+
+  std::lock_guard<std::mutex> lk(this->mutexStartStop);
+  if (!this->started && !this->finished && flag->data)
+  {
+    this->started = true;
+
+    if (this->id == 1)
+    {
+      // start recording
+      gzmsg << "Client started" << std::endl;
+    }
+  }
+  else if (this->started && !this->finished && !flag->data)
+  {
+    this->finished = true;
+
+    if (this->id == 1)
+    {
+      // finish recording
+      gzmsg << "Client done" << std::endl;
+    }
+  }
 }
 
 //////////////////////////////////////////////////
@@ -87,14 +108,19 @@ void AdHocClientPlugin::OnUpdate()
   std::lock_guard<std::mutex> lk(this->mutex);
   // at some interval, initiate a communication.
   common::Time current = this->model->GetWorld()->GetSimTime();
-  if (this->enable && current.Double() - this->lastSent.Double() > 3.0)
+
   {
-    this->msg_req.set_dst_address((this->id - 1 + 5) % 10 + 1);
-    this->msg_req.set_index(this->messageCount);
-    this->msg_req.set_hops(1);
-    this->pub->Publish(this->msg_req);
-    this->lastSent = current;
-    this->messageCount++;
+    std::lock_guard<std::mutex> lk(this->mutexStartStop);
+    if (this->started && !this->finished
+      && current.Double() - this->lastSent.Double() > 3.0)
+    {
+      this->msg_req.set_dst_address((this->id - 1 + 5) % 10 + 1);
+      this->msg_req.set_index(this->messageCount);
+      this->msg_req.set_hops(1);
+      this->pub->Publish(this->msg_req);
+      this->lastSent = current;
+      this->messageCount++;
+    }
   }
 
   ProcessIncomingMsgs();
@@ -129,7 +155,7 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
         }
         else if (msg.data() == "response")
         {
-          gzmsg << this->model->GetName() << " got a response from " << msg.model_name() << " (" << msg.hops() << " hops)" << std::endl;
+          gzmsg << this->model->GetName() << " got a response from src " << msg.src_address() << " (" << msg.hops() << " hops)" << std::endl;
         }
         else
         {
