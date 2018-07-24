@@ -81,7 +81,6 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->msg_res.set_data("response");
 
   this->lastSent = this->model->GetWorld()->GetSimTime();
-  this->lastProcMess = this->lastSent;
 
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
     std::bind(&AdHocClientPlugin::OnUpdate, this));
@@ -138,9 +137,8 @@ void AdHocClientPlugin::OnUpdate()
 {
   std::lock_guard<std::mutex> lk(this->mutex);
   // at some interval, initiate a communication.
-  common::Time current = this->model->GetWorld()->GetSimTime();
-
   {
+    common::Time current = this->model->GetWorld()->GetSimTime();
     std::lock_guard<std::mutex> lk(this->mutexStartStop);
     if (this->started && !this->finished
       && current.Double() - this->lastSent.Double() > 0.5)
@@ -159,20 +157,22 @@ void AdHocClientPlugin::OnUpdate()
     }
   }
 
-  if (current.Double() - this->lastProcMess.Double() > this->delayedTime)
-  {
-    ProcessIncomingMsgs();
-    this->lastProcMess = current;
-  }
+  ProcessIncomingMsgs();
 }
 
 /////////////////////////////////////////////////
 void AdHocClientPlugin::ProcessIncomingMsgs()
 {
+  common::Time current = this->model->GetWorld()->GetSimTime();
+
   while (!this->incomingMsgs.empty())
   {
-    // Forward the messages.
-    auto const &msg = this->incomingMsgs.front();
+    auto &p = this->incomingMsgs.front();
+    auto &t = p.second;
+    if (current.Double() - t.Double() < this->delayedTime)
+      break;
+
+    auto const &msg = p.first;
 
     unsigned char hash[SHA256_DIGEST_LENGTH];
 
@@ -200,7 +200,7 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
           std::string str = this->model->GetName();
           str = str + ": response from src " + std::to_string(msg.src_address())
             + " (" + std::to_string(msg.hops()) + " hops and "
-            + std::to_string(msg.time() - current.Double()) + " sec in total)";
+            + std::to_string(current.Double() - msg.time()) + " sec in total)";
           m.set_data(str);
           this->clientOutputPub->Publish(m);
           this->totalMessages++;
@@ -230,7 +230,11 @@ void AdHocClientPlugin::OnNetworkMessage(const boost::shared_ptr<adhoc::msgs::Da
 {
   // Just save the message, it will be processed later.
   std::lock_guard<std::mutex> lk(this->mutex);
-  this->incomingMsgs.push(*_msg);
+  std::pair<adhoc::msgs::Datagram, common::Time> p;
+  common::Time t = this->model->GetWorld()->GetSimTime();
+  p.first = *_msg;
+  p.second = t;
+  this->incomingMsgs.push(p);
 }
 
 //////////////////////////////////////////////////

@@ -23,6 +23,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <utility>
 
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
@@ -95,7 +96,6 @@ namespace gazebo
     private: common::Time lastSent;
 
     /// \brief the time when the node last processed messages.
-    private: common::Time lastProcMess;
     private: double delayedTime;
 
     /// \brief pointer to the update even connection.
@@ -103,7 +103,8 @@ namespace gazebo
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.
-    private: std::queue<adhoc::msgs::Datagram> incomingMsgs;
+    private: std::queue<
+      std::pair<adhoc::msgs::Datagram, common::Time> > incomingMsgs;
 
     /// \brief Protect data from races.
     private: std::mutex mutex;
