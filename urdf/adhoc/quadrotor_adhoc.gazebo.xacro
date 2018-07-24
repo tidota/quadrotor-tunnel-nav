@@ -4,6 +4,8 @@
     <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensor.urdf.xacro" />
     <xacro:include filename="$(find hector_quadrotor_gazebo)/urdf/quadrotor_plugins.gazebo.xacro" />
     <gazebo>
-      <plugin name="adhocclient_plugin" filename="libAdHocClientPlugin.so"/>
+      <plugin name="adhocclient_plugin" filename="libAdHocClientPlugin.so">
+        <enable>false</enable>
+      </plugin>
     </gazebo>
 </robot>

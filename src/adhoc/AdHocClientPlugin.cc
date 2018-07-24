@@ -34,6 +34,17 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
   this->model = _model;
 
+  this->enable = true;
+  if (_sdf->HasElement("enable"))
+  {
+    this->enable = _sdf->Get<bool>("enable");
+  }
+  gzmsg << "enable: " << this->enable << std::endl;
+
+  this->enableSub
+    = this->n.subscribe(
+        "/start_comm", 1, &AdHocClientPlugin::OnStartMessage, this);
+
   // assuming the model name has a number as suffix.
   std::istringstream(this->model->GetName().substr(5)) >> this->id;
 
@@ -43,7 +54,7 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init();
   this->pub = this->node->Advertise<adhoc::msgs::Datagram>(this->model->GetName() + "/comm_out");
-  this->sub = this->node->Subscribe<adhoc::msgs::Datagram>(this->model->GetName() + "/comm_in", &AdHocClientPlugin::OnMessage, this);
+  this->sub = this->node->Subscribe<adhoc::msgs::Datagram>(this->model->GetName() + "/comm_in", &AdHocClientPlugin::OnNetworkMessage, this);
 
   this->messageCount = 0;
 
@@ -64,12 +75,19 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 }
 
 //////////////////////////////////////////////////
+void AdHocClientPlugin::OnStartMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
+{
+  const std_msgs::Bool::ConstPtr& flag = event.getMessage();
+  this->enable = flag->data;
+}
+
+//////////////////////////////////////////////////
 void AdHocClientPlugin::OnUpdate()
 {
   std::lock_guard<std::mutex> lk(this->mutex);
   // at some interval, initiate a communication.
   common::Time current = this->model->GetWorld()->GetSimTime();
-  if (current.Double() - this->lastSent.Double() > 3.0)
+  if (this->enable && current.Double() - this->lastSent.Double() > 3.0)
   {
     this->msg_req.set_dst_address((this->id - 1 + 5) % 10 + 1);
     this->msg_req.set_index(this->messageCount);
@@ -133,7 +151,7 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
 }
 
 //////////////////////////////////////////////////
-void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
+void AdHocClientPlugin::OnNetworkMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
 {
   // Just save the message, it will be processed later.
   std::lock_guard<std::mutex> lk(this->mutex);

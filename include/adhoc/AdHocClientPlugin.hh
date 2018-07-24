@@ -24,6 +24,9 @@
 #include <memory>
 #include <queue>
 
+#include <ros/ros.h>
+#include <std_msgs/Bool.h>
+
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
@@ -39,6 +42,9 @@ namespace gazebo
     // Documentation inherited
     public: virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
 
+    // to receive a message to start operation.
+    public: void OnStartMessage(const ros::MessageEvent<std_msgs::Bool const>& event);
+
     /// \brief Callback for World Update events.
     private: void OnUpdate();
 
@@ -47,7 +53,7 @@ namespace gazebo
 
     /// \brief Function called each time a new datagram message is received.
     /// \param[in] _msg The incoming message.
-    private: void OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
+    private: void OnNetworkMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
 
     /// \brief Make a hash string based on the message.
     private: void CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash);
@@ -97,6 +103,12 @@ namespace gazebo
 
     /// \brief Protect data from races.
     private: std::mutex mutex;
+
+    private: ros::NodeHandle n;
+
+    private: bool enable;
+
+    private: ros::Subscriber enableSub;
   };
 }
 #endif

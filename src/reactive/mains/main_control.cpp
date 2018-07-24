@@ -22,7 +22,7 @@ public:
   static void kill_control();
 
   // to receive a message to start operation.
-  void OnMessage(const ros::MessageEvent<std_msgs::Bool const>& event);
+  void OnStartMessage(const ros::MessageEvent<std_msgs::Bool const>& event);
 
 protected:
   static ros::Publisher vel_pub;
@@ -50,11 +50,12 @@ int main(int argc, char** argv)
 
   // enable the motors
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<hector_uav_msgs::EnableMotors>("enable_motors");
+  ros::ServiceClient client
+    = n.serviceClient<hector_uav_msgs::EnableMotors>("enable_motors");
   client.waitForExistence();
   hector_uav_msgs::EnableMotors srv;
   srv.request.enable = true;
-  bool success = client.call(srv);
+  client.call(srv);
 
   if (argc == 2 && std::string(argv[1]) == "wait")
     Main_Control::create_control(false);
@@ -121,7 +122,7 @@ Main_Control::Main_Control(const bool _enable): enable(_enable)
   Main_Control::vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
   list_com_sub[TOPIC_OBS] = n.subscribe(TOPIC_OBS, 1, &LAYER_BASE::updateCom, (LAYER_BASE*)this);
 
-  Main_Control::enable_sub = n.subscribe("/start_flying", 1, &Main_Control::OnMessage, this);
+  Main_Control::enable_sub = n.subscribe("/start_flying", 1, &Main_Control::OnStartMessage, this);
 }
 
 // ============================================================================================
@@ -155,7 +156,7 @@ void Main_Control::command()
 // it is to be called when Ctrl-C is hit on the terminal.
 // it kills the running control and releases the memory.
 // ============================================================================================
-void Main_Control::quit(int sig)
+void Main_Control::quit(int /*sig*/)
 {
   ROS_INFO("UAV Control: signal received, shutting down");
   Main_Control::kill_control();
@@ -170,7 +171,7 @@ void Main_Control::quit(int sig)
 }
 
 // ============================================================================================
-void Main_Control::OnMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
+void Main_Control::OnStartMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
 {
   const std_msgs::Bool::ConstPtr& flag = event.getMessage();
   this->enable = flag->data;
