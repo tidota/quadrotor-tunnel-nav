@@ -42,6 +42,8 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
     std::bind(&AdHocNetPlugin::OnUpdate, this));
 
+  this->lastDisplayed = this->world->GetSimTime();
+
   gzmsg << "Starting Ad Hoc Net server" << std::endl;
 
 }
@@ -71,7 +73,21 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
 /////////////////////////////////////////////////
 void AdHocNetPlugin::OnUpdate()
 {
-  // ToDo: Step the comms model.
+  {
+    std::lock_guard<std::mutex> lk(this->mutexStartStop);
+    auto current = this->world->GetSimTime();
+    if (current.Double() - this->lastDisplayed.Double() > 3.0)
+    {
+      gzmsg << "===== locations =====" << std::endl;
+      for (auto model : this->world->GetModels())
+      {
+        auto pose = model->GetWorldPose();
+        gzmsg << model->GetName() << ": " << pose << std::endl;
+      }
+      gzmsg << "=====================" << std::endl;
+      this->lastDisplayed = current;
+    }
+  }
 
   std::lock_guard<std::mutex> lk(this->mutex);
   this->ProcessIncomingMsgs();

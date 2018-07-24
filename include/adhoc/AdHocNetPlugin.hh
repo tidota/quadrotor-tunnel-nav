@@ -63,6 +63,9 @@ namespace gazebo
     /// simulation step.
     private: std::queue<adhoc::msgs::Datagram> incomingMsgs;
 
+    /// \brief the time when the robot positions were last displayed.
+    private: common::Time lastDisplayed;
+
     /// \brief Protect data from races.
     private: std::mutex mutex;
 

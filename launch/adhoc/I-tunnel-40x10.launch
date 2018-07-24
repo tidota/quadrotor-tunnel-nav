@@ -3,7 +3,6 @@
   <include file="$(find hector_gazebo_worlds)/launch/start.launch">
    <arg name="world" value="$(find quadrotor_tunnel_nav)/worlds/adhoc/I-tunnel-40x10.world"/>
    <arg name="args" value="--verbose"/>
-   <arg name="gui" value="false"/>
   </include>
 
   <!-- Spawn simulated quadrotor uav -->
