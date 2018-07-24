@@ -119,7 +119,7 @@ namespace gazebo
     // statistics
     private: int totalPackets;
     private: int totalHops;
-    
+    private: double totalTravelTime;
   };
 }
 #endif

@@ -32,6 +32,9 @@ GZ_REGISTER_MODEL_PLUGIN(AdHocClientPlugin)
 //////////////////////////////////////////////////
 void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 {
+  gzmsg << "Starting Ad Hoc Net client " << this->id
+        << " for " << this->model->GetScopedName() << std::endl;
+
   this->model = _model;
 
   this->started = true;
@@ -47,9 +50,6 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
   // assuming the model name has a number as suffix.
   std::istringstream(this->model->GetName().substr(5)) >> this->id;
-
-  gzmsg << "Starting Ad Hoc Net client " << this->id
-        << " for " << this->model->GetScopedName() << std::endl;
 
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init();
@@ -79,6 +79,7 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
   this->totalPackets = 0;
   this->totalHops = 0;
+  this->totalTravelTime = 0.0;
 }
 
 //////////////////////////////////////////////////
@@ -107,7 +108,12 @@ void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Boo
     {
       // finish recording
       msgs::GzString msg;
-      msg.set_data("Client done: " + std::to_string(this->totalPackets) + ", " + std::to_string(this->totalHops));
+      std::stringstream ss;
+      ss << "--- Client ---" << std::endl;
+      ss << "Total # of Packets: " << this->totalPackets << std::endl;
+      ss << "Total # of Hops: " << this->totalHops << std::endl;
+      ss << "Total Travel Time: " << this->totalTravelTime << std::endl;
+      msg.set_data(ss.str());
       this->clientOutputPub->Publish(msg);
     }
   }
@@ -123,11 +129,12 @@ void AdHocClientPlugin::OnUpdate()
   {
     std::lock_guard<std::mutex> lk(this->mutexStartStop);
     if (this->started && !this->finished
-      && current.Double() - this->lastSent.Double() > 3.0)
+      && current.Double() - this->lastSent.Double() > 0.5)
     {
       this->msg_req.set_dst_address((this->id - 1 + 5) % 10 + 1);
       this->msg_req.set_index(this->messageCount);
       this->msg_req.set_hops(1);
+      this->msg_req.set_time(current.Double());
       this->pub->Publish(this->msg_req);
       this->lastSent = current;
       this->messageCount++;
@@ -172,6 +179,8 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
           this->clientOutputPub->Publish(m);
           this->totalPackets++;
           this->totalHops += msg.hops();
+          common::Time current = this->model->GetWorld()->GetSimTime();
+          this->totalTravelTime += current.Double() - msg.time();
         }
         else
         {

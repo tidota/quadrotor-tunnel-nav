@@ -12,6 +12,8 @@ GZ_REGISTER_WORLD_PLUGIN(AdHocNetPlugin)
 /////////////////////////////////////////////////
 void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
+  gzmsg << "Starting Ad Hoc Net server" << std::endl;
+
   GZ_ASSERT(_world, "AdHocNetPlugin world pointer is NULL");
   this->world = _world;
 
@@ -49,8 +51,7 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   this->lastDisplayed = this->world->GetSimTime();
 
-  gzmsg << "Starting Ad Hoc Net server" << std::endl;
-
+  this->totalPackets = 0;
 }
 
 //////////////////////////////////////////////////
@@ -72,6 +73,7 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
 
     // finish recording
     gzmsg << "Network done" << std::endl;
+    gzmsg << "total # of packets: " << this->totalPackets << std::endl;
   }
 }
 
@@ -128,6 +130,7 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
           if (length <= 10.0)
           {
             this->pubMap[robot->GetName()]->Publish(msg);
+            this->totalPackets++;
           }
         }
       }

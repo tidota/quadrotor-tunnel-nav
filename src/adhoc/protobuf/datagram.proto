@@ -40,6 +40,9 @@ message Datagram
   /// \brief index of message
   required uint32 index       = 5;
 
+  /// \brief time stamp
+  required double time        = 6;
+
   /// \brief Payload.
-  required string data        = 6;
+  required string data        = 7;
 }

@@ -82,6 +82,9 @@ namespace gazebo
     private: std::mutex mutexStartStop;
 
     private: transport::SubscriberPtr clientOutputSub;
+
+    // statistics
+    private: int totalPackets;
   };
 }
 #endif
