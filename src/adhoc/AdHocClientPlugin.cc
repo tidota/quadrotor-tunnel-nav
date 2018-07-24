@@ -47,6 +47,12 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   {
     this->started = _sdf->Get<bool>("enable");
   }
+  this->delayedTime = 0;
+  if (_sdf->HasElement("delay"))
+  {
+    this->delayedTime = _sdf->Get<double>("delay");
+  }
+  gzmsg << "Delayed Time: " << this->delayedTime << std::endl;
 
   this->enableSub
     = this->n.subscribe(
@@ -75,6 +81,7 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->msg_res.set_data("response");
 
   this->lastSent = this->model->GetWorld()->GetSimTime();
+  this->lastProcMess = this->lastSent;
 
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
     std::bind(&AdHocClientPlugin::OnUpdate, this));
@@ -151,7 +158,11 @@ void AdHocClientPlugin::OnUpdate()
     }
   }
 
-  ProcessIncomingMsgs();
+  if (current.Double() - this->lastProcMess.Double() > this->delayedTime)
+  {
+    ProcessIncomingMsgs();
+    this->lastProcMess = current;
+  }
 }
 
 /////////////////////////////////////////////////

@@ -94,6 +94,10 @@ namespace gazebo
     /// \brief the time when the node last sent a message.
     private: common::Time lastSent;
 
+    /// \brief the time when the node last processed messages.
+    private: common::Time lastProcMess;
+    private: double delayedTime;
+
     /// \brief pointer to the update even connection.
     private: event::ConnectionPtr updateConnection;
 

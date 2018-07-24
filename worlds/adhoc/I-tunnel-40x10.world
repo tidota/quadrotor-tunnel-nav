@@ -40,6 +40,7 @@
 
     <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so">
       <enable>false</enable>
+      <delay>0.5</delay>
     </plugin>
   </world>
 </sdf>
