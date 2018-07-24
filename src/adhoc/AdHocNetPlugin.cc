@@ -1,6 +1,8 @@
 #include <gazebo/common/Assert.hh>
 #include <gazebo/common/Events.hh>
 
+#include <openssl/sha.h>
+
 #include "adhoc/CommonTypes.hh"
 #include "adhoc/AdHocNetPlugin.hh"
 #include "quadrotor_tunnel_nav/protobuf/datagram.pb.h"
@@ -74,6 +76,7 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
     // finish recording
     gzmsg << "Network done" << std::endl;
     gzmsg << "total # of packets: " << this->totalPackets << std::endl;
+    gzmsg << "total # of message: " << this->hashList.size() << std::endl;
   }
 }
 
@@ -153,4 +156,35 @@ void AdHocNetPlugin::OnClientMessage(const boost::shared_ptr<gazebo::msgs::GzStr
 {
   std::lock_guard<std::mutex> lk(this->mutexStartStop);
   gzmsg << _data->data() << std::endl;
+}
+
+//////////////////////////////////////////////////
+void AdHocNetPlugin::CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash)
+{
+  std::string input
+    = std::to_string(_msg.src_address()) + std::to_string(_msg.dst_address())
+    + std::to_string(_msg.index()) + _msg.data();
+
+  SHA256((unsigned char*)input.c_str(), input.length(), _hash);
+}
+
+//////////////////////////////////////////////////
+bool AdHocNetPlugin::HasHash(const unsigned char *_hash)
+{
+  std::string buff;
+  buff.assign((const char*)_hash, SHA256_DIGEST_LENGTH);
+  for (auto h : this->hashList)
+  {
+    if (h == buff)
+      return true;
+  }
+  return false;
+}
+
+//////////////////////////////////////////////////
+void AdHocNetPlugin::RegistHash(const unsigned char *_hash)
+{
+  std::string str;
+  str.assign((const char*)_hash, SHA256_DIGEST_LENGTH);
+  this->hashList.push_back(str);
 }

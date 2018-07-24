@@ -47,6 +47,15 @@ namespace gazebo
 
     private: void OnClientMessage(const boost::shared_ptr<gazebo::msgs::GzString const> &_data);
 
+    /// \brief Make a hash string based on the message.
+    private: void CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash);
+
+    /// \brief Check if the given hash value is already registered.
+    private: bool HasHash(const unsigned char *_hash);
+
+    /// \brief Register a hash value.
+    private: void RegistHash(const unsigned char *_hash);
+
     /// \brief World pointer.
     private: physics::WorldPtr world;
 
@@ -85,6 +94,9 @@ namespace gazebo
 
     // statistics
     private: int totalPackets;
+
+    /// \brief list of hash values
+    private: std::vector<std::string> hashList;
   };
 }
 #endif
