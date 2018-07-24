@@ -67,7 +67,8 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->topoChangeCount = 0;
   this->InitTopoList();
 
-  this->startTime = this->world->GetSimTime();
+
+  gzmsg << "Net init done" << std::endl;
 }
 
 //////////////////////////////////////////////////
@@ -79,6 +80,7 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
   if (!this->started && !this->finished && flag->data)
   {
     this->started = true;
+    this->startTime = this->world->GetSimTime();
 
     // start recording
     gzmsg << "Network started" << std::endl;
@@ -228,16 +230,7 @@ void AdHocNetPlugin::InitTopoList()
   {
     for (int j = i + 1; j <= 10; ++j)
     {
-      physics::ModelPtr robot1 = this->world->GetModel("robot" + std::to_string(i));
-      physics::ModelPtr robot2 = this->world->GetModel("robot" + std::to_string(j));
-
-      auto diffVec = robot1->GetWorldPose().CoordPositionSub(robot2->GetWorldPose());
-      double length = diffVec.GetLength();
-
-      if (length <= this->commRange)
-        topoList[std::to_string(i)+":"+std::to_string(j)] = true;
-      else
-        topoList[std::to_string(i)+":"+std::to_string(j)] = false;
+      topoList[std::to_string(i)+":"+std::to_string(j)] = false;
     }
   }
 }
@@ -252,6 +245,9 @@ bool AdHocNetPlugin::CheckTopoChange()
     {
       physics::ModelPtr robot1 = this->world->GetModel("robot" + std::to_string(i));
       physics::ModelPtr robot2 = this->world->GetModel("robot" + std::to_string(j));
+
+      if (!robot1 || !robot2)
+        continue;
 
       auto diffVec = robot1->GetWorldPose().CoordPositionSub(robot2->GetWorldPose());
       double length = diffVec.GetLength();
