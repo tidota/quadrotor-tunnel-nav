@@ -16,6 +16,13 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   gzmsg << "Starting Ad Hoc Net server" << std::endl;
 
+  if (_sdf->HasElement("range"))
+    this->commRange = _sdf->Get<double>("range");
+  else
+    this->commRange = 10.0;
+
+  gzmsg << "Communication range: " << this->commRange << std::endl;
+
   GZ_ASSERT(_world, "AdHocNetPlugin world pointer is NULL");
   this->world = _world;
 
@@ -131,7 +138,7 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
           auto diffVec = robot->GetWorldPose().CoordPositionSub(sender->GetWorldPose());
           double length = diffVec.GetLength();
 
-          if (length <= 10.0)
+          if (length <= this->commRange)
           {
             this->pubMap[robot->GetName()]->Publish(msg);
             unsigned char hash[SHA256_DIGEST_LENGTH];

@@ -92,6 +92,8 @@ namespace gazebo
 
     private: transport::SubscriberPtr clientOutputSub;
 
+    private: double commRange;
+
     // statistics
     private: int totalPackets;
 
