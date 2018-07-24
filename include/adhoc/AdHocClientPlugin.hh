@@ -116,9 +116,9 @@ namespace gazebo
     private: transport::PublisherPtr clientOutputPub;
 
     // statistics
-    private: int totalPackets;
+    private: int totalMessages;
     private: int totalHops;
-    private: double totalTravelTime;
+    private: double totalRoundTripTime;
   };
 }
 #endif

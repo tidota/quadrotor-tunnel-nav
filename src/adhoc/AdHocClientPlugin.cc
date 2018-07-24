@@ -79,9 +79,9 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
     std::bind(&AdHocClientPlugin::OnUpdate, this));
 
-  this->totalPackets = 0;
+  this->totalMessages = 0;
   this->totalHops = 0;
-  this->totalTravelTime = 0.0;
+  this->totalRoundTripTime = 0.0;
 
   std::srand(std::time(nullptr));
 }
@@ -114,9 +114,11 @@ void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Boo
       msgs::GzString msg;
       std::stringstream ss;
       ss << "--- Client ---" << std::endl;
-      ss << "Total # of Packets: " << this->totalPackets << std::endl;
+      ss << "Total # of Packets: " << this->totalMessages << std::endl;
       ss << "Total # of Hops: " << this->totalHops << std::endl;
-      ss << "Total Travel Time: " << this->totalTravelTime << std::endl;
+      ss << "Ave # of hops per Message: " << ((double)this->totalHops)/this->totalMessages << std::endl;
+      ss << "Total Round Trip Time: " << this->totalRoundTripTime << std::endl;
+      ss << "Ave Round Trip Time per Message: " << this->totalRoundTripTime/this->totalMessages << std::endl;
       msg.set_data(ss.str());
       this->clientOutputPub->Publish(msg);
     }
@@ -186,10 +188,10 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
           str = str + " got a response from src " + std::to_string(msg.src_address()) + " (" + std::to_string(msg.hops()) + " hops in total)";
           m.set_data(str);
           this->clientOutputPub->Publish(m);
-          this->totalPackets++;
+          this->totalMessages++;
           this->totalHops += msg.hops();
           common::Time current = this->model->GetWorld()->GetSimTime();
-          this->totalTravelTime += current.Double() - msg.time();
+          this->totalRoundTripTime += current.Double() - msg.time();
         }
         else
         {
