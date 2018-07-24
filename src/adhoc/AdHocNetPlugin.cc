@@ -133,6 +133,10 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
           if (length <= 10.0)
           {
             this->pubMap[robot->GetName()]->Publish(msg);
+            hash[SHA256_DIGEST_LENGTH];
+            this->CalcHash(msg, hash);
+            if (!this->HasHash(hash))
+              this->RegistHash(hash);
             this->totalPackets++;
           }
         }
