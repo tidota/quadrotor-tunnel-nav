@@ -56,6 +56,10 @@ namespace gazebo
     /// \brief Register a hash value.
     private: void RegistHash(const unsigned char *_hash);
 
+    private: void InitTopoList();
+    /// \brief Check if the net topology changed.
+    private: bool CheckTopoChange();
+
     /// \brief World pointer.
     private: physics::WorldPtr world;
 
@@ -99,6 +103,13 @@ namespace gazebo
 
     /// \brief list of hash values
     private: std::vector<std::string> hashList;
+
+    private: std::map<std::string, bool> topoList;
+
+    /// \brief # of topology changes
+    private: int topoChangeCount;
+
+    private: common::Time startTime;
   };
 }
 #endif

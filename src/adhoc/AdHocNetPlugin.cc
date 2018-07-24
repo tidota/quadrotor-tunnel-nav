@@ -63,6 +63,11 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->lastDisplayed = this->world->GetSimTime();
 
   this->totalPackets = 0;
+
+  this->topoChangeCount = 0;
+  this->InitTopoList();
+
+  this->startTime = this->world->GetSimTime();
 }
 
 //////////////////////////////////////////////////
@@ -82,12 +87,18 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
   {
     this->finished = true;
 
+    common::Time current = this->world->GetSimTime();
+    double elapsed = current.Double() - this->startTime.Double();
+
     // finish recording
     std::stringstream ss;
     ss << "--- Network ---" << std::endl;
+    ss << "Time: " << elapsed << std::endl;
     ss << "Total # of Packets: " << this->totalPackets << std::endl;
     ss << "Total # of Message: " << this->hashList.size() << std::endl;
     ss << "Ave # of Packets per Message: " << ((double)this->totalPackets)/this->hashList.size() << std::endl;
+    ss << "Total # of Topology Changes: " << this->topoChangeCount << std::endl;
+    ss << "Ave # Time of Same topology: " << elapsed / this->topoChangeCount << std::endl;
     gzmsg << ss.str();
   }
 }
@@ -98,7 +109,7 @@ void AdHocNetPlugin::OnUpdate()
   {
     std::lock_guard<std::mutex> lk(this->mutexStartStop);
     auto current = this->world->GetSimTime();
-    if (current.Double() - this->lastDisplayed.Double() > 1.0)
+    if (current.Double() - this->lastDisplayed.Double() > 3.0)
     {
       gzmsg << "===== locations =====" << std::endl;
       for (auto model : this->world->GetModels())
@@ -109,6 +120,11 @@ void AdHocNetPlugin::OnUpdate()
       gzmsg << "=====================" << std::endl;
       this->lastDisplayed = current;
     }
+  }
+
+  if (this->CheckTopoChange())
+  {
+    this->topoChangeCount++;
   }
 
   std::lock_guard<std::mutex> lk(this->mutex);
@@ -203,4 +219,51 @@ void AdHocNetPlugin::RegistHash(const unsigned char *_hash)
   std::string str;
   str.assign((const char*)_hash, SHA256_DIGEST_LENGTH);
   this->hashList.push_back(str);
+}
+
+//////////////////////////////////////////////////
+void AdHocNetPlugin::InitTopoList()
+{
+  for (int i = 1; i <= 9; ++i)
+  {
+    for (int j = i + 1; j <= 10; ++j)
+    {
+      physics::ModelPtr robot1 = this->world->GetModel("robot" + std::to_string(i));
+      physics::ModelPtr robot2 = this->world->GetModel("robot" + std::to_string(j));
+
+      auto diffVec = robot1->GetWorldPose().CoordPositionSub(robot2->GetWorldPose());
+      double length = diffVec.GetLength();
+
+      if (length <= this->commRange)
+        topoList[std::to_string(i)+":"+std::to_string(j)] = true;
+      else
+        topoList[std::to_string(i)+":"+std::to_string(j)] = false;
+    }
+  }
+}
+
+//////////////////////////////////////////////////
+bool AdHocNetPlugin::CheckTopoChange()
+{
+  bool changed = false;
+  for (int i = 1; i <= 9; ++i)
+  {
+    for (int j = i + 1; j <= 10; ++j)
+    {
+      physics::ModelPtr robot1 = this->world->GetModel("robot" + std::to_string(i));
+      physics::ModelPtr robot2 = this->world->GetModel("robot" + std::to_string(j));
+
+      auto diffVec = robot1->GetWorldPose().CoordPositionSub(robot2->GetWorldPose());
+      double length = diffVec.GetLength();
+
+      bool inRange = (length <= this->commRange);
+      if (inRange != topoList[std::to_string(i)+":"+std::to_string(j)])
+      {
+        changed = true;
+        topoList[std::to_string(i)+":"+std::to_string(j)] = inRange;
+      }
+    }
+  }
+
+  return changed;
 }
