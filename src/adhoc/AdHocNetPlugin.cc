@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include <gazebo/common/Assert.hh>
 #include <gazebo/common/Events.hh>
 
@@ -81,10 +83,12 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
     this->finished = true;
 
     // finish recording
-    gzmsg << "Network done" << std::endl;
-    gzmsg << "Total # of Packets: " << this->totalPackets << std::endl;
-    gzmsg << "Total # of Message: " << this->hashList.size() << std::endl;
-    gzmsg << "Ave # of Packets per Message: " << ((double)this->totalPackets)/this->hashList.size() << std::endl;
+    std::stringstream ss;
+    ss << "--- Network ---" << std::endl;
+    ss << "Total # of Packets: " << this->totalPackets << std::endl;
+    ss << "Total # of Message: " << this->hashList.size() << std::endl;
+    ss << "Ave # of Packets per Message: " << ((double)this->totalPackets)/this->hashList.size() << std::endl;
+    gzmsg << ss.str();
   }
 }
 
