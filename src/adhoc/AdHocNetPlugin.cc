@@ -100,7 +100,7 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
     ss << "Total # of Message: " << this->hashList.size() << std::endl;
     ss << "Ave # of Packets per Message: " << ((double)this->totalPackets)/this->hashList.size() << std::endl;
     ss << "Total # of Topology Changes: " << this->topoChangeCount << std::endl;
-    ss << "Ave # Time of Same topology: " << elapsed / this->topoChangeCount << std::endl;
+    ss << "Frequency of Topology Change: " << this->topoChangeCount / elapsed << std::endl;
     gzmsg << ss.str();
   }
 }

@@ -212,7 +212,7 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
           gzerr << this->model->GetName() << " got invalid data." << std::endl;
         }
       }
-      else if (msg.hops() < 20)
+      else if (msg.hops() <= 20)
       {
         adhoc::msgs::Datagram forwardMsg(msg);
         forwardMsg.set_model_name(this->model->GetName());
