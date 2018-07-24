@@ -56,6 +56,10 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->pub = this->node->Advertise<adhoc::msgs::Datagram>(this->model->GetName() + "/comm_out");
   this->sub = this->node->Subscribe<adhoc::msgs::Datagram>(this->model->GetName() + "/comm_in", &AdHocClientPlugin::OnNetworkMessage, this);
 
+  this->clientOutputPub
+    = this->node->Advertise<gazebo::msgs::GzString>(
+      "/print_by_net");
+
   this->messageCount = 0;
 
   this->msg_req.set_model_name(this->model->GetName());
@@ -87,7 +91,9 @@ void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Boo
     if (this->id == 1)
     {
       // start recording
-      gzmsg << "Client started" << std::endl;
+      msgs::GzString msg;
+      msg.set_data("Client started!");
+      this->clientOutputPub->Publish(msg);
     }
   }
   else if (this->started && !this->finished && !flag->data)
@@ -97,7 +103,9 @@ void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Boo
     if (this->id == 1)
     {
       // finish recording
-      gzmsg << "Client done" << std::endl;
+      msgs::GzString msg;
+      msg.set_data("Client done!");
+      this->clientOutputPub->Publish(msg);
     }
   }
 }
@@ -146,7 +154,6 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
       {
         if (msg.data() == "request")
         {
-          gzmsg << this->model->GetName() << " got a request from src " << msg.src_address() << "(" << msg.hops() << " hops)"<< ". Replying..." << std::endl;
           this->msg_res.set_dst_address(msg.src_address());
           this->msg_res.set_index(this->messageCount);
           this->msg_res.set_hops(1);
@@ -155,7 +162,11 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
         }
         else if (msg.data() == "response")
         {
-          gzmsg << this->model->GetName() << " got a response from src " << msg.src_address() << " (" << msg.hops() << " hops)" << std::endl;
+          msgs::GzString m;
+          std::string str = this->model->GetName();
+          str = str + " got a response from src " + std::to_string(msg.src_address()) + " (" + std::to_string(msg.hops()) + " hops)";
+          m.set_data(str);
+          this->clientOutputPub->Publish(m);
         }
         else
         {
@@ -164,7 +175,6 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
       }
       else if (msg.hops() < 10)
       {
-        // gzmsg << this->model->GetName() << " forwarding a message (" << msg.hops() << " hops)" << std::endl;
         adhoc::msgs::Datagram forwardMsg(msg);
         forwardMsg.set_model_name(this->model->GetName());
         forwardMsg.set_hops(msg.hops() + 1);

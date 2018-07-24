@@ -10,6 +10,7 @@
 
 #include <gazebo/common/Event.hh>
 #include <gazebo/common/Plugin.hh>
+#include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
 #include <sdf/sdf.hh>
@@ -44,6 +45,8 @@ namespace gazebo
     /// \param _req The datagram contained in the request.
     private: void OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_req);
 
+    private: void OnClientMessage(const boost::shared_ptr<gazebo::msgs::GzString const> &_data);
+
     /// \brief World pointer.
     private: physics::WorldPtr world;
 
@@ -77,6 +80,8 @@ namespace gazebo
     private: ros::Subscriber enableSub;
 
     private: std::mutex mutexStartStop;
+
+    private: transport::SubscriberPtr clientOutputSub;
   };
 }
 #endif

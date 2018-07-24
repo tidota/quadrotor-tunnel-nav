@@ -28,6 +28,7 @@
 #include <std_msgs/Bool.h>
 
 #include <gazebo/common/Plugin.hh>
+//#include <gazebo/msgs/GzString.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
 
@@ -112,6 +113,8 @@ namespace gazebo
     private: ros::Subscriber enableSub;
 
     private: std::mutex mutexStartStop;
+
+    private: transport::PublisherPtr clientOutputPub;
   };
 }
 #endif

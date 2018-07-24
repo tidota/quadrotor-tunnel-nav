@@ -26,6 +26,7 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     = this->n.subscribe(
         "/start_comm", 1, &AdHocNetPlugin::OnStartStopMessage, this);
 
+
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init();
   for (int i = 1; i <= 10; ++i)
@@ -38,6 +39,10 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
         "robot" + std::to_string(i) + "/comm_out",
         &AdHocNetPlugin::OnMessage, this);
   }
+  this->clientOutputSub
+    = this->node->Subscribe<gazebo::msgs::GzString>(
+      "/print_by_net",
+      &AdHocNetPlugin::OnClientMessage, this);
 
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
     std::bind(&AdHocNetPlugin::OnUpdate, this));
@@ -76,7 +81,7 @@ void AdHocNetPlugin::OnUpdate()
   {
     std::lock_guard<std::mutex> lk(this->mutexStartStop);
     auto current = this->world->GetSimTime();
-    if (current.Double() - this->lastDisplayed.Double() > 3.0)
+    if (current.Double() - this->lastDisplayed.Double() > 1.0)
     {
       gzmsg << "===== locations =====" << std::endl;
       for (auto model : this->world->GetModels())
@@ -138,4 +143,11 @@ void AdHocNetPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram con
   // Just save the message, it will be processed later.
   std::lock_guard<std::mutex> lk(this->mutex);
   this->incomingMsgs.push(*_req);
+}
+
+/////////////////////////////////////////////////
+void AdHocNetPlugin::OnClientMessage(const boost::shared_ptr<gazebo::msgs::GzString const> &_data)
+{
+  std::lock_guard<std::mutex> lk(this->mutexStartStop);
+  gzmsg << _data->data() << std::endl;
 }
