@@ -128,7 +128,6 @@ void AdHocNetPlugin::OnUpdate()
 
   if (this->started && !this->finished && this->CheckTopoChange())
   {
-    gzmsg << "changed" << std::endl;
     this->topoChangeCount++;
   }
 
@@ -260,6 +259,10 @@ bool AdHocNetPlugin::CheckTopoChange()
       {
         changed = true;
         this->topoList[std::to_string(i)+":"+std::to_string(j)] = inRange;
+        if (inRange)
+          gzmsg << i << ":" << j << ", connected" << std::endl;
+        else
+          gzmsg << i << ":" << j << ", disconnected" << std::endl;
       }
     }
   }
