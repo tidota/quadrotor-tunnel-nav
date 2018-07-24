@@ -8,9 +8,11 @@
 class Keep_Going: public Go_Straight
 {
 public:
-  Keep_Going();
+  Keep_Going(const double _vel);
 private:
   void command() override;
+
+  double vel;
 };
 
 #endif
