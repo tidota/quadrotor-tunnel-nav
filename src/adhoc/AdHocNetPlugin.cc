@@ -84,7 +84,7 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
     gzmsg << "Network done" << std::endl;
     gzmsg << "Total # of Packets: " << this->totalPackets << std::endl;
     gzmsg << "Total # of Message: " << this->hashList.size() << std::endl;
-    gzmsg << "Ave # of Packets per Message: " << ((double)this->hashList.size())/this->totalPackets << std::endl;
+    gzmsg << "Ave # of Packets per Message: " << ((double)this->totalPackets)/this->hashList.size() << std::endl;
   }
 }
 
