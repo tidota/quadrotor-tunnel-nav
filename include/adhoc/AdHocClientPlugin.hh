@@ -115,6 +115,11 @@ namespace gazebo
     private: std::mutex mutexStartStop;
 
     private: transport::PublisherPtr clientOutputPub;
+
+    // statistics
+    private: int totalPackets;
+    private: int totalHops;
+    
   };
 }
 #endif

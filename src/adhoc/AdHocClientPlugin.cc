@@ -76,6 +76,9 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
     std::bind(&AdHocClientPlugin::OnUpdate, this));
+
+  this->totalPackets = 0;
+  this->totalHops = 0;
 }
 
 //////////////////////////////////////////////////
@@ -104,7 +107,7 @@ void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Boo
     {
       // finish recording
       msgs::GzString msg;
-      msg.set_data("Client done!");
+      msg.set_data("Client done: " + std::to_string(this->totalPackets) + ", " + std::to_string(this->totalHops));
       this->clientOutputPub->Publish(msg);
     }
   }
@@ -156,7 +159,7 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
         {
           this->msg_res.set_dst_address(msg.src_address());
           this->msg_res.set_index(this->messageCount);
-          this->msg_res.set_hops(1);
+          this->msg_res.set_hops(msg.hops() + 1);
           this->pub->Publish(this->msg_res);
           this->messageCount++;
         }
@@ -164,9 +167,11 @@ void AdHocClientPlugin::ProcessIncomingMsgs()
         {
           msgs::GzString m;
           std::string str = this->model->GetName();
-          str = str + " got a response from src " + std::to_string(msg.src_address()) + " (" + std::to_string(msg.hops()) + " hops)";
+          str = str + " got a response from src " + std::to_string(msg.src_address()) + " (" + std::to_string(msg.hops()) + " hops in total)";
           m.set_data(str);
           this->clientOutputPub->Publish(m);
+          this->totalPackets++;
+          this->totalHops += msg.hops();
         }
         else
         {
