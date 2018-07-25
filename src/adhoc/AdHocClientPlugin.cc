@@ -18,7 +18,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <iostream>
+#include <fstream>
 #include <sstream>
 
 #include <openssl/sha.h>
@@ -120,6 +120,7 @@ void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Boo
       msgs::GzString msg;
       std::stringstream ss;
       ss << "--- Client ---" << std::endl;
+      ss << "Time of hop to delay: " << this->delayedTime << std::endl;
       ss << "Total # of Sent Messages: " << this->messageCount << std::endl;
       ss << "Total # of Received Messages: " << this->totalMessages << std::endl;
       ss << "Total # of Hops: " << this->totalHops << std::endl;
@@ -129,7 +130,11 @@ void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Boo
       msg.set_data(ss.str());
       this->clientOutputPub->Publish(msg);
 
-      
+      common::Time current = this->model->GetWorld()->GetSimTime();
+      std::fstream fs;
+      fs.open("Client-" + current.FormattedString() + ".log", std::fstream::out);
+      fs << ss.str();
+      fs.close();
     }
   }
 }

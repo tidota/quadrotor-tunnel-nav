@@ -1,3 +1,4 @@
+#include <fstream>
 #include <sstream>
 
 #include <gazebo/common/Assert.hh>
@@ -111,6 +112,12 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
     ss << "Total # of Topology Changes: " << this->topoChangeCount << std::endl;
     ss << "Frequency of Topology Change: " << this->topoChangeCount / elapsed << std::endl;
     gzmsg << ss.str();
+
+    std::fstream fs;
+    fs.open("Network-" + current.FormattedString() + ".log", std::fstream::out);
+    fs << ss.str();
+    fs.close();
+
   }
 }
 
