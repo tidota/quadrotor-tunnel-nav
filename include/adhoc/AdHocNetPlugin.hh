@@ -110,6 +110,9 @@ namespace gazebo
     private: int topoChangeCount;
 
     private: common::Time startTime;
+
+    /// \brief how long time to run the simulation
+    private: double simPeriod;
   };
 }
 #endif

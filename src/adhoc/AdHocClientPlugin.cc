@@ -128,6 +128,8 @@ void AdHocClientPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Boo
       ss << "Ave Round Trip Time per Message: " << this->totalRoundTripTime/this->totalMessages << std::endl;
       msg.set_data(ss.str());
       this->clientOutputPub->Publish(msg);
+
+      
     }
   }
 }

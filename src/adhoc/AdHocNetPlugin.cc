@@ -25,6 +25,13 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   gzmsg << "Communication range: " << this->commRange << std::endl;
 
+  if (_sdf->HasElement("period"))
+    this->simPeriod = _sdf->Get<double>("period");
+  else
+    this->simPeriod = 5;
+
+  gzmsg << "Simulation period: " << this->simPeriod << std::endl;
+
   GZ_ASSERT(_world, "AdHocNetPlugin world pointer is NULL");
   this->world = _world;
 
@@ -110,10 +117,11 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
 /////////////////////////////////////////////////
 void AdHocNetPlugin::OnUpdate()
 {
+  if (this->started && !this->finished)
   {
     std::lock_guard<std::mutex> lk(this->mutexStartStop);
     auto current = this->world->GetSimTime();
-    if (current.Double() - this->lastDisplayed.Double() > 3.0)
+    if (current.Double() - this->lastDisplayed.Double() >= 3.0)
     {
       gzmsg << "===== locations =====" << std::endl;
       for (auto model : this->world->GetModels())
@@ -124,6 +132,14 @@ void AdHocNetPlugin::OnUpdate()
       gzmsg << "=====================" << std::endl;
       this->lastDisplayed = current;
     }
+
+    if (current.Double() - this->startTime.Double() >= this->simPeriod)
+    {
+      std_msgs::Bool stop;
+      stop.data = false;
+      auto pub = n.advertise<std_msgs::Bool>("/start_comm", 1);
+      pub.publish(stop);
+    }
   }
 
   if (this->started && !this->finished && this->CheckTopoChange())
@@ -131,8 +147,11 @@ void AdHocNetPlugin::OnUpdate()
     this->topoChangeCount++;
   }
 
-  std::lock_guard<std::mutex> lk(this->mutex);
-  this->ProcessIncomingMsgs();
+  if (this->started && !this->finished)
+  {
+    std::lock_guard<std::mutex> lk(this->mutex);
+    this->ProcessIncomingMsgs();
+  }
 }
 
 /////////////////////////////////////////////////

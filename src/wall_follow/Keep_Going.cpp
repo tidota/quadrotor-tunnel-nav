@@ -3,7 +3,7 @@
 // ============================================================================================
 // Constructor
 // ============================================================================================
-Keep_Going::Keep_Going(const double _vel): vel(_vel), Go_Straight()
+Keep_Going::Keep_Going(const double _vel): Go_Straight(), vel(_vel)
 {
 }
 
