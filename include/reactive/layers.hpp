@@ -1,19 +1,23 @@
 // layers.hpp
 // 170104
 // basic definitions and class definitions
-// 
+//
 
 #ifndef _LAYERS_HPP
 #define _LAYERS_HPP
 
-#include <ros/ros.h>
-#include <geometry_msgs/Twist.h>
-#include <quadrotor_tunnel_nav/Com.h>
-#include <sensor_msgs/Range.h>
-#include "boost/thread/mutex.hpp"
+#include <signal.h>
+
 #include <map>
 
-#include <signal.h>
+#include <geometry_msgs/Twist.h>
+#include <quadrotor_tunnel_nav/Com.h>
+#include <ros/ros.h>
+#include <sensor_msgs/Range.h>
+#include <std_srvs/SetBool.h>
+
+#include <boost/thread/mutex.hpp>
+
 
 ///////////////////////////////////////////////////////////////
 // Constants
@@ -43,20 +47,20 @@
 #define MAX_VEL_STRAIGHT 1.8
 #define MIN_VEL_STRAIGHT 0.5
 
-#define TOPIC_RANGE_H0 "/range_front"
-#define TOPIC_RANGE_H1 "/range_lfront"
-#define TOPIC_RANGE_H2 "/range_left"
-#define TOPIC_RANGE_H3 "/range_lrear"
-#define TOPIC_RANGE_H4 "/range_rear"
-#define TOPIC_RANGE_H5 "/range_rrear"
-#define TOPIC_RANGE_H6 "/range_right"
-#define TOPIC_RANGE_H7 "/range_rfront"
-#define TOPIC_RANGE_U0 "/range_ufront"
-#define TOPIC_RANGE_U1 "/range_up"
-#define TOPIC_RANGE_U2 "/range_urear"
-#define TOPIC_RANGE_D0 "/range_dfront"
-#define TOPIC_RANGE_D1 "/range_down"
-#define TOPIC_RANGE_D2 "/range_drear"
+#define TOPIC_RANGE_H0 "range_front"
+#define TOPIC_RANGE_H1 "range_lfront"
+#define TOPIC_RANGE_H2 "range_left"
+#define TOPIC_RANGE_H3 "range_lrear"
+#define TOPIC_RANGE_H4 "range_rear"
+#define TOPIC_RANGE_H5 "range_rrear"
+#define TOPIC_RANGE_H6 "range_right"
+#define TOPIC_RANGE_H7 "range_rfront"
+#define TOPIC_RANGE_U0 "range_ufront"
+#define TOPIC_RANGE_U1 "range_up"
+#define TOPIC_RANGE_U2 "range_urear"
+#define TOPIC_RANGE_D0 "range_dfront"
+#define TOPIC_RANGE_D1 "range_down"
+#define TOPIC_RANGE_D2 "range_drear"
 
 
 #define TOPIC_OBS "obs_avoid"
@@ -118,7 +122,7 @@ public:
     subscribe_D(1)
     subscribe_D(2)
   }
-  ~LAYER_BASE()
+  virtual ~LAYER_BASE()
   {
     timer.stop();
   }
@@ -157,7 +161,7 @@ public:
     std::string topic = header.at("topic");
 
     boost::mutex::scoped_lock lock(com_mutex);
-    list_com[topic.substr(1)] = *new_com;
+    list_com[topic.substr(topic.rfind("/") + 1)] = *new_com;
   }
 
 private:
@@ -190,80 +194,6 @@ public:
   def_updateRange_D(0)
   def_updateRange_D(1)
   def_updateRange_D(2)
-};
-
-// ============================================================================================
-// Main_Control class
-// it contains everything necessary for control
-// ============================================================================================
-class Main_Control : public LAYER_BASE
-{
-public:
-  // the instance of this class must be single
-  // so this function must be called to create the object.
-  static Main_Control *create_control();
-
-  // to release the memory, call this function.
-  static void kill_control();
-
-protected:
-  static ros::Publisher vel_pub;
-
-private:
-  Main_Control();
-
-  void command();
-
-  static void quit(int);
-
-  static Main_Control *p_control;
-
-};
-
-// ============================================================================================
-// LAYER classes
-// ============================================================================================
-class Obs_Avoid: public LAYER_BASE
-{
-public:
-  Obs_Avoid();
-private:
-  void command();
-};
-class Keep_Alt: public LAYER_BASE
-{
-public:
-  Keep_Alt();
-private:
-  void command();
-};
-class Turn: public LAYER_BASE
-{
-public:
-  Turn();
-private:
-  void command();
-};
-class Steer: public LAYER_BASE
-{
-public:
-  Steer();
-private:
-  void command();
-};
-class Middle_Line: public LAYER_BASE
-{
-public:
-  Middle_Line();
-private:
-  void command();
-};
-class Go_Straight: public LAYER_BASE
-{
-public:
-  Go_Straight();
-private:
-  void command();
 };
 
 #endif // _LAYERS_HPP

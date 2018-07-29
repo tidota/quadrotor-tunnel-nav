@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_control.launch">
+    <arg name="ns" value="robot1"/>
+  </include>
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_control.launch">
+    <arg name="ns" value="robot2"/>
+  </include>
+</launch>

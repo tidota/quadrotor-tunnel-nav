@@ -1,22 +1,4 @@
-// steer.cpp
-
-#include "layers.hpp"
-
-// ============================================================================================
-// main
-// ============================================================================================
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "steer");
-
-  Steer* obj = new Steer();
-
-  ros::spin();
-
-  delete obj;
-
-  return(0);
-}
+#include "reactive/Steer.hpp"
 
 // ============================================================================================
 // Constructor
@@ -64,5 +46,3 @@ void Steer::command()
 
   com_pub.publish(com);
 }
-
-

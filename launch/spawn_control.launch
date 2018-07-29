@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="ns" default="robot"/>
+
+  <group ns="$(arg ns)">
+    <node name="main_control" pkg="quadrotor_tunnel_nav" type="main_control_node" args="" />
+    <node name="obstacle_avoidance" pkg="quadrotor_tunnel_nav" type="obs_avoid_node" args="" />
+    <node name="altitude_adjustment" pkg="quadrotor_tunnel_nav" type="altitude_node" args="" />
+    <node name="turning_around" pkg="quadrotor_tunnel_nav" type="turn_node" args="" />
+    <node name="steering" pkg="quadrotor_tunnel_nav" type="steer_node" args="" />
+    <node name="staying_on_the_middle_line" pkg="quadrotor_tunnel_nav" type="middle_line_node" args="" />
+    <node name="going_straight" pkg="quadrotor_tunnel_nav" type="go_straight_node" args="" />
+  </group>
+
+</launch>

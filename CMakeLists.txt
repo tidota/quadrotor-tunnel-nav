@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(quadrotor_tunnel_nav)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra")
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -8,15 +10,22 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   sensor_msgs
   gazebo_ros
+  gazebo_plugins
   hector_gazebo_plugins
   hector_quadrotor_description
   hector_quadrotor_gazebo
   hector_gazebo_worlds
+  hector_uav_msgs
   roscpp
   rospy
   std_msgs
   message_generation
 )
+
+file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/include)
+
+find_package(gazebo REQUIRED)
+find_package(ignition-transport4 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
@@ -124,7 +133,64 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  ${GAZEBO_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  include
+)
+
+link_directories(
+  ${GAZEBO_LIBRARY_DIRS}
+)
+
+catkin_package(
+  CATKIN_DEPENDS
+    message_runtime
+  INCLUDE_DIRS
+  LIBRARIES
+  CFG_EXTRAS
+    ${PROJECT_NAME}-extras.cmake
+)
+# Create a static library with the Protobuf messages used internally.
+set(protobuf_lib_name QuadrotorTunnelNavProtobuf)
+add_subdirectory(src/adhoc/protobuf)
+set_source_files_properties(${PROTO_SOURCES} ${PROTO_HEADERS}
+                            PROPERTIES GENERATED TRUE)
+add_library(${protobuf_lib_name} STATIC ${PROTO_SOURCES})
+add_dependencies(${protobuf_lib_name} protobuf_compilation)
+set_target_properties(${protobuf_lib_name}
+  PROPERTIES POSITION_INDEPENDENT_CODE ON COMPILE_FLAGS "-Wno-unused-parameter")
+
+# Create the libAdHocNetPlugin.so library.
+set(adhocnet_plugin_name AdHocNetPlugin)
+add_library(${adhocnet_plugin_name} src/adhoc/AdHocNetPlugin.cc)
+target_include_directories(${adhocnet_plugin_name}
+  PRIVATE ${CATKIN_DEVEL_PREFIX}/include)
+target_include_directories(${adhocnet_plugin_name}
+  PRIVATE src/adhoc)
+target_link_libraries(${adhocnet_plugin_name}
+  ${catkin_LIBRARIES}
+  ${protobuf_lib_name}
+  ${ignition-transport4_LIBRARIES}
+)
+add_dependencies(${adhocnet_plugin_name}
+  protobuf_compilation
+)
+
+# Create the libAdHocClientPlugin.so library.
+set(adhocclient_plugin_name AdHocClientPlugin)
+add_library(${adhocclient_plugin_name} src/adhoc/AdHocClientPlugin.cc)
+target_include_directories(${adhocclient_plugin_name}
+  PRIVATE ${CATKIN_DEVEL_PREFIX}/include)
+target_include_directories(${adhocclient_plugin_name}
+  PRIVATE src/adhoc)
+target_link_libraries(${adhocclient_plugin_name}
+  ${catkin_LIBRARIES}
+  ${protobuf_lib_name}
+  ${ignition-transport4_LIBRARIES}
+  ssl crypto
+)
+add_dependencies(${adhocclient_plugin_name}
+  protobuf_compilation
 )
 
 ## Declare a C++ library
@@ -149,33 +215,67 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(main_control src/reactive/main_control.cpp)
-add_dependencies(main_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(main_control ${catkin_LIBRARIES})
+add_executable(main_control_node src/reactive/mains/main_control.cpp)
+add_dependencies(main_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(main_control_node ${catkin_LIBRARIES})
 
-add_executable(obs_avoid src/reactive/obstacle_avoidance.cpp)
-add_dependencies(obs_avoid ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(obs_avoid ${catkin_LIBRARIES})
+add_library(obs_avoid_lib src/reactive/Obs_Avoid.cpp)
+add_dependencies(obs_avoid_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(obs_avoid_lib ${catkin_LIBRARIES})
+add_executable(obs_avoid_node src/reactive/mains/obstacle_avoidance.cpp)
+add_dependencies(obs_avoid_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} obs_avoid_lib)
+target_link_libraries(obs_avoid_node ${catkin_LIBRARIES} obs_avoid_lib)
 
-add_executable(altitude src/reactive/altitude.cpp)
-add_dependencies(altitude ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(altitude ${catkin_LIBRARIES})
+add_library(altitude_lib src/reactive/Keep_Alt.cpp)
+add_dependencies(altitude_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(altitude_lib ${catkin_LIBRARIES})
+add_executable(altitude_node src/reactive/mains/altitude.cpp)
+add_dependencies(altitude_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} altitude_lib)
+target_link_libraries(altitude_node ${catkin_LIBRARIES} altitude_lib)
 
-add_executable(turn src/reactive/turn.cpp)
-add_dependencies(turn ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(turn ${catkin_LIBRARIES})
+add_library(turn_lib src/reactive/Turn.cpp)
+add_dependencies(turn_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(turn_lib ${catkin_LIBRARIES})
+add_executable(turn_node src/reactive/mains/turn.cpp)
+add_dependencies(turn_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} turn_lib)
+target_link_libraries(turn_node ${catkin_LIBRARIES} turn_lib)
 
-add_executable(steer src/reactive/steer.cpp)
-add_dependencies(steer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(steer ${catkin_LIBRARIES})
+add_library(steer_lib src/reactive/Steer.cpp)
+add_dependencies(steer_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(steer_lib ${catkin_LIBRARIES})
+add_executable(steer_node src/reactive/mains/steer.cpp)
+add_dependencies(steer_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} steer_lib)
+target_link_libraries(steer_node ${catkin_LIBRARIES} steer_lib)
 
-add_executable(middle_line src/reactive/middle_line.cpp)
-add_dependencies(middle_line ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(middle_line ${catkin_LIBRARIES})
+add_library(middle_line_lib src/reactive/Middle_Line.cpp)
+add_dependencies(middle_line_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(middle_line_lib ${catkin_LIBRARIES})
+add_executable(middle_line_node src/reactive/mains/middle_line.cpp)
+add_dependencies(middle_line_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} middle_line_lib)
+target_link_libraries(middle_line_node ${catkin_LIBRARIES} middle_line_lib)
 
-add_executable(go_straight src/reactive/go_straight.cpp)
-add_dependencies(go_straight ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(go_straight ${catkin_LIBRARIES})
+add_library(go_straight_lib src/reactive/Go_Straight.cpp)
+add_dependencies(go_straight_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(go_straight_lib ${catkin_LIBRARIES})
+add_executable(go_straight_node src/reactive/mains/go_straight.cpp)
+add_dependencies(go_straight_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} go_straight_lib)
+target_link_libraries(go_straight_node ${catkin_LIBRARIES} go_straight_lib)
+
+
+# Replacements
+add_library(right_wall_lib src/wall_follow/Right_Wall.cpp)
+add_dependencies(right_wall_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} middle_line_lib)
+target_link_libraries(right_wall_lib ${catkin_LIBRARIES} middle_line_lib)
+add_executable(right_wall_node src/wall_follow/mains/right_wall.cpp)
+add_dependencies(right_wall_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} right_wall_lib)
+target_link_libraries(right_wall_node ${catkin_LIBRARIES} right_wall_lib)
+
+add_library(keep_going_lib src/wall_follow/Keep_Going.cpp)
+add_dependencies(keep_going_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} go_straight_lib)
+target_link_libraries(keep_going_lib ${catkin_LIBRARIES} go_straight_lib)
+add_executable(keep_going_node src/wall_follow/mains/keep_going.cpp)
+add_dependencies(keep_going_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} keep_going_lib)
+target_link_libraries(keep_going_node ${catkin_LIBRARIES} keep_going_lib)
 
 #############
 ## Install ##
