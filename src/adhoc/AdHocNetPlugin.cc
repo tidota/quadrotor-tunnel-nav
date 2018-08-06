@@ -1,10 +1,11 @@
 #include <fstream>
 #include <sstream>
 
+#include <dynamic_reconfigure/Reconfigure.h>
+#include <openssl/sha.h>
+
 #include <gazebo/common/Assert.hh>
 #include <gazebo/common/Events.hh>
-
-#include <openssl/sha.h>
 
 #include "adhoc/CommonTypes.hh"
 #include "adhoc/AdHocNetPlugin.hh"
@@ -91,13 +92,13 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
   {
     // enable the motors
     ros::ServiceClient client
-      = n.serviceClient<hector_uav_msgs::EnableMotors>(
-        "/" + name + "/enable_motors");
+      = n.serviceClient<dynamic_reconfigure::Reconfigure>(
+        "/" + name + "/controller/position/x/set_parameters");
     client.waitForExistence();
-    hector_uav_msgs::EnableMotors srv;
-    srv.request.enable = true;
-    client.call(srv);
-    gzmsg << "motor enabled: " << name << std::endl;
+    //hector_uav_msgs::EnableMotors srv;
+    //srv.request.enable = true;
+    //client.call(srv);
+    gzmsg << "controller enabled: " << name << std::endl;
   }
   {
     std::lock_guard<std::mutex> lk(this->mutexRobotCheck);

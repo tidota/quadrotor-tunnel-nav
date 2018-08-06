@@ -6,6 +6,7 @@
 #include <queue>
 #include <thread>
 
+#include <hector_uav_msgs/EnableMotors.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 
@@ -14,7 +15,6 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
-#include <hector_uav_msgs/EnableMotors.h>
 #include <sdf/sdf.hh>
 
 namespace adhoc
