@@ -172,7 +172,10 @@ void AdHocNetPlugin::OnUpdate()
   }
   if (flag)
   {
-    gzmsg << "all of them are flying!" << std::endl;
+    std_msgs::Bool start;
+    start.data = true;
+    auto pub = n.advertise<std_msgs::Bool>("/start_comm", 1);
+    pub.publish(start);
   }
   if (this->started && !this->finished)
   {
