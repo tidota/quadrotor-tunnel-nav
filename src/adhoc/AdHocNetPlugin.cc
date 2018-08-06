@@ -75,8 +75,46 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->topoChangeCount = 0;
   this->InitTopoList();
 
+  this->n.param("robots", this->robotList, this->robotList);
+
+  gzmsg << "Start thread to check if robots are ready to fly." << std::endl;
+  this->robotCheckThread
+    = std::thread(&AdHocNetPlugin::CheckRobotsReadyTh, this);
 
   gzmsg << "Net init done" << std::endl;
+}
+
+//////////////////////////////////////////////////
+void AdHocNetPlugin::CheckRobotsReadyTh()
+{
+  for (auto name: this->robotList)
+  {
+    // enable the motors
+    ros::ServiceClient client
+      = n.serviceClient<hector_uav_msgs::EnableMotors>(
+        "/" + name + "/enable_motors");
+    client.waitForExistence();
+    hector_uav_msgs::EnableMotors srv;
+    srv.request.enable = true;
+    client.call(srv);
+    gzmsg << "motor enabled: " << name << std::endl;
+  }
+  {
+    std::lock_guard<std::mutex> lk(this->mutexRobotCheck);
+    this->robotsFlying = true;
+  }
+
+  this->pubStartFlying = this->n.advertise<std_msgs::Bool>("/start_flying", 1, true);
+  std_msgs::Bool start;
+  start.data = true;
+
+  // wait for a while so controllers are loaded.
+  ros::Duration(5.0).sleep();
+
+  gzmsg << "publish to start_flying" << std::endl;
+  this->pubStartFlying.publish(start);
+
+  gzmsg << "thread end" << std::endl;
 }
 
 //////////////////////////////////////////////////
@@ -124,6 +162,17 @@ void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool c
 /////////////////////////////////////////////////
 void AdHocNetPlugin::OnUpdate()
 {
+  bool flag = true;
+  for (std::string &robot: this->robotList)
+  {
+    auto model = this->world->GetModel(robot);
+    if (!model || model->GetWorldPose().pos.z < 4.9)
+      flag = false;
+  }
+  if (flag)
+  {
+    gzmsg << "all of them are flying!" << std::endl;
+  }
   if (this->started && !this->finished)
   {
     std::lock_guard<std::mutex> lk(this->mutexStartStop);

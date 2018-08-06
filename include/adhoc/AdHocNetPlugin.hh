@@ -4,6 +4,7 @@
 #include <mutex>
 #include <memory>
 #include <queue>
+#include <thread>
 
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
@@ -13,6 +14,7 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
+#include <hector_uav_msgs/EnableMotors.h>
 #include <sdf/sdf.hh>
 
 namespace adhoc
@@ -29,8 +31,15 @@ namespace gazebo
   /// \brief A plugin that controls ad hoc communications.
   class AdHocNetPlugin : public WorldPlugin
   {
+    /// Constructor.
+    public: AdHocNetPlugin(): robotsFlying(false)
+    {}
+
     // Documentation inherited
     public: virtual void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf);
+
+    /// brief Checks all robots are ready to fly
+    public: void CheckRobotsReadyTh();
 
     // to receive a message to start operation.
     public: void OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool const>& event);
@@ -59,6 +68,21 @@ namespace gazebo
     private: void InitTopoList();
     /// \brief Check if the net topology changed.
     private: bool CheckTopoChange();
+
+    /// \brief Thread object to check if robots are ready to fly.
+    private: std::thread robotCheckThread;
+
+    /// \brief True if the all robots started flying.
+    private: bool robotsFlying;
+
+    /// \brief Publisher to send a command to start flying.
+    private: ros::Publisher pubStartFlying;
+
+    /// \brief Mutex for the thread.
+    private: std::mutex mutexRobotCheck;
+
+    /// \brief list of robot names.
+    private: std::vector<std::string> robotList;
 
     /// \brief World pointer.
     private: physics::WorldPtr world;
@@ -113,6 +137,7 @@ namespace gazebo
 
     /// \brief how long time to run the simulation
     private: double simPeriod;
+
   };
 }
 #endif
