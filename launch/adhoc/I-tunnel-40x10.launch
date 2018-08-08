@@ -3,7 +3,6 @@
   <arg name="gui" default="true"/>
 
   <rosparam command="load" file="$(find quadrotor_tunnel_nav)/config/adhoc/robots.yaml" />
-
   <include file="$(find hector_gazebo_worlds)/launch/start.launch">
    <arg name="world" value="$(find quadrotor_tunnel_nav)/worlds/adhoc/I-tunnel-40x10.world"/>
    <arg name="args" value="--verbose"/>
@@ -11,7 +10,9 @@
   </include>
 
   <!-- Spawn simulated quadrotor uav -->
-
+  <node if="$(arg gui)" pkg="quadrotor_tunnel_nav" type="auto_launch.py" name="robot_team_spawner"/>
+  <node unless="$(arg gui)" pkg="quadrotor_tunnel_nav" type="auto_launch.py" name="robot_team_spawner" args="--nogui"/>
+  <!--
   <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
     <arg name="ns" value="robot1"/>
     <arg name="x" value="0"/><arg name="y" value="-3"/>
@@ -36,6 +37,7 @@
     <arg name="ns" value="robot9"/>
     <arg name="x" value="16"/><arg name="y" value="-3"/><arg name="Y" value="$(eval 3.14159265/2)"/>
   </include>
+-->
     <!--
   <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
     <arg name="ns" value="robot2"/>

@@ -18,20 +18,44 @@ if __name__ == '__main__':
 
 	print ('start')
 	if "--nogui" in args:
-		print ("nogui!")
+		gui='false'
 	else:
-		print ("yesgui!")
+		gui='true'
 
-	# cmd = [
-	# 	'roslaunch',
-	# 	os.path.join(args.output, 'gear.launch'),
-	# ]
-	#
-	# print('Running command: ' + ' '.join(cmd))
-	# try:
-	# 	p = subprocess.Popen(cmd)
-	# 	p.wait()
-	# except KeyboardInterrupt:
-	# 	pass
-	# finally:
-	# 	p.wait()
+	rospy.init_node('robot_team_spawner')
+
+	rospack = rospkg.RosPack()
+	try:
+		f = open(rospack.get_path('quadrotor_tunnel_nav') + '/config/adhoc/robots.yaml', 'r')
+		dict_robot = yaml.load(f.read())
+	except Exception as e:
+		print(e)
+
+	cmd_list = {}
+	for robot in dict_robot['robots']:
+		cmd = [
+			'roslaunch',
+			'quadrotor_tunnel_nav',
+			'spawn_robot.launch',
+			'ns:=' + robot,
+			'x:=' + str(eval(str(dict_robot[robot]['x']))),
+			'y:=' + str(eval(str(dict_robot[robot]['y']))),
+			'Y:=' + str(eval(str(dict_robot[robot]['Y']))),
+			'gui:=' + gui,
+		]
+		cmd_list[robot] = cmd
+
+	proc_list = {}
+	try:
+		for robot in dict_robot['robots']:
+			cmd = cmd_list[robot]
+			print('Running command: ' + ' '.join(cmd))
+			p = subprocess.Popen(cmd)
+			proc_list[robot] = p
+		for p in proc_list:
+			proc_list[p].wait()
+	except KeyboardInterrupt:
+		pass
+	finally:
+		for p in proc_list:
+			proc_list[p].wait()
