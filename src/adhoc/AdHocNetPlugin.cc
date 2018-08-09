@@ -3,6 +3,7 @@
 
 #include <dynamic_reconfigure/Reconfigure.h>
 #include <openssl/sha.h>
+#include <ros/master.h>
 
 #include <gazebo/common/Assert.hh>
 #include <gazebo/common/Events.hh>
@@ -88,17 +89,38 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 //////////////////////////////////////////////////
 void AdHocNetPlugin::CheckRobotsReadyTh()
 {
-  for (auto name: this->robotList)
+  while (ros::ok())
   {
-    // enable the motors
-    ros::ServiceClient client
-      = n.serviceClient<dynamic_reconfigure::Reconfigure>(
-        "/" + name + "/controller/position/x/set_parameters");
-    client.waitForExistence();
-    //hector_uav_msgs::EnableMotors srv;
-    //srv.request.enable = true;
-    //client.call(srv);
-    gzmsg << "controller enabled: " << name << std::endl;
+    ros::master::V_TopicInfo master_topics;
+    ros::master::getTopics(master_topics);
+
+    bool allReady = true;
+    for (auto name: this->robotList)
+    {
+      bool attitudeFound = false;
+      bool velocityFound = false;
+      for (ros::master::V_TopicInfo::iterator it = master_topics.begin(); it != master_topics.end(); it++)
+      {
+        const ros::master::TopicInfo& info = *it;
+        if (info.name == "/" + name + "/controller/velocity/z/state")
+        {
+          velocityFound = true;
+        }
+        else if (info.name == "/" + name + "/controller/attitude/yawrate/state")
+        {
+          attitudeFound = true;
+        }
+      }
+      if (!velocityFound || !attitudeFound)
+      {
+        allReady = false;
+      }
+    }
+    if (allReady)
+    {
+      gzmsg << "ALL READY!" << std::endl;
+      break;
+    }
   }
   {
     std::lock_guard<std::mutex> lk(this->mutexRobotCheck);
@@ -108,9 +130,6 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
   this->pubStartFlying = this->n.advertise<std_msgs::Bool>("/start_flying", 1, true);
   std_msgs::Bool start;
   start.data = true;
-
-  // wait for a while so controllers are loaded.
-  ros::Duration(5.0).sleep();
 
   gzmsg << "publish to start_flying" << std::endl;
   this->pubStartFlying.publish(start);
