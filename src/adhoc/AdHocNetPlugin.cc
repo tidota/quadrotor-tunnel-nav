@@ -121,6 +121,7 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
       gzmsg << "ALL READY!" << std::endl;
       break;
     }
+    ros::Duration(0.1).sleep();
   }
   {
     std::lock_guard<std::mutex> lk(this->mutexRobotCheck);
