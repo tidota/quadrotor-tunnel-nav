@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -8,9 +9,7 @@
 #include <gazebo/common/Assert.hh>
 #include <gazebo/common/Events.hh>
 
-#include "adhoc/CommonTypes.hh"
 #include "adhoc/AdHocNetPlugin.hh"
-#include "quadrotor_tunnel_nav/protobuf/datagram.pb.h"
 
 using namespace gazebo;
 
@@ -25,65 +24,110 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
     this->commRange = _sdf->Get<double>("range");
   else
     this->commRange = 10.0;
-
   gzmsg << "Communication range: " << this->commRange << std::endl;
 
   if (_sdf->HasElement("period"))
     this->simPeriod = _sdf->Get<double>("period");
   else
     this->simPeriod = 5;
-
   gzmsg << "Simulation period: " << this->simPeriod << std::endl;
 
   GZ_ASSERT(_world, "AdHocNetPlugin world pointer is NULL");
   this->world = _world;
 
-  this->started = true;
-  this->finished = false;
-  if (_sdf->HasElement("enable"))
-  {
-    this->started = _sdf->Get<bool>("enable");
-  }
-
-  this->enableSub
-    = this->n.subscribe(
-        "/start_comm", 1, &AdHocNetPlugin::OnStartStopMessage, this);
-
+  this->n.param("robots", this->robotList, this->robotList);
 
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init();
-  for (int i = 1; i <= 10; ++i)
+
+  this->simCmdPub = this->node->Advertise<msgs::GzString>("/sim_cmd");
+  this->simCmdResSub = this->node->Subscribe<adhoc::msgs::SimInfo>(
+    "/sim_cmd_res", &AdHocNetPlugin::OnSimCmdResponse, this);
+
+  for (auto robot: this->robotList)
   {
-    this->pubMap["robot" + std::to_string(i)]
+    this->pubMap[robot]
       = this->node->Advertise<adhoc::msgs::Datagram>(
-        "robot" + std::to_string(i) + "/comm_in");
-    this->subMap["robot" + std::to_string(i)]
+        robot + "/comm_in");
+    this->subMap[robot]
       = this->node->Subscribe<adhoc::msgs::Datagram>(
-        "robot" + std::to_string(i) + "/comm_out",
-        &AdHocNetPlugin::OnMessage, this);
+        robot + "/comm_out", &AdHocNetPlugin::OnMessage, this);
   }
-  this->clientOutputSub
-    = this->node->Subscribe<gazebo::msgs::GzString>(
-      "/print_by_net",
-      &AdHocNetPlugin::OnClientMessage, this);
 
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
     std::bind(&AdHocNetPlugin::OnUpdate, this));
 
-  this->lastDisplayed = this->world->GetSimTime();
+  this->robotsReadyToComm = false;
+
+  this->started = false;
+  this->finished = false;
 
   this->totalPackets = 0;
-
   this->topoChangeCount = 0;
   this->InitTopoList();
 
-  this->n.param("robots", this->robotList, this->robotList);
-
-  gzmsg << "Start thread to check if robots are ready to fly." << std::endl;
   this->robotCheckThread
     = std::thread(&AdHocNetPlugin::CheckRobotsReadyTh, this);
+}
 
-  gzmsg << "Net init done" << std::endl;
+/////////////////////////////////////////////////
+void AdHocNetPlugin::OnUpdate()
+{
+  std::lock_guard<std::mutex> lk(this->simInfoMutex);
+
+  if (!this->robotsReadyToComm)
+  {
+    bool flag = true;
+    for (std::string &robot: this->robotList)
+    {
+      auto model = this->world->GetModel(robot);
+      if (!model || model->GetWorldPose().pos.z < 4.9)
+        flag = false;
+    }
+    if (flag)
+    {
+      this->robotsReadyToComm = true;
+      this->lastStatPrintTime = this->world->GetSimTime();
+
+      this->listStartResponses.clear();
+      msgs::GzString start;
+      start.set_data("start");
+      this->simCmdPub->Publish(start);
+    }
+  }
+  else
+  {
+    if (this->started && !this->finished)
+    {
+      auto current = this->world->GetSimTime();
+      if (current.Double() - this->lastStatPrintTime.Double() >= 3.0)
+      {
+        gzmsg << "===== locations =====" << std::endl;
+        for (auto model : this->world->GetModels())
+        {
+          auto pose = model->GetWorldPose();
+          gzmsg << model->GetName() << ": " << pose << std::endl;
+        }
+        gzmsg << "=====================" << std::endl;
+        this->lastStatPrintTime = current;
+      }
+
+      if (current.Double() - this->startTime.Double() >= this->simPeriod)
+      {
+        this->listStopResponses.clear();
+        msgs::GzString start;
+        start.set_data("stop");
+        this->simCmdPub->Publish(start);
+      }
+
+      if (this->CheckTopoChange())
+      {
+        this->topoChangeCount++;
+      }
+
+      this->ProcessIncomingMsgs();
+    }
+  }
 }
 
 //////////////////////////////////////////////////
@@ -99,7 +143,7 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
     {
       bool attitudeFound = false;
       bool velocityFound = false;
-      for (ros::master::V_TopicInfo::iterator it = master_topics.begin(); it != master_topics.end(); it++)
+      for (auto it = master_topics.begin(); it != master_topics.end(); it++)
       {
         const ros::master::TopicInfo& info = *it;
         if (info.name == "/" + name + "/controller/velocity/z/state")
@@ -123,126 +167,91 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
     }
     ros::Duration(0.1).sleep();
   }
+
+  if (ros::ok())
   {
-    std::lock_guard<std::mutex> lk(this->mutexRobotCheck);
-    this->robotsFlying = true;
+    this->pubStartFlying = this->n.advertise<std_msgs::Bool>("/start_flying", 1, true);
+    std_msgs::Bool start;
+    start.data = true;
+    this->pubStartFlying.publish(start);
   }
-
-  this->pubStartFlying = this->n.advertise<std_msgs::Bool>("/start_flying", 1, true);
-  std_msgs::Bool start;
-  start.data = true;
-
-  gzmsg << "publish to start_flying" << std::endl;
-  this->pubStartFlying.publish(start);
-
-  gzmsg << "thread end" << std::endl;
 }
 
 //////////////////////////////////////////////////
-void AdHocNetPlugin::OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
+void AdHocNetPlugin::OnSimCmdResponse(
+  const boost::shared_ptr<adhoc::msgs::SimInfo const> &_res)
 {
-  const std_msgs::Bool::ConstPtr& flag = event.getMessage();
+  std::lock_guard<std::mutex> lk(this->simInfoMutex);
 
-  std::lock_guard<std::mutex> lk(this->mutexStartStop);
-  if (!this->started && !this->finished && flag->data)
+  if (_res->state() == "started")
   {
-    this->started = true;
-    this->InitTopoList();
-    this->CheckTopoChange();
-    this->startTime = this->world->GetSimTime();
+    gzmsg << "response (started) from " << _res->robot_name() << std::endl;
 
-    // start recording
-    gzmsg << "Network started" << std::endl;
-  }
-  else if (this->started && !this->finished && !flag->data)
-  {
-    this->finished = true;
+    if (std::find(
+        this->listStartResponses.begin(), this->listStartResponses.end(), _res)
+          == this->listStartResponses.end())
+      this->listStartResponses.push_back(_res);
 
-    common::Time current = this->world->GetSimTime();
-    double elapsed = current.Double() - this->startTime.Double();
-
-    // finish recording
-    std::stringstream ss;
-    ss << "--- Network ---" << std::endl;
-    ss << "Time: " << elapsed << std::endl;
-    ss << "Total # of Packets: " << this->totalPackets << std::endl;
-    ss << "Total # of Message: " << this->hashList.size() << std::endl;
-    ss << "Ave # of Packets per Message: " << ((double)this->totalPackets)/this->hashList.size() << std::endl;
-    ss << "Total # of Topology Changes: " << this->topoChangeCount << std::endl;
-    ss << "Frequency of Topology Change: " << this->topoChangeCount / elapsed << std::endl;
-    gzmsg << ss.str();
-
-    std::fstream fs;
-    fs.open("Network-" + current.FormattedString() + ".log", std::fstream::out);
-    fs << ss.str();
-    fs.close();
-
-  }
-}
-
-/////////////////////////////////////////////////
-void AdHocNetPlugin::OnUpdate()
-{
-  bool flag = true;
-  for (std::string &robot: this->robotList)
-  {
-    auto model = this->world->GetModel(robot);
-    if (!model || model->GetWorldPose().pos.z < 4.9)
-      flag = false;
-  }
-  if (flag)
-  {
-    std_msgs::Bool start;
-    start.data = true;
-    auto pub = n.advertise<std_msgs::Bool>("/start_comm", 1);
-    pub.publish(start);
-  }
-  if (this->started && !this->finished)
-  {
-    std::lock_guard<std::mutex> lk(this->mutexStartStop);
-    auto current = this->world->GetSimTime();
-    if (current.Double() - this->lastDisplayed.Double() >= 3.0)
+    // if all started.
+    if (this->listStartResponses.size() == this->robotList.size())
     {
-      gzmsg << "===== locations =====" << std::endl;
-      for (auto model : this->world->GetModels())
-      {
-        auto pose = model->GetWorldPose();
-        gzmsg << model->GetName() << ": " << pose << std::endl;
-      }
-      gzmsg << "=====================" << std::endl;
-      this->lastDisplayed = current;
-    }
+      this->started = true;
+      this->InitTopoList();
+      this->CheckTopoChange();
+      this->startTime = this->world->GetSimTime();
 
-    if (current.Double() - this->startTime.Double() >= this->simPeriod)
-    {
-      std_msgs::Bool stop;
-      stop.data = false;
-      auto pub = n.advertise<std_msgs::Bool>("/start_comm", 1);
-      pub.publish(stop);
+      // start recording
+      gzmsg << "Network started" << std::endl;
     }
   }
-
-  if (this->started && !this->finished && this->CheckTopoChange())
+  else if (_res->state() == "stopped")
   {
-    this->topoChangeCount++;
-  }
+    gzmsg << "response (stopped) from " << _res->robot_name() << std::endl;
 
-  if (this->started && !this->finished)
-  {
-    std::lock_guard<std::mutex> lk(this->mutex);
-    this->ProcessIncomingMsgs();
+    if (std::find(
+        this->listStopResponses.begin(), this->listStopResponses.end(), _res)
+          == this->listStopResponses.end())
+      this->listStopResponses.push_back(_res);
+
+    // if all are done.
+    if (this->listStopResponses.size() == this->robotList.size())
+    {
+      this->finished = true;
+
+      common::Time current = this->world->GetSimTime();
+      double elapsed = current.Double() - this->startTime.Double();
+
+      // TODO: revise this part to save the statistics
+      // finish recording
+      std::stringstream ss;
+      ss << "--- Network ---" << std::endl;
+      ss << "Time: " << elapsed << std::endl;
+      ss << "Total # of Packets: " << this->totalPackets << std::endl;
+      ss << "Total # of Message: " << this->hashList.size() << std::endl;
+      ss << "Ave # of Packets per Message: " << ((double)this->totalPackets)/this->hashList.size() << std::endl;
+      ss << "Total # of Topology Changes: " << this->topoChangeCount << std::endl;
+      ss << "Frequency of Topology Change: " << this->topoChangeCount / elapsed << std::endl;
+      gzmsg << ss.str();
+
+      std::fstream fs;
+      fs.open("Network-" + current.FormattedString() + ".log", std::fstream::out);
+      fs << ss.str();
+      fs.close();
+    }
   }
 }
 
 /////////////////////////////////////////////////
 void AdHocNetPlugin::ProcessIncomingMsgs()
 {
+  std::lock_guard<std::mutex> lk(this->messageMutex);
+
   while (!this->incomingMsgs.empty())
   {
     // Forward the messages.
     auto const &msg = this->incomingMsgs.front();
 
-    physics::ModelPtr sender = this->world->GetModel(msg.model_name());
+    physics::ModelPtr sender = this->world->GetModel(msg.robot_name());
 
     if (sender)
     {
@@ -279,22 +288,17 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
 }
 
 /////////////////////////////////////////////////
-void AdHocNetPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_req)
+void AdHocNetPlugin::OnMessage(
+  const boost::shared_ptr<adhoc::msgs::Datagram const> &_req)
 {
   // Just save the message, it will be processed later.
-  std::lock_guard<std::mutex> lk(this->mutex);
+  std::lock_guard<std::mutex> lk(this->messageMutex);
   this->incomingMsgs.push(*_req);
 }
 
-/////////////////////////////////////////////////
-void AdHocNetPlugin::OnClientMessage(const boost::shared_ptr<gazebo::msgs::GzString const> &_data)
-{
-  std::lock_guard<std::mutex> lk(this->mutexStartStop);
-  gzmsg << _data->data() << std::endl;
-}
-
 //////////////////////////////////////////////////
-void AdHocNetPlugin::CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash)
+void AdHocNetPlugin::CalcHash(
+  const adhoc::msgs::Datagram &_msg, unsigned char *_hash)
 {
   std::string input
     = std::to_string(_msg.src_address()) + std::to_string(_msg.dst_address())
