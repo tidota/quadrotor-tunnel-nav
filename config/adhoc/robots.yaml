@@ -4,11 +4,11 @@ robots:
   - robot5
   - robot7
   - robot9
-  # - robot2
-  # - robot4
-  # - robot6
-  # - robot8
-  # - robot10
+  - robot2
+  - robot4
+  - robot6
+  - robot8
+  - robot10
 
 robot1:
   x: 0
