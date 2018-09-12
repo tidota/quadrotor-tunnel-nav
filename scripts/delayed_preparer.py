@@ -35,7 +35,7 @@ if __name__ == '__main__':
 	# Apparently, it takes too long time to prepare some robots.
 	# The following line forcefully delayes spawing controllers for a while so
 	# it is completed to spawn a robot.
-	sleep(1)
+	sleep(2)
 
 	try:
 		cmd = [

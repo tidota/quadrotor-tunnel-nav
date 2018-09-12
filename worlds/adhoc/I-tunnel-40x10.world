@@ -67,7 +67,7 @@
     <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so">
       <enable>false</enable>
       <range>8</range>
-      <period>1</period>
+      <period>60</period>
     </plugin>
   </world>
 </sdf>
