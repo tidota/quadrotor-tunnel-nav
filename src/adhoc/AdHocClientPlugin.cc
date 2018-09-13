@@ -41,18 +41,18 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->node->Init();
 
   this->simCommSub
-    = this->node->Subscribe(
-        "/comm_cmd", &AdHocClientPlugin::OnSimCmd, this);
+    = this->node->Subscribe<msgs::GzString>(
+      "/sim_cmd", &AdHocClientPlugin::OnSimCmd, this);
+
+  this->simCommResPub
+    = this->node->Advertise<adhoc::msgs::SimInfo>(
+      "/sim_cmd_res");
 
   this->pub = this->node->Advertise<adhoc::msgs::Datagram>(
     this->model->GetName() + "/comm_out");
   this->sub = this->node->Subscribe<adhoc::msgs::Datagram>(
     this->model->GetName() + "/comm_in",
     &AdHocClientPlugin::OnMessage, this);
-
-  this->simCommResPub
-    = this->node->Advertise<gazebo::msgs::GzString>(
-      "/comm_cmd_res");
 
   this->messageCount = 0;
 
@@ -117,6 +117,7 @@ void AdHocClientPlugin::OnSimCmd(ConstGzStringPtr &_req)
     // start recording
     adhoc::msgs::SimInfo msg;
     msg.set_state("started");
+    msg.set_robot_name(this->model->GetName());
     this->simCommResPub->Publish(msg);
 
     this->started = true;
@@ -138,6 +139,7 @@ void AdHocClientPlugin::OnSimCmd(ConstGzStringPtr &_req)
 
     adhoc::msgs::SimInfo msg;
     msg.set_state("stopped");
+    msg.set_robot_name(this->model->GetName());
     this->simCommResPub->Publish(msg);
 
     // common::Time current = this->model->GetWorld()->GetSimTime();
@@ -182,14 +184,16 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
         }
         else if (msg.data() == "response")
         {
+          // TODO just store statistics information.
+
           common::Time current = this->model->GetWorld()->GetSimTime();
-          msgs::GzString m;
-          std::string str = this->model->GetName();
-          str = str + ": response from src " + std::to_string(msg.src_address())
-            + " (" + std::to_string(msg.hops()) + " hops and "
-            + std::to_string(current.Double() - msg.time()) + " sec in total)";
-          m.set_data(str);
-          this->simCommResPub->Publish(m);
+          // msgs::GzString m;
+          // std::string str = this->model->GetName();
+          // str = str + ": response from src " + std::to_string(msg.src_address())
+          //   + " (" + std::to_string(msg.hops()) + " hops and "
+          //   + std::to_string(current.Double() - msg.time()) + " sec in total)";
+          // m.set_data(str);
+          // this->simCommResPub->Publish(m);
           this->totalMessages++;
           this->totalHops += msg.hops();
           this->totalRoundTripTime += current.Double() - msg.time();
