@@ -6,7 +6,29 @@
       <shadows>true</shadows>
     </scene>
     <physics type="ode">
-      <gravity>0 0 -9.81</gravity>
+      <!--
+      <dart>
+        <solver>
+          <solver_type>dantzig</solver_type>
+        </solver>
+      </dart>
+    -->
+    <!--
+      <bullet>
+        <solver>
+          <type>sequential_impulse</type>
+          <iters>10</iters>
+          <sor>1.3</sor>
+        </solver>
+        <constraints>
+          <cfm>0.0</cfm>
+          <erp>0.2</erp>
+          <contact_surface_layer>0.001</contact_surface_layer>
+          <split_impulse>1</split_impulse>
+          <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
+        </constraints>
+      </bullet>
+    -->
       <ode>
         <solver>
           <type>quick</type>
@@ -20,7 +42,11 @@
           <contact_surface_layer>0.001</contact_surface_layer>
         </constraints>
       </ode>
-      <max_step_size>0.001</max_step_size>
+
+      <!-- the default is 0.001, but it is set to 0.01 since the UAV is
+           simulated at this frequency. -->
+      <max_step_size>0.01</max_step_size>
+      <real_time_update_rate>1000</real_time_update_rate>
     </physics>
 
     <light type="directional" name="directional_light_1">
@@ -41,7 +67,7 @@
     <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so">
       <enable>false</enable>
       <range>8</range>
-      <period>1</period>
+      <period>60</period>
     </plugin>
   </world>
 </sdf>
