@@ -1,14 +1,19 @@
-simulation_period: 5.0
+simulation_period: 60.0
 communication_range: 8.0
 
 setting_list:
   - setting1
   - setting2
+  - setting3
 
 setting1:
   delay_time: 0.5
-  robot_speed: 5.0
+  robot_speed: 9.0
 
 setting2:
+  delay_time: 3.0
+  robot_speed: 11.0
+
+setting3:
   delay_time: 1.5
   robot_speed: 7.0

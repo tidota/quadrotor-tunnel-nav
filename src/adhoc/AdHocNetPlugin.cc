@@ -94,23 +94,25 @@ void AdHocNetPlugin::OnUpdate()
 
       if (current.Double() - this->lastStatPrintTime.Double() >= 3.0)
       {
-        gzmsg << "===== locations =====" << std::endl;
-        for (auto model : this->world->GetModels())
-        {
-          auto pose = model->GetWorldPose();
-          gzmsg << model->GetName() << ": " << pose << std::endl;
-        }
-        gzmsg << "=====================" << std::endl;
+        // gzmsg << "===== locations =====" << std::endl;
+        // for (auto model : this->world->GetModels())
+        // {
+        //   auto pose = model->GetWorldPose();
+        //   gzmsg << model->GetName() << ": " << pose << std::endl;
+        // }
+        // gzmsg << "=====================" << std::endl;
         this->lastStatPrintTime = current;
       }
 
       if (current.Double() - this->startTime.Double() >= this->simPeriod)
       {
+        gzmsg << "*** Simulation period passed ***" << std::endl;
         this->listStopResponses.clear();
         adhoc::msgs::SimInfo start;
         start.set_state("stop");
         start.set_robot_name("");
         this->simCmdPub->Publish(start);
+        this->finished = true;
       }
 
       if (this->CheckTopoChange())
@@ -176,7 +178,7 @@ void AdHocNetPlugin::OnSimCmdResponse(
   const boost::shared_ptr<adhoc::msgs::SimInfo const> &_res)
 {
   std::lock_guard<std::mutex> lk(this->simInfoMutex);
-  
+
   if (_res->state() == "started")
   {
     gzmsg << "response (started) from " << _res->robot_name() << std::endl;
@@ -210,8 +212,6 @@ void AdHocNetPlugin::OnSimCmdResponse(
     // if all are done.
     if (this->listStopResponses.size() == this->robotList.size())
     {
-      this->finished = true;
-
       common::Time current = this->world->GetSimTime();
       double elapsed = current.Double() - this->startTime.Double();
 
@@ -364,9 +364,9 @@ bool AdHocNetPlugin::CheckTopoChange()
 //////////////////////////////////////////////////
 void AdHocNetPlugin::StartNewTrial()
 {
-  gzmsg << "StartNewTrial" << std::endl;
   if (this->settingList.size() > 0)
   {
+    gzmsg << "StartNewTrial" << std::endl;
     gzmsg << "starting new trial" << std::endl;
     std::string settingName = this->settingList.front();
     this->settingList.pop();
@@ -416,5 +416,9 @@ void AdHocNetPlugin::StartNewTrial()
     start.set_robot_name("");
     start.set_delay_time(settingMap["delay_time"]);
     this->simCmdPub->Publish(start);
+  }
+  else
+  {
+    gzmsg << "Simulation done" << std::endl;
   }
 }

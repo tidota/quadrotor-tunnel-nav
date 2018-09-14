@@ -29,6 +29,8 @@ void Keep_Going::command()
     range = rng_h[6].range;
   double rate = range/rng_h[6].range;
 
+  if (rng_h[0].range < 7.9)
+    rate = 0.6;
   if (rng_h[0].range < DIST_WALL * 0.3)
     rate = 0.3;
   if (rng_h[7].range < DIST_WALL * sqrt(2.0) * 0.9)

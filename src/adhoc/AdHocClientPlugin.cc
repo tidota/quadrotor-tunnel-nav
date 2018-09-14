@@ -102,8 +102,13 @@ void AdHocClientPlugin::OnSimCmd(
   std::lock_guard<std::mutex> lk(this->simInfoMutex);
   if (!this->running && _req->state() == "start")
   {
-    // TODO Initialize everythin here.
-    this->delayTime = _req->delay_time();
+    this->running = true;
+
+    this->delayTime = _req->delay_time();;
+    this->messageCount = 0;
+    this->totalMessages = 0;
+    this->totalHops = 0;
+    this->totalRoundTripTime = 0;
 
     gzmsg << "Delay Time(" << this->model->GetName() << "): "
           << this->delayTime << std::endl;
@@ -113,8 +118,6 @@ void AdHocClientPlugin::OnSimCmd(
     msg.set_state("started");
     msg.set_robot_name(this->model->GetName());
     this->simCommResPub->Publish(msg);
-
-    this->running = true;
   }
   else if (this->running && _req->state() == "stop")
   {
@@ -141,6 +144,23 @@ void AdHocClientPlugin::OnSimCmd(
     // fs.open("Client-" + current.FormattedString() + ".log", std::fstream::out);
     // fs << ss.str();
     // fs.close();
+  }
+  else
+  {
+    if (this->running)
+    {
+      gzerr << "Invalid command received while running("
+            << this->model->GetName()
+            << "): "
+            << _req->state() << std::endl;
+    }
+    else
+    {
+      gzerr << "Invalid command received while not running("
+            << this->model->GetName()
+            << "): "
+            << _req->state() << std::endl;
+    }
   }
 }
 
