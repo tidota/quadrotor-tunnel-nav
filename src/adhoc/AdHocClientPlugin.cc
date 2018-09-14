@@ -44,7 +44,7 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_sdf*/)
     this->model->GetName() + "/comm_in",
     &AdHocClientPlugin::OnMessage, this);
 
-  this->messageCount = 0;
+  this->sentMessageCount = 0;
 
   this->msg_req.set_robot_name(this->model->GetName());
   this->msg_req.set_src_address(this->id);
@@ -61,7 +61,7 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_sdf*/)
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
     std::bind(&AdHocClientPlugin::OnUpdate, this));
 
-  this->totalMessages = 0;
+  this->recvMessageCount = 0;
   this->totalHops = 0;
   this->totalRoundTripTime = 0.0;
 
@@ -83,12 +83,12 @@ void AdHocClientPlugin::OnUpdate()
         dst = (dst + 1) % 10;
       dst++;
       this->msg_req.set_dst_address(dst);
-      this->msg_req.set_index(this->messageCount);
+      this->msg_req.set_index(this->sentMessageCount);
       this->msg_req.set_hops(1);
       this->msg_req.set_time(current.Double());
       this->pub->Publish(this->msg_req);
       this->lastSentTime = current;
-      this->messageCount++;
+      this->sentMessageCount++;
     }
   }
 
@@ -103,15 +103,15 @@ void AdHocClientPlugin::OnSimCmd(
   if (!this->running && _req->state() == "start")
   {
     this->running = true;
-
-    this->delayTime = _req->delay_time();;
-    this->messageCount = 0;
-    this->totalMessages = 0;
-    this->totalHops = 0;
-    this->totalRoundTripTime = 0;
+    this->delayTime = _req->delay_time();
 
     gzmsg << "Delay Time(" << this->model->GetName() << "): "
           << this->delayTime << std::endl;
+
+    this->sentMessageCount = 0;
+    this->recvMessageCount = 0;
+    this->totalHops = 0;
+    this->totalRoundTripTime = 0;
 
     // start recording
     adhoc::msgs::SimInfo msg;
@@ -121,29 +121,17 @@ void AdHocClientPlugin::OnSimCmd(
   }
   else if (this->running && _req->state() == "stop")
   {
-    this->running = false;
-
-    // finish recording
-    std::stringstream ss;
-    ss << "--- Client ---" << std::endl;
-    ss << "Time of hop to delay: " << this->delayTime << std::endl;
-    ss << "Total # of Sent Messages: " << this->messageCount << std::endl;
-    ss << "Total # of Received Messages: " << this->totalMessages << std::endl;
-    ss << "Total # of Hops: " << this->totalHops << std::endl;
-    ss << "Ave # of hops per Message: " << ((double)this->totalHops)/this->totalMessages << std::endl;
-    ss << "Total Round Trip Time: " << this->totalRoundTripTime << std::endl;
-    ss << "Ave Round Trip Time per Message: " << this->totalRoundTripTime/this->totalMessages << std::endl;
-
     adhoc::msgs::SimInfo msg;
     msg.set_state("stopped");
     msg.set_robot_name(this->model->GetName());
+    msg.set_delay_time(this->delayTime);
+    msg.set_sent_message_count(this->sentMessageCount);
+    msg.set_recv_message_count(this->recvMessageCount);
+    msg.set_total_hops(this->totalHops);
+    msg.set_total_round_trip_time(this->totalRoundTripTime);
     this->simCommResPub->Publish(msg);
 
-    // common::Time current = this->model->GetWorld()->GetSimTime();
-    // std::fstream fs;
-    // fs.open("Client-" + current.FormattedString() + ".log", std::fstream::out);
-    // fs << ss.str();
-    // fs.close();
+    this->running = false;
   }
   else
   {
@@ -198,17 +186,8 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
         }
         else if (msg.data() == "response")
         {
-          // TODO just store statistics information.
-
           common::Time current = this->model->GetWorld()->GetSimTime();
-          // msgs::GzString m;
-          // std::string str = this->model->GetName();
-          // str = str + ": response from src " + std::to_string(msg.src_address())
-          //   + " (" + std::to_string(msg.hops()) + " hops and "
-          //   + std::to_string(current.Double() - msg.time()) + " sec in total)";
-          // m.set_data(str);
-          // this->simCommResPub->Publish(m);
-          this->totalMessages++;
+          this->recvMessageCount++;
           this->totalHops += msg.hops();
           this->totalRoundTripTime += current.Double() - msg.time();
         }

@@ -73,7 +73,7 @@ namespace gazebo
     private: bool finished;
 
     // statistics
-    private: int totalMessages;
+    private: int recvMessageCount;
     private: int totalHops;
     private: double totalRoundTripTime;
 
@@ -81,7 +81,7 @@ namespace gazebo
     private: std::mutex simInfoMutex;
 
     /// \brief index of message
-    private: unsigned int messageCount;
+    private: unsigned int sentMessageCount;
 
     /// \brief the time when the node last sent a message.
     private: common::Time lastSentTime;

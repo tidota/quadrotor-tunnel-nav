@@ -101,6 +101,12 @@ namespace gazebo
     /// \brief Simulation start time.
     private: common::Time startTime;
 
+    /// \brief delay time currently used.
+    private: double currentDelayTime;
+
+    /// \brief robot speed currently used.
+    private: double currentRobotSpeed;
+
     /// \brief Communciation range.
     private: double commRange;
 

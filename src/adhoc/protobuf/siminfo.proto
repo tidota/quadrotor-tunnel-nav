@@ -17,10 +17,10 @@ message SimInfo
   optional double delay_time                = 3;
 
   /// \brief Total # of Sent Messages.
-  optional uint32 message_count             = 4;
+  optional uint32 sent_message_count        = 4;
 
   /// \brief Total # of Received Messages.
-  optional uint32 total_messages            = 5;
+  optional uint32 recv_message_count        = 5;
 
   /// \brief Total # of Hops.
   optional uint32 total_hops                = 6;
