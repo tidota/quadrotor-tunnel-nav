@@ -1,14 +1,15 @@
 #ifndef ADHOCNETPLUGIN_HH_
 #define ADHOCNETPLUGIN_HH_
 
-#include <mutex>
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <thread>
 
 #include <hector_uav_msgs/EnableMotors.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Float32.h>
 
 #include <gazebo/common/Event.hh>
 #include <gazebo/common/Plugin.hh>
@@ -67,9 +68,11 @@ namespace gazebo
     /// \brief Register a hash value.
     private: void RegistHash(const unsigned char *_hash);
 
-    private: void InitTopoList();
     /// \brief Check if the net topology changed.
     private: bool CheckTopoChange();
+
+    /// \brief Initialize the simulation status.
+    private: void StartNewTrial();
 
     /// \brief World pointer.
     private: physics::WorldPtr world;
@@ -85,6 +88,9 @@ namespace gazebo
 
     /// \brief list of robot names.
     private: std::vector<std::string> robotList;
+
+    /// \brief list of simulation settings.
+    private: std::queue<std::string> settingList;
 
     /// \brief True if the communication started.
     private: bool started;
@@ -137,7 +143,10 @@ namespace gazebo
     private: std::thread robotCheckThread;
 
     /// \brief Publisher to send a command to start flying.
-    private: ros::Publisher pubStartFlying;
+    private: ros::Publisher startFlyingPub;
+
+    /// \brief Publisher to update the robot speed.
+    private: ros::Publisher navVelUpdatePub;
 
     /// \brief True if the all robots are flying at the specific altitude
     /// and ready to start netowrking.
@@ -155,7 +164,6 @@ namespace gazebo
 
     /// \brief Mutex for communication data.
     private: std::mutex messageMutex;
-
   };
 }
 #endif

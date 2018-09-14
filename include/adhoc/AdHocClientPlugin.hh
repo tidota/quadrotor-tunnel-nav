@@ -33,7 +33,7 @@ namespace gazebo
     private: void OnUpdate();
 
     /// \brief Callback to receive a request from the world plugin.
-    public: void OnSimCmd(ConstGzStringPtr &_req);
+    public: void OnSimCmd(const boost::shared_ptr<adhoc::msgs::SimInfo const> &_req);
 
     /// \brief Process all incoming messages.
     private: void ProcessincomingMsgsStamped();
@@ -66,8 +66,8 @@ namespace gazebo
     /// \brief Publisher to respond to the simulation command.
     private: transport::PublisherPtr simCommResPub;
 
-    /// \brief True if the communication started.
-    private: bool started;
+    /// \brief True if the communication running.
+    private: bool running;
 
     /// \brief True if the communication stopped.
     private: bool finished;
@@ -87,7 +87,7 @@ namespace gazebo
     private: common::Time lastSentTime;
 
     /// \brief the time when the node last processed messages.
-    private: double delayedTime;
+    private: double delayTime;
 
     /// \brief publisher to send out data.
     private: transport::PublisherPtr pub;

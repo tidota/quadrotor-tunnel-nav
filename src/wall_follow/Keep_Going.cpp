@@ -5,6 +5,9 @@
 // ============================================================================================
 Keep_Going::Keep_Going(const double _vel): Go_Straight(), vel(_vel)
 {
+  ros::NodeHandle n;
+  this->vel_change_sub
+    = n.subscribe("/nav_vel_update", 1, &Keep_Going::update_velocity, this);
 }
 
 // ============================================================================================
@@ -37,4 +40,14 @@ void Keep_Going::command()
   com.vel.linear.x = this->vel * rate;
 
   com_pub.publish(com);
+}
+
+// ============================================================================================
+// update_velocity
+//
+// callback for update of the velocity
+// ============================================================================================
+void Keep_Going::update_velocity(const std_msgs::Float32::ConstPtr& new_vel)
+{
+  this->vel = new_vel->data;
 }

@@ -16,31 +16,27 @@ using namespace gazebo;
 GZ_REGISTER_WORLD_PLUGIN(AdHocNetPlugin)
 
 /////////////////////////////////////////////////
-void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
+void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/)
 {
   gzmsg << "Starting Ad Hoc Net server" << std::endl;
-
-  if (_sdf->HasElement("range"))
-    this->commRange = _sdf->Get<double>("range");
-  else
-    this->commRange = 10.0;
-  gzmsg << "Communication range: " << this->commRange << std::endl;
-
-  if (_sdf->HasElement("period"))
-    this->simPeriod = _sdf->Get<double>("period");
-  else
-    this->simPeriod = 5;
-  gzmsg << "Simulation period: " << this->simPeriod << std::endl;
 
   GZ_ASSERT(_world, "AdHocNetPlugin world pointer is NULL");
   this->world = _world;
 
   this->n.param("robots", this->robotList, this->robotList);
 
+  std::vector<std::string> tempVec;
+  this->n.param("setting_list", tempVec, tempVec);
+  for (auto item: tempVec)
+  {
+    gzmsg << "Setting: " << item << std::endl;
+    this->settingList.push(item);
+  }
+
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init();
 
-  this->simCmdPub = this->node->Advertise<msgs::GzString>("/sim_cmd");
+  this->simCmdPub = this->node->Advertise<adhoc::msgs::SimInfo>("/sim_cmd");
   this->simCmdResSub = this->node->Subscribe<adhoc::msgs::SimInfo>(
     "/sim_cmd_res", &AdHocNetPlugin::OnSimCmdResponse, this);
 
@@ -59,12 +55,11 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   this->robotsReadyToComm = false;
 
-  this->started = false;
-  this->finished = false;
+  this->startFlyingPub
+     = this->n.advertise<std_msgs::Bool>("/start_flying", 1, true);
 
-  this->totalPackets = 0;
-  this->topoChangeCount = 0;
-  this->InitTopoList();
+  this->navVelUpdatePub
+     = this->n.advertise<std_msgs::Float32>("/nav_vel_update", 1);
 
   this->robotCheckThread
     = std::thread(&AdHocNetPlugin::CheckRobotsReadyTh, this);
@@ -87,12 +82,8 @@ void AdHocNetPlugin::OnUpdate()
     if (flag)
     {
       this->robotsReadyToComm = true;
-      this->lastStatPrintTime = this->world->GetSimTime();
 
-      this->listStartResponses.clear();
-      msgs::GzString start;
-      start.set_data("start");
-      this->simCmdPub->Publish(start);
+      this->StartNewTrial();
     }
   }
   else
@@ -100,6 +91,7 @@ void AdHocNetPlugin::OnUpdate()
     if (this->started && !this->finished)
     {
       auto current = this->world->GetSimTime();
+
       if (current.Double() - this->lastStatPrintTime.Double() >= 3.0)
       {
         gzmsg << "===== locations =====" << std::endl;
@@ -115,8 +107,9 @@ void AdHocNetPlugin::OnUpdate()
       if (current.Double() - this->startTime.Double() >= this->simPeriod)
       {
         this->listStopResponses.clear();
-        msgs::GzString start;
-        start.set_data("stop");
+        adhoc::msgs::SimInfo start;
+        start.set_state("stop");
+        start.set_robot_name("");
         this->simCmdPub->Publish(start);
       }
 
@@ -141,21 +134,22 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
     bool allReady = true;
     for (auto name: this->robotList)
     {
-      bool attitudeFound = false;
-      bool velocityFound = false;
+      int counts = 0;
       for (auto it = master_topics.begin(); it != master_topics.end(); it++)
       {
         const ros::master::TopicInfo& info = *it;
-        if (info.name == "/" + name + "/controller/velocity/z/state")
+        if (
+          info.name == "/" + name + "/controller/velocity/x/state" ||
+          info.name == "/" + name + "/controller/velocity/y/state" ||
+          info.name == "/" + name + "/controller/velocity/z/state" ||
+          info.name == "/" + name + "/controller/attitude/roll/state" ||
+          info.name == "/" + name + "/controller/attitude/pitch/state" ||
+          info.name == "/" + name + "/controller/attitude/yawrate/state")
         {
-          velocityFound = true;
-        }
-        else if (info.name == "/" + name + "/controller/attitude/yawrate/state")
-        {
-          attitudeFound = true;
+          counts++;
         }
       }
-      if (!velocityFound || !attitudeFound)
+      if (counts < 6)
       {
         allReady = false;
       }
@@ -170,10 +164,10 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
 
   if (ros::ok())
   {
-    this->pubStartFlying = this->n.advertise<std_msgs::Bool>("/start_flying", 1, true);
+    ros::Duration(2).sleep();
     std_msgs::Bool start;
     start.data = true;
-    this->pubStartFlying.publish(start);
+    this->startFlyingPub.publish(start);
   }
 }
 
@@ -182,7 +176,7 @@ void AdHocNetPlugin::OnSimCmdResponse(
   const boost::shared_ptr<adhoc::msgs::SimInfo const> &_res)
 {
   std::lock_guard<std::mutex> lk(this->simInfoMutex);
-
+  
   if (_res->state() == "started")
   {
     gzmsg << "response (started) from " << _res->robot_name() << std::endl;
@@ -195,10 +189,10 @@ void AdHocNetPlugin::OnSimCmdResponse(
     // if all started.
     if (this->listStartResponses.size() == this->robotList.size())
     {
-      this->started = true;
-      this->InitTopoList();
       this->CheckTopoChange();
       this->startTime = this->world->GetSimTime();
+      this->lastStatPrintTime = this->world->GetSimTime();
+      this->started = true;
 
       // start recording
       gzmsg << "Network started" << std::endl;
@@ -237,6 +231,8 @@ void AdHocNetPlugin::OnSimCmdResponse(
       fs.open("Network-" + current.FormattedString() + ".log", std::fstream::out);
       fs << ss.str();
       fs.close();
+
+      this->StartNewTrial();
     }
   }
 }
@@ -267,7 +263,8 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
         if (robot)
         {
           // forward the message if the robot is within the range of the sender.
-          auto diffVec = robot->GetWorldPose().CoordPositionSub(sender->GetWorldPose());
+          auto diffVec
+            = robot->GetWorldPose().CoordPositionSub(sender->GetWorldPose());
           double length = fabs(diffVec.GetLength());
 
           if (length <= this->commRange)
@@ -329,18 +326,6 @@ void AdHocNetPlugin::RegistHash(const unsigned char *_hash)
 }
 
 //////////////////////////////////////////////////
-void AdHocNetPlugin::InitTopoList()
-{
-  for (int i = 1; i <= 9; ++i)
-  {
-    for (int j = i + 1; j <= 10; ++j)
-    {
-      this->topoList[std::to_string(i)+":"+std::to_string(j)] = false;
-    }
-  }
-}
-
-//////////////////////////////////////////////////
 bool AdHocNetPlugin::CheckTopoChange()
 {
   bool changed = false;
@@ -348,13 +333,16 @@ bool AdHocNetPlugin::CheckTopoChange()
   {
     for (int j = i + 1; j <= 10; ++j)
     {
-      physics::ModelPtr robot1 = this->world->GetModel("robot" + std::to_string(i));
-      physics::ModelPtr robot2 = this->world->GetModel("robot" + std::to_string(j));
+      physics::ModelPtr robot1
+        = this->world->GetModel("robot" + std::to_string(i));
+      physics::ModelPtr robot2
+        = this->world->GetModel("robot" + std::to_string(j));
 
       if (!robot1 || !robot2)
         continue;
 
-      auto diffVec = robot1->GetWorldPose().CoordPositionSub(robot2->GetWorldPose());
+      auto diffVec
+        = robot1->GetWorldPose().CoordPositionSub(robot2->GetWorldPose());
       double length = fabs(diffVec.GetLength());
 
       bool inRange = (length <= this->commRange);
@@ -371,4 +359,62 @@ bool AdHocNetPlugin::CheckTopoChange()
   }
 
   return changed;
+}
+
+//////////////////////////////////////////////////
+void AdHocNetPlugin::StartNewTrial()
+{
+  gzmsg << "StartNewTrial" << std::endl;
+  if (this->settingList.size() > 0)
+  {
+    gzmsg << "starting new trial" << std::endl;
+    std::string settingName = this->settingList.front();
+    this->settingList.pop();
+
+    gzmsg << "getting setting: " << settingName << std::endl;
+    std::map<std::string, double> settingMap;
+    this->n.param(settingName, settingMap, settingMap);
+
+    this->started = false;
+    this->finished = false;
+
+    this->totalPackets = 0;
+    this->topoChangeCount = 0;
+
+    this->n.getParam("simulation_period", this->simPeriod);
+    this->n.getParam("communication_range", this->commRange);
+
+    if (settingMap.count("simulation_period") > 0)
+      this->simPeriod = settingMap["simulation_period"];
+    if (settingMap.count("communication_range") > 0)
+      this->commRange = settingMap["communication_range"];
+
+    gzmsg << "publishing new velocity" << std::endl;
+
+    std_msgs::Float32 vel;
+    vel.data = settingMap["robot_speed"];
+    this->navVelUpdatePub.publish(vel);
+
+    gzmsg << std::endl
+          << "====================================================" << std::endl
+          << "Trial: " << settingName << std::endl
+          << "simulation period: " << this->simPeriod << std::endl
+          << "communicaiton range: " << this->commRange << std::endl
+          << "robot speed: " << vel.data << std::endl;
+
+    for (int i = 1; i <= 9; ++i)
+    {
+      for (int j = i + 1; j <= 10; ++j)
+      {
+        this->topoList[std::to_string(i)+":"+std::to_string(j)] = false;
+      }
+    }
+
+    this->listStartResponses.clear();
+    adhoc::msgs::SimInfo start;
+    start.set_state("start");
+    start.set_robot_name("");
+    start.set_delay_time(settingMap["delay_time"]);
+    this->simCmdPub->Publish(start);
+  }
 }
