@@ -92,7 +92,7 @@ void AdHocNetPlugin::OnUpdate()
     {
       auto current = this->world->GetSimTime();
 
-      if (current.Double() - this->lastStatPrintTime.Double() >= 3.0)
+      if (current.Double() - this->lastStatPrintTime.Double() >= 10.0)
       {
         gzmsg << "===== locations =====" << std::endl;
         for (auto model : this->world->GetModels())
@@ -176,7 +176,7 @@ void AdHocNetPlugin::OnSimCmdResponse(
   const boost::shared_ptr<adhoc::msgs::SimInfo const> &_res)
 {
   std::lock_guard<std::mutex> lk(this->simInfoMutex);
-  
+
   if (_res->state() == "started")
   {
     gzmsg << "response (started) from " << _res->robot_name() << std::endl;
@@ -215,20 +215,47 @@ void AdHocNetPlugin::OnSimCmdResponse(
       common::Time current = this->world->GetSimTime();
       double elapsed = current.Double() - this->startTime.Double();
 
-      // TODO: revise this part to save the statistics
+      int sentMessageCount = 0;
+      int recvMessageCount = 0;
+      int totalHops = 0;
+      double totalRoundTripTime = 0;
+
+      for (auto res: this->listStopResponses)
+      {
+        sentMessageCount += res->sent_message_count();
+        recvMessageCount += res->recv_message_count();
+        totalHops += res->total_hops();
+        totalRoundTripTime += res->total_round_trip_time();
+      }
+
       // finish recording
       std::stringstream ss;
       ss << "--- Network ---" << std::endl;
-      ss << "Time: " << elapsed << std::endl;
-      ss << "Total # of Packets: " << this->totalPackets << std::endl;
-      ss << "Total # of Message: " << this->hashList.size() << std::endl;
-      ss << "Ave # of Packets per Message: " << ((double)this->totalPackets)/this->hashList.size() << std::endl;
-      ss << "Total # of Topology Changes: " << this->topoChangeCount << std::endl;
-      ss << "Frequency of Topology Change: " << this->topoChangeCount / elapsed << std::endl;
+      ss << "Time\t" << elapsed << std::endl;
+      ss << "Total # of Packets\t" << this->totalPackets << std::endl;
+      ss << "Total # of Message\t" << this->hashList.size() << std::endl;
+      ss << "Ave # of Packets per Message\t" << ((double)this->totalPackets)/this->hashList.size() << std::endl;
+      ss << "Total # of Topology Changes\t" << this->topoChangeCount << std::endl;
+      ss << "Frequency of Topology Change\t" << this->topoChangeCount / elapsed << std::endl;
+
+      ss << "--- Client ---" << std::endl;
+      ss << "Robot Speed\t" << this->currentRobotSpeed << std::endl;
+      ss << "Time of hop to delay\t" << this->currentDelayTime << std::endl;
+      ss << "Total # of Sent Messages\t" << sentMessageCount << std::endl;
+      ss << "Total # of Received Messages\t" << recvMessageCount << std::endl;
+      ss << "Total # of Hops\t" << totalHops << std::endl;
+      ss << "Ave # of hops per Message\t" << ((double)totalHops)/recvMessageCount << std::endl;
+      ss << "Total Round Trip Time\t" << totalRoundTripTime << std::endl;
+      ss << "Ave Round Trip Time per Message\t" << totalRoundTripTime/recvMessageCount << std::endl;
+
       gzmsg << ss.str();
 
+      std::stringstream filename;
+      filename << "Simulation_d" << this->currentDelayTime
+               << "_s" << this->currentRobotSpeed
+               << "_" << current.FormattedString() << ".log";
       std::fstream fs;
-      fs.open("Network-" + current.FormattedString() + ".log", std::fstream::out);
+      fs.open(filename.str(), std::fstream::out);
       fs << ss.str();
       fs.close();
 
@@ -351,9 +378,9 @@ bool AdHocNetPlugin::CheckTopoChange()
         changed = true;
         this->topoList[std::to_string(i)+":"+std::to_string(j)] = inRange;
         if (inRange)
-          gzmsg << i << ":" << j << ", connected" << std::endl;
+          gzdbg << i << ":" << j << ", connected" << std::endl;
         else
-          gzmsg << i << ":" << j << ", disconnected" << std::endl;
+          gzdbg << i << ":" << j << ", disconnected" << std::endl;
       }
     }
   }
@@ -392,15 +419,19 @@ void AdHocNetPlugin::StartNewTrial()
     gzmsg << "publishing new velocity" << std::endl;
 
     std_msgs::Float32 vel;
-    vel.data = settingMap["robot_speed"];
+    this->currentRobotSpeed = settingMap["robot_speed"];
+    vel.data = this->currentRobotSpeed;
     this->navVelUpdatePub.publish(vel);
 
     gzmsg << std::endl
-          << "====================================================" << std::endl
+          << "===================================================" << std::endl
+          << "===================================================" << std::endl
           << "Trial: " << settingName << std::endl
           << "simulation period: " << this->simPeriod << std::endl
           << "communicaiton range: " << this->commRange << std::endl
-          << "robot speed: " << vel.data << std::endl;
+          << "robot speed: " << vel.data << std::endl
+          << "===================================================" << std::endl
+          << "===================================================" << std::endl;
 
     for (int i = 1; i <= 9; ++i)
     {
@@ -410,11 +441,13 @@ void AdHocNetPlugin::StartNewTrial()
       }
     }
 
+    this->currentDelayTime = settingMap["delay_time"];
+
     this->listStartResponses.clear();
     adhoc::msgs::SimInfo start;
     start.set_state("start");
     start.set_robot_name("");
-    start.set_delay_time(settingMap["delay_time"]);
+    start.set_delay_time(this->currentDelayTime);
     this->simCmdPub->Publish(start);
   }
 }
