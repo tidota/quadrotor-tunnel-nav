@@ -13,7 +13,7 @@ using namespace gazebo;
 GZ_REGISTER_MODEL_PLUGIN(AdHocClientPlugin)
 
 //////////////////////////////////////////////////
-void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
+void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_sdf*/)
 {
   this->model = _model;
 
@@ -24,24 +24,14 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   gzmsg << "Starting Ad Hoc Net client " << this->id
         << " for " << this->model->GetScopedName() << std::endl;
 
-  this->started = false;
-  this->finished = false;
-  if (_sdf->HasElement("enable"))
-  {
-    this->started = _sdf->Get<bool>("enable");
-  }
-  this->delayedTime = 0;
-  if (_sdf->HasElement("delay"))
-  {
-    this->delayedTime = _sdf->Get<double>("delay");
-  }
-  gzmsg << "Delayed Time: " << this->delayedTime << std::endl;
+  this->running = false;
+  this->delayTime = 0;
 
   this->node = transport::NodePtr(new transport::Node());
   this->node->Init();
 
   this->simCommSub
-    = this->node->Subscribe<msgs::GzString>(
+    = this->node->Subscribe<adhoc::msgs::SimInfo>(
       "/sim_cmd", &AdHocClientPlugin::OnSimCmd, this);
 
   this->simCommResPub
@@ -86,8 +76,7 @@ void AdHocClientPlugin::OnUpdate()
   {
     common::Time current = this->model->GetWorld()->GetSimTime();
     std::lock_guard<std::mutex> lk(this->simInfoMutex);
-    if (this->started && !this->finished
-      && current.Double() - this->lastSentTime.Double() > 0.5)
+    if (this->running && current.Double() - this->lastSentTime.Double() > 0.5)
     {
       unsigned int dst = std::rand() % 9;
       if (dst >= this->id - 1)
@@ -107,12 +96,17 @@ void AdHocClientPlugin::OnUpdate()
 }
 
 //////////////////////////////////////////////////
-void AdHocClientPlugin::OnSimCmd(ConstGzStringPtr &_req)
+void AdHocClientPlugin::OnSimCmd(
+  const boost::shared_ptr<adhoc::msgs::SimInfo const> &_req)
 {
   std::lock_guard<std::mutex> lk(this->simInfoMutex);
-  if (!this->started && !this->finished && _req->data() == "start")
+  if (!this->running && _req->state() == "start")
   {
     // TODO Initialize everythin here.
+    this->delayTime = _req->delay_time();
+
+    gzmsg << "Delay Time(" << this->model->GetName() << "): "
+          << this->delayTime << std::endl;
 
     // start recording
     adhoc::msgs::SimInfo msg;
@@ -120,16 +114,16 @@ void AdHocClientPlugin::OnSimCmd(ConstGzStringPtr &_req)
     msg.set_robot_name(this->model->GetName());
     this->simCommResPub->Publish(msg);
 
-    this->started = true;
+    this->running = true;
   }
-  else if (this->started && !this->finished && _req->data() == "stop")
+  else if (this->running && _req->state() == "stop")
   {
-    this->finished = true;
+    this->running = false;
 
     // finish recording
     std::stringstream ss;
     ss << "--- Client ---" << std::endl;
-    ss << "Time of hop to delay: " << this->delayedTime << std::endl;
+    ss << "Time of hop to delay: " << this->delayTime << std::endl;
     ss << "Total # of Sent Messages: " << this->messageCount << std::endl;
     ss << "Total # of Received Messages: " << this->totalMessages << std::endl;
     ss << "Total # of Hops: " << this->totalHops << std::endl;
@@ -159,7 +153,7 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
   {
     auto &p = this->incomingMsgsStamped.front();
     auto &t = p.second;
-    if (current.Double() - t.Double() < this->delayedTime)
+    if (current.Double() - t.Double() < this->delayTime)
       break;
 
     auto const &msg = p.first;

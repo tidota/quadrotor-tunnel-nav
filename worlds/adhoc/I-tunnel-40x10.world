@@ -64,10 +64,6 @@
       <uri>model://i_tunnel_40x10</uri>
     </include>
 
-    <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so">
-      <enable>false</enable>
-      <range>8</range>
-      <period>60</period>
-    </plugin>
+    <plugin name="adhocnet_plugin" filename="libAdHocNetPlugin.so" />
   </world>
 </sdf>

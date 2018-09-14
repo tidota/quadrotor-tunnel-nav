@@ -7,14 +7,14 @@ package adhoc.msgs;
 
 message SimInfo
 {
-  /// \brief response
+  /// \brief state
   required string state                     = 1;
 
   /// \brief model name
   required string robot_name                = 2;
 
   /// \brief Time of hop to delay.
-  optional double delayed_time              = 3;
+  optional double delay_time                = 3;
 
   /// \brief Total # of Sent Messages.
   optional uint32 message_count             = 4;
