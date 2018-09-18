@@ -205,6 +205,7 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
           double dy = currentPose.pos.y - prevLocMsg->y();
           double dz = currentPose.pos.z - prevLocMsg->z();
           double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+          this->msg_res.set_dist_comm(msg.dist_comm());
           this->msg_res.set_dist_motion(msg.dist_motion() + dist);
           prevLocMsg->set_x(currentPose.pos.x);
           prevLocMsg->set_y(currentPose.pos.y);
@@ -240,6 +241,7 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
         double dy = currentPose.pos.y - prevLocMsg->y();
         double dz = currentPose.pos.z - prevLocMsg->z();
         double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+        forwardMsg.set_dist_comm(msg.dist_comm());
         forwardMsg.set_dist_motion(msg.dist_motion() + dist);
         prevLocMsg->set_x(currentPose.pos.x);
         prevLocMsg->set_y(currentPose.pos.y);
