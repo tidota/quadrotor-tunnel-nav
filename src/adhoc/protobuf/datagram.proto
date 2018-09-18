@@ -1,5 +1,6 @@
 syntax = "proto2";
 package adhoc.msgs;
+import "vector3d.proto";
 
 /// \ingroup adhoc_msgs
 /// \interface Datagram
@@ -8,23 +9,32 @@ package adhoc.msgs;
 message Datagram
 {
   /// \brief scoped name of model.
-  required string robot_name  = 1;
+  required string robot_name                = 1;
 
   /// \brief Address of the sender.
-  required uint32 src_address = 2;
+  required uint32 src_address               = 2;
 
   /// \brief Address of the destination.
-  required uint32 dst_address = 3;
+  required uint32 dst_address               = 3;
 
   /// \brief number of hops
-  required uint32 hops        = 4;
+  required uint32 hops                      = 4;
 
   /// \brief index of message
-  required uint32 index       = 5;
+  required uint32 index                     = 5;
 
   /// \brief time stamp
-  required double time        = 6;
+  required double time                      = 6;
 
   /// \brief Payload.
-  required string data        = 7;
+  required string data                      = 7;
+
+  /// \brief (for tracking) total distance by communication.
+  required double dist_comm                 = 8;
+
+  /// \brief (for tracking) total distance by motion.
+  required double dist_motion               = 9;
+
+  /// \brief (for tracking) last checked location.
+  required gazebo.msgs.Vector3d prev_loc    = 10;
 }

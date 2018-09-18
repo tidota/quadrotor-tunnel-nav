@@ -8,9 +8,17 @@ include(${PROJECT_SOURCE_DIR}/cmake/Protobuf.cmake)
 # Generate Messages
 ##############################################################################
 
+set(PROTOBUF_IMPORT_DIRS)
+foreach(ITR ${GAZEBO_INCLUDE_DIRS})
+  if(ITR MATCHES ".*gazebo-[0-9.]+$")
+    set(PROTOBUF_IMPORT_DIRS "${ITR}/gazebo/msgs/proto")
+  endif()
+endforeach()
+
 set(PROTO_MESSAGES
   datagram.proto
   siminfo.proto
+  ${PROTOBUF_IMPORT_DIRS}/vector3d.proto
 )
 
 protobuf_generate_cpp_with_descriptor(

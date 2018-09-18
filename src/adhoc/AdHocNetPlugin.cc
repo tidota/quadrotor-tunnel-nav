@@ -220,12 +220,18 @@ void AdHocNetPlugin::OnSimCmdResponse(
       int totalHops = 0;
       double totalRoundTripTime = 0;
 
+      double totalDistComm = 0;
+      double totalDistMotion = 0;
+
       for (auto res: this->listStopResponses)
       {
         sentMessageCount += res->sent_message_count();
         recvMessageCount += res->recv_message_count();
         totalHops += res->total_hops();
         totalRoundTripTime += res->total_round_trip_time();
+
+        totalDistComm += res->total_dist_comm();
+        totalDistMotion += res->total_dist_motion();
       }
 
       // finish recording
@@ -234,9 +240,12 @@ void AdHocNetPlugin::OnSimCmdResponse(
       ss << "Time\t" << elapsed << std::endl;
       ss << "Total # of Packets\t" << this->totalPackets << std::endl;
       ss << "Total # of Message\t" << this->hashList.size() << std::endl;
-      ss << "Ave # of Packets per Message\t" << ((double)this->totalPackets)/this->hashList.size() << std::endl;
-      ss << "Total # of Topology Changes\t" << this->topoChangeCount << std::endl;
-      ss << "Frequency of Topology Change\t" << this->topoChangeCount / elapsed << std::endl;
+      ss << "Avg # of Packets per Message\t"
+         << ((double)this->totalPackets)/this->hashList.size() << std::endl;
+      ss << "Total # of Topology Changes\t"
+         << this->topoChangeCount << std::endl;
+      ss << "Frequency of Topology Change\t"
+         << this->topoChangeCount / elapsed << std::endl;
 
       ss << "--- Client ---" << std::endl;
       ss << "Robot Speed\t" << this->currentRobotSpeed << std::endl;
@@ -244,9 +253,17 @@ void AdHocNetPlugin::OnSimCmdResponse(
       ss << "Total # of Sent Messages\t" << sentMessageCount << std::endl;
       ss << "Total # of Received Messages\t" << recvMessageCount << std::endl;
       ss << "Total # of Hops\t" << totalHops << std::endl;
-      ss << "Ave # of hops per Message\t" << ((double)totalHops)/recvMessageCount << std::endl;
+      ss << "Avg # of hops per Message\t"
+         << ((double)totalHops)/recvMessageCount << std::endl;
       ss << "Total Round Trip Time\t" << totalRoundTripTime << std::endl;
-      ss << "Ave Round Trip Time per Message\t" << totalRoundTripTime/recvMessageCount << std::endl;
+      ss << "Avg Round Trip Time per Message\t"
+         << totalRoundTripTime/recvMessageCount << std::endl;
+      ss << "Total Distance of Communication\t" << totalDistComm << std::endl;
+      ss << "Avg Distance of Communicaiton Taken by a Packet\t"
+         << totalDistComm/recvMessageCount << std::endl;
+      ss << "Total Distance of Motion\t" << totalDistMotion << std::endl;
+      ss << "Avg Distance of Motion Taken by a Packet\t"
+         << totalDistMotion/recvMessageCount << std::endl;
 
       gzmsg << ss.str();
 

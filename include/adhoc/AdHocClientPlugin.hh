@@ -13,6 +13,7 @@
 #include <std_msgs/Bool.h>
 
 #include <gazebo/common/Plugin.hh>
+#include <gazebo/math/Pose.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
@@ -114,6 +115,13 @@ namespace gazebo
 
     /// \brief Protect data from races.
     private: std::mutex messageMutex;
+
+    /// \brief (For tracking purposes) total communication distance taken by
+    /// packets.
+    private: double totalDistComm;
+
+    /// \brief (For tracking purposes) total motion distance taken by packets.
+    private: double totalDistMotion;
   };
 }
 #endif

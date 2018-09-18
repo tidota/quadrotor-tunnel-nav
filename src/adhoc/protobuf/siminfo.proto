@@ -27,4 +27,10 @@ message SimInfo
 
   /// \brief Total Round Trip Time.
   optional double total_round_trip_time     = 7;
+
+  /// \brief Total distance of communication taken by packets.
+  optional double total_dist_comm           = 8;
+
+  /// \brief Total distance of motion taken by packets.
+  optional double total_dist_motion         = 9;
 }

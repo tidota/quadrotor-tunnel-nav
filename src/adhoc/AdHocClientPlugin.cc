@@ -65,6 +65,9 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_sdf*/)
   this->totalHops = 0;
   this->totalRoundTripTime = 0.0;
 
+  this->totalDistComm = 0;
+  this->totalDistMotion = 0;
+
   std::srand(std::time(nullptr));
 }
 
@@ -86,6 +89,16 @@ void AdHocClientPlugin::OnUpdate()
       this->msg_req.set_index(this->sentMessageCount);
       this->msg_req.set_hops(1);
       this->msg_req.set_time(current.Double());
+
+      this->msg_req.set_dist_comm(0);
+      this->msg_req.set_dist_motion(0);
+
+      math::Pose currentPose = this->model->GetWorldPose();
+      gazebo::msgs::Vector3d* prevLocMsg = this->msg_req.mutable_prev_loc();
+      prevLocMsg->set_x(currentPose.pos.x);
+      prevLocMsg->set_y(currentPose.pos.y);
+      prevLocMsg->set_z(currentPose.pos.z);
+
       this->pub->Publish(this->msg_req);
       this->lastSentTime = current;
       this->sentMessageCount++;
@@ -129,6 +142,8 @@ void AdHocClientPlugin::OnSimCmd(
     msg.set_recv_message_count(this->recvMessageCount);
     msg.set_total_hops(this->totalHops);
     msg.set_total_round_trip_time(this->totalRoundTripTime);
+    msg.set_total_dist_comm(this->totalDistComm);
+    msg.set_total_dist_motion(this->totalDistMotion);
     this->simCommResPub->Publish(msg);
 
     this->running = false;
@@ -182,6 +197,19 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
           this->msg_res.set_index(msg.index());
           this->msg_res.set_hops(msg.hops() + 1);
           this->msg_res.set_time(msg.time());
+
+          // For tracking purposes.
+          math::Pose currentPose = this->model->GetWorldPose();
+          gazebo::msgs::Vector3d* prevLocMsg = this->msg_res.mutable_prev_loc();
+          double dx = currentPose.pos.x - prevLocMsg->x();
+          double dy = currentPose.pos.y - prevLocMsg->y();
+          double dz = currentPose.pos.z - prevLocMsg->z();
+          double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+          this->msg_res.set_dist_motion(msg.dist_motion() + dist);
+          prevLocMsg->set_x(currentPose.pos.x);
+          prevLocMsg->set_y(currentPose.pos.y);
+          prevLocMsg->set_z(currentPose.pos.z);
+
           this->pub->Publish(this->msg_res);
         }
         else if (msg.data() == "response")
@@ -190,6 +218,9 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
           this->recvMessageCount++;
           this->totalHops += msg.hops();
           this->totalRoundTripTime += current.Double() - msg.time();
+
+          this->totalDistComm += msg.dist_comm();
+          this->totalDistMotion += msg.dist_motion();
         }
         else
         {
@@ -201,6 +232,19 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
         adhoc::msgs::Datagram forwardMsg(msg);
         forwardMsg.set_robot_name(this->model->GetName());
         forwardMsg.set_hops(msg.hops() + 1);
+
+        // For tracking purposes.
+        math::Pose currentPose = this->model->GetWorldPose();
+        gazebo::msgs::Vector3d* prevLocMsg = forwardMsg.mutable_prev_loc();
+        double dx = currentPose.pos.x - prevLocMsg->x();
+        double dy = currentPose.pos.y - prevLocMsg->y();
+        double dz = currentPose.pos.z - prevLocMsg->z();
+        double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+        forwardMsg.set_dist_motion(msg.dist_motion() + dist);
+        prevLocMsg->set_x(currentPose.pos.x);
+        prevLocMsg->set_y(currentPose.pos.y);
+        prevLocMsg->set_z(currentPose.pos.z);
+
         this->pub->Publish(forwardMsg);
       }
     }
@@ -212,11 +256,24 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
 //////////////////////////////////////////////////
 void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
 {
+  adhoc::msgs::Datagram tempMsg(*_msg);
+  // For tracking purposes.
+  math::Pose currentPose = this->model->GetWorldPose();
+  gazebo::msgs::Vector3d* prevLocMsg = tempMsg.mutable_prev_loc();
+  double dx = currentPose.pos.x - prevLocMsg->x();
+  double dy = currentPose.pos.y - prevLocMsg->y();
+  double dz = currentPose.pos.z - prevLocMsg->z();
+  double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+  tempMsg.set_dist_comm(_msg->dist_comm() + dist);
+  prevLocMsg->set_x(currentPose.pos.x);
+  prevLocMsg->set_y(currentPose.pos.y);
+  prevLocMsg->set_z(currentPose.pos.z);
+
   // Just save the message, it will be processed later.
   std::lock_guard<std::mutex> lk(this->messageMutex);
   std::pair<adhoc::msgs::Datagram, common::Time> p;
   common::Time t = this->model->GetWorld()->GetSimTime();
-  p.first = *_msg;
+  p.first = tempMsg;
   p.second = t;
   this->incomingMsgsStamped.push(p);
 }
