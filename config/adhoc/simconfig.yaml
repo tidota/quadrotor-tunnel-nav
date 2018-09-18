@@ -2,18 +2,328 @@ simulation_period: 60.0
 communication_range: 8.0
 
 setting_list:
-  - setting1
-  - setting2
-  - setting3
+  - sim_d0_s3
+  - sim_d0_s4
+  - sim_d0_s5
+  - sim_d0_s6
+  - sim_d0_s7
+  - sim_d0_s8
+  - sim_d0_s9
+  - sim_d0_s10
+  - sim_d0_s11
+  - sim_d0_s12
+  - sim_d0_s13
+  - sim_d0_s14
+  - sim_d0_s15
+  - sim_d3_s3
+  - sim_d3_s4
+  - sim_d3_s5
+  - sim_d3_s6
+  - sim_d3_s7
+  - sim_d3_s8
+  - sim_d3_s9
+  - sim_d3_s10
+  - sim_d3_s11
+  - sim_d3_s12
+  - sim_d3_s13
+  - sim_d3_s14
+  - sim_d3_s15
+  - sim_d5_s3
+  - sim_d5_s4
+  - sim_d5_s5
+  - sim_d5_s6
+  - sim_d5_s7
+  - sim_d5_s8
+  - sim_d5_s9
+  - sim_d5_s10
+  - sim_d5_s11
+  - sim_d5_s12
+  - sim_d5_s13
+  - sim_d5_s14
+  - sim_d5_s15
+  - sim_d7_s3
+  - sim_d7_s4
+  - sim_d7_s5
+  - sim_d7_s6
+  - sim_d7_s7
+  - sim_d7_s8
+  - sim_d7_s9
+  - sim_d7_s10
+  - sim_d7_s11
+  - sim_d7_s12
+  - sim_d7_s13
+  - sim_d7_s14
+  - sim_d7_s15
+  - sim_d9_s3
+  - sim_d9_s4
+  - sim_d9_s5
+  - sim_d9_s6
+  - sim_d9_s7
+  - sim_d9_s8
+  - sim_d9_s9
+  - sim_d9_s10
+  - sim_d9_s11
+  - sim_d9_s12
+  - sim_d9_s13
+  - sim_d9_s14
+  - sim_d9_s15
 
-setting1:
-  delay_time: 0.5
-  robot_speed: 9.0
+sim_d0_s3:
+  delay_time: 0
+  robot_speed: 3
 
-setting2:
-  delay_time: 3.0
-  robot_speed: 11.0
+sim_d0_s4:
+  delay_time: 0
+  robot_speed: 4
 
-setting3:
-  delay_time: 1.5
-  robot_speed: 7.0
+sim_d0_s5:
+  delay_time: 0
+  robot_speed: 5
+
+sim_d0_s6:
+  delay_time: 0
+  robot_speed: 6
+
+sim_d0_s7:
+  delay_time: 0
+  robot_speed: 7
+
+sim_d0_s8:
+  delay_time: 0
+  robot_speed: 8
+
+sim_d0_s9:
+  delay_time: 0
+  robot_speed: 9
+
+sim_d0_s10:
+  delay_time: 0
+  robot_speed: 10
+
+sim_d0_s11:
+  delay_time: 0
+  robot_speed: 11
+
+sim_d0_s12:
+  delay_time: 0
+  robot_speed: 12
+
+sim_d0_s13:
+  delay_time: 0
+  robot_speed: 13
+
+sim_d0_s14:
+  delay_time: 0
+  robot_speed: 14
+
+sim_d0_s15:
+  delay_time: 0
+  robot_speed: 15
+
+sim_d3_s3:
+  delay_time: 3
+  robot_speed: 3
+
+sim_d3_s4:
+  delay_time: 3
+  robot_speed: 4
+
+sim_d3_s5:
+  delay_time: 3
+  robot_speed: 5
+
+sim_d3_s6:
+  delay_time: 3
+  robot_speed: 6
+
+sim_d3_s7:
+  delay_time: 3
+  robot_speed: 7
+
+sim_d3_s8:
+  delay_time: 3
+  robot_speed: 8
+
+sim_d3_s9:
+  delay_time: 3
+  robot_speed: 9
+
+sim_d3_s10:
+  delay_time: 3
+  robot_speed: 10
+
+sim_d3_s11:
+  delay_time: 3
+  robot_speed: 11
+
+sim_d3_s12:
+  delay_time: 3
+  robot_speed: 12
+
+sim_d3_s13:
+  delay_time: 3
+  robot_speed: 13
+
+sim_d3_s14:
+  delay_time: 3
+  robot_speed: 14
+
+sim_d3_s15:
+  delay_time: 3
+  robot_speed: 15
+
+sim_d5_s3:
+  delay_time: 5
+  robot_speed: 3
+
+sim_d5_s4:
+  delay_time: 5
+  robot_speed: 4
+
+sim_d5_s5:
+  delay_time: 5
+  robot_speed: 5
+
+sim_d5_s6:
+  delay_time: 5
+  robot_speed: 6
+
+sim_d5_s7:
+  delay_time: 5
+  robot_speed: 7
+
+sim_d5_s8:
+  delay_time: 5
+  robot_speed: 8
+
+sim_d5_s9:
+  delay_time: 5
+  robot_speed: 9
+
+sim_d5_s10:
+  delay_time: 5
+  robot_speed: 10
+
+sim_d5_s11:
+  delay_time: 5
+  robot_speed: 11
+
+sim_d5_s12:
+  delay_time: 5
+  robot_speed: 12
+
+sim_d5_s13:
+  delay_time: 5
+  robot_speed: 13
+
+sim_d5_s14:
+  delay_time: 5
+  robot_speed: 14
+
+sim_d5_s15:
+  delay_time: 5
+  robot_speed: 15
+
+sim_d7_s3:
+  delay_time: 7
+  robot_speed: 3
+
+sim_d7_s4:
+  delay_time: 7
+  robot_speed: 4
+
+sim_d7_s5:
+  delay_time: 7
+  robot_speed: 5
+
+sim_d7_s6:
+  delay_time: 7
+  robot_speed: 6
+
+sim_d7_s7:
+  delay_time: 7
+  robot_speed: 7
+
+sim_d7_s8:
+  delay_time: 7
+  robot_speed: 8
+
+sim_d7_s9:
+  delay_time: 7
+  robot_speed: 9
+
+sim_d7_s10:
+  delay_time: 7
+  robot_speed: 10
+
+sim_d7_s11:
+  delay_time: 7
+  robot_speed: 11
+
+sim_d7_s12:
+  delay_time: 7
+  robot_speed: 12
+
+sim_d7_s13:
+  delay_time: 7
+  robot_speed: 13
+
+sim_d7_s14:
+  delay_time: 7
+  robot_speed: 14
+
+sim_d7_s15:
+  delay_time: 7
+  robot_speed: 15
+
+sim_d9_s3:
+  delay_time: 9
+  robot_speed: 3
+
+sim_d9_s4:
+  delay_time: 9
+  robot_speed: 4
+
+sim_d9_s5:
+  delay_time: 9
+  robot_speed: 5
+
+sim_d9_s6:
+  delay_time: 9
+  robot_speed: 6
+
+sim_d9_s7:
+  delay_time: 9
+  robot_speed: 7
+
+sim_d9_s8:
+  delay_time: 9
+  robot_speed: 8
+
+sim_d9_s9:
+  delay_time: 9
+  robot_speed: 9
+
+sim_d9_s10:
+  delay_time: 9
+  robot_speed: 10
+
+sim_d9_s11:
+  delay_time: 9
+  robot_speed: 11
+
+sim_d9_s12:
+  delay_time: 9
+  robot_speed: 12
+
+sim_d9_s13:
+  delay_time: 9
+  robot_speed: 13
+
+sim_d9_s14:
+  delay_time: 9
+  robot_speed: 14
+
+sim_d9_s15:
+  delay_time: 9
+  robot_speed: 15
