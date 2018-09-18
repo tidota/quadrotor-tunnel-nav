@@ -237,32 +237,32 @@ void AdHocNetPlugin::OnSimCmdResponse(
       // finish recording
       std::stringstream ss;
       ss << "--- Network ---" << std::endl;
-      ss << "Time\t" << elapsed << std::endl;
-      ss << "Total # of Packets\t" << this->totalPackets << std::endl;
-      ss << "Total # of Message\t" << this->hashList.size() << std::endl;
-      ss << "Avg # of Packets per Message\t"
+      ss << "Time," << elapsed << std::endl;
+      ss << "Total # of Packets," << this->totalPackets << std::endl;
+      ss << "Total # of Message," << this->hashList.size() << std::endl;
+      ss << "Avg # of Packets per Message,"
          << ((double)this->totalPackets)/this->hashList.size() << std::endl;
-      ss << "Total # of Topology Changes\t"
+      ss << "Total # of Topology Changes,"
          << this->topoChangeCount << std::endl;
-      ss << "Frequency of Topology Change\t"
+      ss << "Frequency of Topology Change,"
          << this->topoChangeCount / elapsed << std::endl;
 
       ss << "--- Client ---" << std::endl;
-      ss << "Robot Speed\t" << this->currentRobotSpeed << std::endl;
-      ss << "Time of hop to delay\t" << this->currentDelayTime << std::endl;
-      ss << "Total # of Sent Messages\t" << sentMessageCount << std::endl;
-      ss << "Total # of Received Messages\t" << recvMessageCount << std::endl;
-      ss << "Total # of Hops\t" << totalHops << std::endl;
-      ss << "Avg # of hops per Message\t"
+      ss << "Robot Speed," << this->currentRobotSpeed << std::endl;
+      ss << "Time of hop to delay," << this->currentDelayTime << std::endl;
+      ss << "Total # of Sent Messages," << sentMessageCount << std::endl;
+      ss << "Total # of Received Messages," << recvMessageCount << std::endl;
+      ss << "Total # of Hops," << totalHops << std::endl;
+      ss << "Avg # of hops per Message,"
          << ((double)totalHops)/recvMessageCount << std::endl;
-      ss << "Total Round Trip Time\t" << totalRoundTripTime << std::endl;
-      ss << "Avg Round Trip Time per Message\t"
+      ss << "Total Round Trip Time," << totalRoundTripTime << std::endl;
+      ss << "Avg Round Trip Time per Message,"
          << totalRoundTripTime/recvMessageCount << std::endl;
-      ss << "Total Distance of Communication\t" << totalDistComm << std::endl;
-      ss << "Avg Distance of Communicaiton Taken by a Packet\t"
+      ss << "Total Distance of Communication," << totalDistComm << std::endl;
+      ss << "Avg Distance of Communicaiton Taken by a Packet,"
          << totalDistComm/recvMessageCount << std::endl;
-      ss << "Total Distance of Motion\t" << totalDistMotion << std::endl;
-      ss << "Avg Distance of Motion Taken by a Packet\t"
+      ss << "Total Distance of Motion," << totalDistMotion << std::endl;
+      ss << "Avg Distance of Motion Taken by a Packet,"
          << totalDistMotion/recvMessageCount << std::endl;
 
       gzmsg << ss.str();
@@ -270,7 +270,7 @@ void AdHocNetPlugin::OnSimCmdResponse(
       std::stringstream filename;
       filename << "Simulation_d" << this->currentDelayTime
                << "_s" << this->currentRobotSpeed
-               << "_" << current.FormattedString() << ".log";
+               << "_" << current.FormattedString() << ".csv";
       std::fstream fs;
       fs.open(filename.str(), std::fstream::out);
       fs << ss.str();
