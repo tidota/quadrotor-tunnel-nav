@@ -13,6 +13,7 @@
 
 #include <gazebo/common/Event.hh>
 #include <gazebo/common/Plugin.hh>
+#include <gazebo/math/Pose.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
