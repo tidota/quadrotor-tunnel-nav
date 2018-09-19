@@ -18,6 +18,6 @@
     <node name="turning_around" pkg="quadrotor_tunnel_nav" type="turn_node" args="" />
     <node name="steering" pkg="quadrotor_tunnel_nav" type="steer_node" args="" />
     <node name="staying_at_the_right_side" pkg="quadrotor_tunnel_nav" type="right_wall_node" args="" />
-    <node name="keep_going" pkg="quadrotor_tunnel_nav" type="keep_going_node" args="3.0" />
+    <node name="keep_going" pkg="quadrotor_tunnel_nav" type="keep_going_node" args="0.1" />
   </group>
 </launch>

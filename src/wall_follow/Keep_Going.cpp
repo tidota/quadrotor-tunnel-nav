@@ -24,17 +24,16 @@ void Keep_Going::command()
   com.vel.linear.x = 0; com.vel.linear.y = 0; com.vel.linear.z = 0;
   com.vel.angular.x = 0; com.vel.angular.y = 0; com.vel.angular.z = 0;
 
-  double range = rng_h[7].range / sqrt(2.0);
-  if(range > rng_h[6].range)
-    range = rng_h[6].range;
-  double rate = range/rng_h[6].range;
+  double rate = rng_h[7].range / sqrt(2.0) / rng_h[6].range;
+  if (rate > 1.0)
+    rate = 1.0;
 
   if (rng_h[0].range < 7.9)
-    rate = 0.6;
-  if (rng_h[0].range < DIST_WALL * 0.3)
-    rate = 0.3;
-  if (rng_h[7].range < DIST_WALL * sqrt(2.0) * 0.9)
-    rate = 0.1;
+    rate = rng_h[0].range / 8.0;
+  //if (rng_h[0].range < DIST_WALL * 0.3)
+  //  rate = 0.3;
+  //if (rng_h[7].range < DIST_WALL * sqrt(2.0) * 0.9)
+  //  rate = 0.1;
 
   // input check
   com.message = "KEEP GOING";

@@ -2,328 +2,288 @@ simulation_period: 60.0
 communication_range: 8.0
 
 setting_list:
-  - sim_d0_s3
-  - sim_d0_s4
-  - sim_d0_s5
-  - sim_d0_s6
-  - sim_d0_s7
-  - sim_d0_s8
-  - sim_d0_s9
-  - sim_d0_s10
-  - sim_d0_s11
-  - sim_d0_s12
-  - sim_d0_s13
-  - sim_d0_s14
-  - sim_d0_s15
-  - sim_d3_s3
-  - sim_d3_s4
-  - sim_d3_s5
-  - sim_d3_s6
-  - sim_d3_s7
-  - sim_d3_s8
-  - sim_d3_s9
-  - sim_d3_s10
-  - sim_d3_s11
-  - sim_d3_s12
-  - sim_d3_s13
-  - sim_d3_s14
-  - sim_d3_s15
-  - sim_d5_s3
-  - sim_d5_s4
-  - sim_d5_s5
-  - sim_d5_s6
-  - sim_d5_s7
-  - sim_d5_s8
-  - sim_d5_s9
-  - sim_d5_s10
-  - sim_d5_s11
-  - sim_d5_s12
-  - sim_d5_s13
-  - sim_d5_s14
-  - sim_d5_s15
-  - sim_d7_s3
-  - sim_d7_s4
-  - sim_d7_s5
-  - sim_d7_s6
-  - sim_d7_s7
-  - sim_d7_s8
-  - sim_d7_s9
-  - sim_d7_s10
-  - sim_d7_s11
-  - sim_d7_s12
-  - sim_d7_s13
-  - sim_d7_s14
-  - sim_d7_s15
-  - sim_d9_s3
-  - sim_d9_s4
-  - sim_d9_s5
-  - sim_d9_s6
-  - sim_d9_s7
-  - sim_d9_s8
-  - sim_d9_s9
-  - sim_d9_s10
-  - sim_d9_s11
-  - sim_d9_s12
-  - sim_d9_s13
-  - sim_d9_s14
-  - sim_d9_s15
+  - simD0S0_3
+  - simD0S0_6
+  - simD0S0_9
+  - simD0S1_2
+  - simD0S1_5
+  - simD3S0_3
+  - simD3S0_6
+  - simD3S0_9
+  - simD3S1_2
+  - simD3S1_5
+  - simD5S0_3
+  - simD5S0_6
+  - simD5S0_9
+  - simD5S1_2
+  - simD5S1_5
+  - simD7S0_3
+  - simD7S0_6
+  - simD7S0_9
+  - simD7S1_2
+  - simD7S1_5
+  - simD9S0_3
+  - simD9S0_6
+  - simD9S0_9
+  - simD9S1_2
+  - simD9S1_5
 
-sim_d0_s3:
+simD0S0_3:
   delay_time: 0
-  robot_speed: 3
+  robot_speed: 0.3
 
-sim_d0_s4:
+simD0S0_4:
   delay_time: 0
-  robot_speed: 4
+  robot_speed: 0.4
 
-sim_d0_s5:
+simD0S0_5:
   delay_time: 0
-  robot_speed: 5
+  robot_speed: 0.5
 
-sim_d0_s6:
+simD0S0_6:
   delay_time: 0
-  robot_speed: 6
+  robot_speed: 0.6
 
-sim_d0_s7:
+simD0S0_7:
   delay_time: 0
-  robot_speed: 7
+  robot_speed: 0.7
 
-sim_d0_s8:
+simD0S0_8:
   delay_time: 0
-  robot_speed: 8
+  robot_speed: 0.8
 
-sim_d0_s9:
+simD0S0_9:
   delay_time: 0
-  robot_speed: 9
+  robot_speed: 0.9
 
-sim_d0_s10:
+simD0S1_0:
   delay_time: 0
-  robot_speed: 10
+  robot_speed: 1.0
 
-sim_d0_s11:
+simD0S1_1:
   delay_time: 0
-  robot_speed: 11
+  robot_speed: 1.1
 
-sim_d0_s12:
+simD0S1_2:
   delay_time: 0
-  robot_speed: 12
+  robot_speed: 1.2
 
-sim_d0_s13:
+simD0S1_3:
   delay_time: 0
-  robot_speed: 13
+  robot_speed: 1.3
 
-sim_d0_s14:
+simD0S1_4:
   delay_time: 0
-  robot_speed: 14
+  robot_speed: 1.4
 
-sim_d0_s15:
+simD0S1_5:
   delay_time: 0
-  robot_speed: 15
+  robot_speed: 1.5
 
-sim_d3_s3:
+simD3S0_3:
   delay_time: 3
-  robot_speed: 3
+  robot_speed: 0.3
 
-sim_d3_s4:
+simD3S0_4:
   delay_time: 3
-  robot_speed: 4
+  robot_speed: 0.4
 
-sim_d3_s5:
+simD3S0_5:
   delay_time: 3
-  robot_speed: 5
+  robot_speed: 0.5
 
-sim_d3_s6:
+simD3S0_6:
   delay_time: 3
-  robot_speed: 6
+  robot_speed: 0.6
 
-sim_d3_s7:
+simD3S0_7:
   delay_time: 3
-  robot_speed: 7
+  robot_speed: 0.7
 
-sim_d3_s8:
+simD3S0_8:
   delay_time: 3
-  robot_speed: 8
+  robot_speed: 0.8
 
-sim_d3_s9:
+simD3S0_9:
   delay_time: 3
-  robot_speed: 9
+  robot_speed: 0.9
 
-sim_d3_s10:
+simD3S1_0:
   delay_time: 3
-  robot_speed: 10
+  robot_speed: 1.0
 
-sim_d3_s11:
+simD3S1_1:
   delay_time: 3
-  robot_speed: 11
+  robot_speed: 1.1
 
-sim_d3_s12:
+simD3S1_2:
   delay_time: 3
-  robot_speed: 12
+  robot_speed: 1.2
 
-sim_d3_s13:
+simD3S1_3:
   delay_time: 3
-  robot_speed: 13
+  robot_speed: 1.3
 
-sim_d3_s14:
+simD3S1_4:
   delay_time: 3
-  robot_speed: 14
+  robot_speed: 1.4
 
-sim_d3_s15:
+simD3S1_5:
   delay_time: 3
-  robot_speed: 15
+  robot_speed: 1.5
 
-sim_d5_s3:
+simD5S0_3:
   delay_time: 5
-  robot_speed: 3
+  robot_speed: 0.3
 
-sim_d5_s4:
+simD5S0_4:
   delay_time: 5
-  robot_speed: 4
+  robot_speed: 0.4
 
-sim_d5_s5:
+simD5S0_5:
   delay_time: 5
-  robot_speed: 5
+  robot_speed: 0.5
 
-sim_d5_s6:
+simD5S0_6:
   delay_time: 5
-  robot_speed: 6
+  robot_speed: 0.6
 
-sim_d5_s7:
+simD5S0_7:
   delay_time: 5
-  robot_speed: 7
+  robot_speed: 0.7
 
-sim_d5_s8:
+simD5S0_8:
   delay_time: 5
-  robot_speed: 8
+  robot_speed: 0.8
 
-sim_d5_s9:
+simD5S0_9:
   delay_time: 5
-  robot_speed: 9
+  robot_speed: 0.9
 
-sim_d5_s10:
+simD5S1_0:
   delay_time: 5
-  robot_speed: 10
+  robot_speed: 1.0
 
-sim_d5_s11:
+simD5S1_1:
   delay_time: 5
-  robot_speed: 11
+  robot_speed: 1.1
 
-sim_d5_s12:
+simD5S1_2:
   delay_time: 5
-  robot_speed: 12
+  robot_speed: 1.2
 
-sim_d5_s13:
+simD5S1_3:
   delay_time: 5
-  robot_speed: 13
+  robot_speed: 1.3
 
-sim_d5_s14:
+simD5S1_4:
   delay_time: 5
-  robot_speed: 14
+  robot_speed: 1.4
 
-sim_d5_s15:
+simD5S1_5:
   delay_time: 5
-  robot_speed: 15
+  robot_speed: 1.5
 
-sim_d7_s3:
+simD7S0_3:
   delay_time: 7
-  robot_speed: 3
+  robot_speed: 0.3
 
-sim_d7_s4:
+simD7S0_4:
   delay_time: 7
-  robot_speed: 4
+  robot_speed: 0.4
 
-sim_d7_s5:
+simD7S0_5:
   delay_time: 7
-  robot_speed: 5
+  robot_speed: 0.5
 
-sim_d7_s6:
+simD7S0_6:
   delay_time: 7
-  robot_speed: 6
+  robot_speed: 0.6
 
-sim_d7_s7:
+simD7S0_7:
   delay_time: 7
-  robot_speed: 7
+  robot_speed: 0.7
 
-sim_d7_s8:
+simD7S0_8:
   delay_time: 7
-  robot_speed: 8
+  robot_speed: 0.8
 
-sim_d7_s9:
+simD7S0_9:
   delay_time: 7
-  robot_speed: 9
+  robot_speed: 0.9
 
-sim_d7_s10:
+simD7S1_0:
   delay_time: 7
-  robot_speed: 10
+  robot_speed: 1.0
 
-sim_d7_s11:
+simD7S1_1:
   delay_time: 7
-  robot_speed: 11
+  robot_speed: 1.1
 
-sim_d7_s12:
+simD7S1_2:
   delay_time: 7
-  robot_speed: 12
+  robot_speed: 1.2
 
-sim_d7_s13:
+simD7S1_3:
   delay_time: 7
-  robot_speed: 13
+  robot_speed: 1.3
 
-sim_d7_s14:
+simD7S1_4:
   delay_time: 7
-  robot_speed: 14
+  robot_speed: 1.4
 
-sim_d7_s15:
+simD7S1_5:
   delay_time: 7
-  robot_speed: 15
+  robot_speed: 1.5
 
-sim_d9_s3:
+simD9S0_3:
   delay_time: 9
-  robot_speed: 3
+  robot_speed: 0.3
 
-sim_d9_s4:
+simD9S0_4:
   delay_time: 9
-  robot_speed: 4
+  robot_speed: 0.4
 
-sim_d9_s5:
+simD9S0_5:
   delay_time: 9
-  robot_speed: 5
+  robot_speed: 0.5
 
-sim_d9_s6:
+simD9S0_6:
   delay_time: 9
-  robot_speed: 6
+  robot_speed: 0.6
 
-sim_d9_s7:
+simD9S0_7:
   delay_time: 9
-  robot_speed: 7
+  robot_speed: 0.7
 
-sim_d9_s8:
+simD9S0_8:
   delay_time: 9
-  robot_speed: 8
+  robot_speed: 0.8
 
-sim_d9_s9:
+simD9S0_9:
   delay_time: 9
-  robot_speed: 9
+  robot_speed: 0.9
 
-sim_d9_s10:
+simD9S1_0:
   delay_time: 9
-  robot_speed: 10
+  robot_speed: 1.0
 
-sim_d9_s11:
+simD9S1_1:
   delay_time: 9
-  robot_speed: 11
+  robot_speed: 1.1
 
-sim_d9_s12:
+simD9S1_2:
   delay_time: 9
-  robot_speed: 12
+  robot_speed: 1.2
 
-sim_d9_s13:
+simD9S1_3:
   delay_time: 9
-  robot_speed: 13
+  robot_speed: 1.3
 
-sim_d9_s14:
+simD9S1_4:
   delay_time: 9
-  robot_speed: 14
+  robot_speed: 1.4
 
-sim_d9_s15:
+simD9S1_5:
   delay_time: 9
-  robot_speed: 15
+  robot_speed: 1.5
