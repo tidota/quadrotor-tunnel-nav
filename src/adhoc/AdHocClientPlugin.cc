@@ -125,6 +125,8 @@ void AdHocClientPlugin::OnSimCmd(
     this->recvMessageCount = 0;
     this->totalHops = 0;
     this->totalRoundTripTime = 0;
+    this->totalDistComm = 0;
+    this->totalDistMotion = 0;
 
     // start recording
     adhoc::msgs::SimInfo msg;
