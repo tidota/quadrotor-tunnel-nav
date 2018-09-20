@@ -117,6 +117,9 @@ namespace gazebo
     /// \brief Total number of packets processed.
     private: int totalRecvPackets;
 
+    /// \brief Total number of packets submitted.
+    private: int totalSentPackets;
+
     /// \brief # of topology changes
     private: int topoChangeCount;
 

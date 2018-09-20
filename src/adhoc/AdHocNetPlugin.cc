@@ -238,9 +238,12 @@ void AdHocNetPlugin::OnSimCmdResponse(
       std::stringstream ss;
       ss << "--- Network ---" << std::endl;
       ss << "Time," << elapsed << std::endl;
-      ss << "Total # of Packets," << this->totalRecvPackets << std::endl;
+      ss << "Total # of Sent Packets," << this->totalSentPackets << std::endl;
+      ss << "Total # of Recv Packets," << this->totalRecvPackets << std::endl;
       ss << "Total # of Message," << this->hashList.size() << std::endl;
-      ss << "Avg # of Packets per Message,"
+      ss << "Avg # of Packets per Sent Message,"
+         << ((double)this->totalSentPackets)/this->hashList.size() << std::endl;
+      ss << "Avg # of Packets per Recv Message,"
          << ((double)this->totalRecvPackets)/this->hashList.size() << std::endl;
       ss << "Total # of Topology Changes,"
          << this->topoChangeCount << std::endl;
@@ -292,6 +295,7 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
     auto const &msg = this->incomingMsgs.front();
 
     physics::ModelPtr sender = this->world->GetModel(msg.robot_name());
+    this->totalSentPackets++;
 
     if (sender)
     {
@@ -422,6 +426,7 @@ void AdHocNetPlugin::StartNewTrial()
     this->started = false;
     this->finished = false;
 
+    this->totalSentPackets = 0;
     this->totalRecvPackets = 0;
     this->topoChangeCount = 0;
 
