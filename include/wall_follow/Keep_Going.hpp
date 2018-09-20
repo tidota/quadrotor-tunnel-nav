@@ -19,6 +19,11 @@ private:
 
   ros::Subscriber vel_change_sub;
   double vel;
+  bool slowDown;
+  ros::Time timeSlowDown;
+
+  /// \brief Distance to the front object gained at the previous step.
+  double prevDist;
 };
 
 #endif
