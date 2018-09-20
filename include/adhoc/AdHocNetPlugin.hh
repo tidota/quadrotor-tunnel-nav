@@ -115,7 +115,7 @@ namespace gazebo
     private: double simPeriod;
 
     /// \brief Total number of packets processed.
-    private: int totalPackets;
+    private: int totalRecvPackets;
 
     /// \brief # of topology changes
     private: int topoChangeCount;

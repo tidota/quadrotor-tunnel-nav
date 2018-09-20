@@ -238,10 +238,10 @@ void AdHocNetPlugin::OnSimCmdResponse(
       std::stringstream ss;
       ss << "--- Network ---" << std::endl;
       ss << "Time," << elapsed << std::endl;
-      ss << "Total # of Packets," << this->totalPackets << std::endl;
+      ss << "Total # of Packets," << this->totalRecvPackets << std::endl;
       ss << "Total # of Message," << this->hashList.size() << std::endl;
       ss << "Avg # of Packets per Message,"
-         << ((double)this->totalPackets)/this->hashList.size() << std::endl;
+         << ((double)this->totalRecvPackets)/this->hashList.size() << std::endl;
       ss << "Total # of Topology Changes,"
          << this->topoChangeCount << std::endl;
       ss << "Frequency of Topology Change,"
@@ -318,7 +318,7 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
             this->CalcHash(msg, hash);
             if (!this->HasHash(hash))
               this->RegistHash(hash);
-            this->totalPackets++;
+            this->totalRecvPackets++;
           }
         }
       }
@@ -422,7 +422,7 @@ void AdHocNetPlugin::StartNewTrial()
     this->started = false;
     this->finished = false;
 
-    this->totalPackets = 0;
+    this->totalRecvPackets = 0;
     this->topoChangeCount = 0;
 
     this->n.getParam("simulation_period", this->simPeriod);
