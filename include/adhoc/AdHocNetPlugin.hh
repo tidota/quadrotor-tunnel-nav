@@ -1,6 +1,7 @@
 #ifndef ADHOCNETPLUGIN_HH_
 #define ADHOCNETPLUGIN_HH_
 
+#include <list>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -164,7 +165,7 @@ namespace gazebo
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.
-    private: std::deque<adhoc::msgs::Datagram> incomingMsgs;
+    private: std::list<adhoc::msgs::Datagram> incomingMsgs;
 
     /// \brief publisher map to send data.
     private: std::map< std::string, transport::PublisherPtr > pubMap;

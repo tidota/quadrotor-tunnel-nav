@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <functional>
 #include <iostream>
+#include <list>
 #include <map>
 #include <memory>
-#include <queue>
 #include <utility>
 
 #include <ros/ros.h>
@@ -110,8 +110,7 @@ namespace gazebo
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.
-    private: std::deque<
-      std::pair<std::shared_ptr<adhoc::msgs::Datagram>, common::Time> >
+    private: std::list<std::pair<adhoc::msgs::Datagram, common::Time> >
         incomingMsgsStamped;
 
     /// \brief Protect data from races.
