@@ -23,7 +23,9 @@ void Right_Wall::command()
 
   if(fmax(rng_u[0].range, rng_d[0].range)/sqrt(2) >= DIST_MIN_MID)
   {
-    double lengR = (rng_h[5].range + rng_h[6].range + rng_h[7].range) / 3.0;
+    double lengR
+      = (rng_h[5].range/sqrt(2) + rng_h[6].range + rng_h[7].range/sqrt(2))
+        / DIST_WALL;
 
     double diff_rate = (lengR-DIST_RIGHT_FOLLOW)/DIST_RIGHT_FOLLOW;
 

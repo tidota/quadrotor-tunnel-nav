@@ -128,6 +128,15 @@ void AdHocClientPlugin::OnSimCmd(
     this->totalDistComm = 0;
     this->totalDistMotion = 0;
 
+    gzmsg << this->model->GetName() << ": clearing hashList" << std::endl;
+    this->hashList.clear();
+    gzmsg << this->model->GetName() << ": clearing incomingMsgsSpamped" << std::endl;
+    while (!this->incomingMsgsStamped.empty())
+    {
+      this->incomingMsgsStamped.pop_front();
+    }
+    gzmsg << this->model->GetName() << ": done" << std::endl;
+
     // start recording
     adhoc::msgs::SimInfo msg;
     msg.set_state("started");
@@ -253,7 +262,7 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
       }
     }
 
-    this->incomingMsgsStamped.pop();
+    this->incomingMsgsStamped.pop_front();
   }
 }
 
@@ -279,11 +288,12 @@ void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram 
   common::Time t = this->model->GetWorld()->GetSimTime();
   p.first = tempMsg;
   p.second = t;
-  this->incomingMsgsStamped.push(p);
+  this->incomingMsgsStamped.push_back(p);
 }
 
 //////////////////////////////////////////////////
-void AdHocClientPlugin::CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash)
+void AdHocClientPlugin::CalcHash(
+  const adhoc::msgs::Datagram &_msg, unsigned char *_hash)
 {
   std::string input
     = std::to_string(_msg.src_address()) + std::to_string(_msg.dst_address())

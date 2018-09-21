@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <functional>
 #include <iostream>
+#include <list>
 #include <map>
 #include <memory>
-#include <queue>
 #include <utility>
 
 #include <ros/ros.h>
@@ -110,8 +110,8 @@ namespace gazebo
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.
-    private: std::queue<
-      std::pair<adhoc::msgs::Datagram, common::Time> > incomingMsgsStamped;
+    private: std::list<std::pair<adhoc::msgs::Datagram, common::Time> >
+        incomingMsgsStamped;
 
     /// \brief Protect data from races.
     private: std::mutex messageMutex;

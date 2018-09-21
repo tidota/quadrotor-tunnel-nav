@@ -1,6 +1,7 @@
 #ifndef ADHOCNETPLUGIN_HH_
 #define ADHOCNETPLUGIN_HH_
 
+#include <list>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -115,7 +116,10 @@ namespace gazebo
     private: double simPeriod;
 
     /// \brief Total number of packets processed.
-    private: int totalPackets;
+    private: int totalRecvPackets;
+
+    /// \brief Total number of packets submitted.
+    private: int totalSentPackets;
 
     /// \brief # of topology changes
     private: int topoChangeCount;
@@ -161,7 +165,7 @@ namespace gazebo
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.
-    private: std::queue<adhoc::msgs::Datagram> incomingMsgs;
+    private: std::list<adhoc::msgs::Datagram> incomingMsgs;
 
     /// \brief publisher map to send data.
     private: std::map< std::string, transport::PublisherPtr > pubMap;
