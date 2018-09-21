@@ -3,29 +3,56 @@ communication_range: 8.0
 
 setting_list:
   - simD0S0_3
+  - simD0S0_4
+  - simD0S0_5
   - simD0S0_6
+  - simD0S0_7
+  - simD0S0_8
   - simD0S0_9
+  - simD0S1_0
+  - simD0S1_1
   - simD0S1_2
+  - simD0S1_3
+  - simD0S1_4
   - simD0S1_5
   - simD3S0_3
+  - simD3S0_4
+  - simD3S0_5
   - simD3S0_6
+  - simD3S0_7
+  - simD3S0_8
   - simD3S0_9
+  - simD3S1_0
+  - simD3S1_1
   - simD3S1_2
+  - simD3S1_3
+  - simD3S1_4
   - simD3S1_5
-  - simD5S0_3
-  - simD5S0_6
-  - simD5S0_9
-  - simD5S1_2
-  - simD5S1_5
   - simD7S0_3
+  - simD7S0_4
+  - simD7S0_5
   - simD7S0_6
+  - simD7S0_7
+  - simD7S0_8
   - simD7S0_9
+  - simD7S1_0
+  - simD7S1_1
   - simD7S1_2
+  - simD7S1_3
+  - simD7S1_4
   - simD7S1_5
   - simD9S0_3
+  - simD9S0_4
+  - simD9S0_5
   - simD9S0_6
+  - simD9S0_7
+  - simD9S0_8
   - simD9S0_9
+  - simD9S1_0
+  - simD9S1_1
   - simD9S1_2
+  - simD9S1_3
+  - simD9S1_4
   - simD9S1_5
 
 simD0S0_3:
