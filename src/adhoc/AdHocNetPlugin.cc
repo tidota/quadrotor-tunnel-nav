@@ -328,7 +328,7 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
       }
     }
 
-    this->incomingMsgs.pop();
+    this->incomingMsgs.pop_front();
   }
 }
 
@@ -338,7 +338,7 @@ void AdHocNetPlugin::OnMessage(
 {
   // Just save the message, it will be processed later.
   std::lock_guard<std::mutex> lk(this->messageMutex);
-  this->incomingMsgs.push(*_req);
+  this->incomingMsgs.push_back(*_req);
 }
 
 //////////////////////////////////////////////////
@@ -429,6 +429,12 @@ void AdHocNetPlugin::StartNewTrial()
     this->totalSentPackets = 0;
     this->totalRecvPackets = 0;
     this->topoChangeCount = 0;
+
+    gzmsg << "Net: clearing hashList" << std::endl;
+    this->hashList.clear();
+    gzmsg << "Net: clearing incomingMsgs" << std::endl;
+    this->incomingMsgs.clear();
+    gzmsg << "Net: done" << std::endl;
 
     this->n.getParam("simulation_period", this->simPeriod);
     this->n.getParam("communication_range", this->commRange);

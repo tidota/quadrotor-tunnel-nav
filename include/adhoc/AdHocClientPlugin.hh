@@ -110,8 +110,9 @@ namespace gazebo
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.
-    private: std::queue<
-      std::pair<adhoc::msgs::Datagram, common::Time> > incomingMsgsStamped;
+    private: std::deque<
+      std::pair<std::shared_ptr<adhoc::msgs::Datagram>, common::Time> >
+        incomingMsgsStamped;
 
     /// \brief Protect data from races.
     private: std::mutex messageMutex;

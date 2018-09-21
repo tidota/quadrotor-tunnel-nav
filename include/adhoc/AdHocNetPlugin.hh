@@ -164,7 +164,7 @@ namespace gazebo
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.
-    private: std::queue<adhoc::msgs::Datagram> incomingMsgs;
+    private: std::deque<adhoc::msgs::Datagram> incomingMsgs;
 
     /// \brief publisher map to send data.
     private: std::map< std::string, transport::PublisherPtr > pubMap;
