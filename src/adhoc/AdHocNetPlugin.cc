@@ -433,10 +433,7 @@ void AdHocNetPlugin::StartNewTrial()
     gzmsg << "Net: clearing hashList" << std::endl;
     this->hashList.clear();
     gzmsg << "Net: clearing incomingMsgs" << std::endl;
-    while (!this->incomingMsgs.empty())
-    {
-      this->incomingMsgs.pop_front();
-    }
+    this->incomingMsgs.clear();
     gzmsg << "Net: done" << std::endl;
 
     this->n.getParam("simulation_period", this->simPeriod);

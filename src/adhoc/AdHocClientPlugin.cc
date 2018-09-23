@@ -74,35 +74,34 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_sdf*/)
 //////////////////////////////////////////////////
 void AdHocClientPlugin::OnUpdate()
 {
-  std::lock_guard<std::mutex> lk(this->messageMutex);
+  std::lock_guard<std::mutex> lk1(this->simInfoMutex);
+  std::lock_guard<std::mutex> lk2(this->messageMutex);
+
   // at some interval, initiate a communication.
+  common::Time current = this->model->GetWorld()->GetSimTime();
+  if (this->running && current.Double() - this->lastSentTime.Double() > 0.5)
   {
-    common::Time current = this->model->GetWorld()->GetSimTime();
-    std::lock_guard<std::mutex> lk(this->simInfoMutex);
-    if (this->running && current.Double() - this->lastSentTime.Double() > 0.5)
-    {
-      unsigned int dst = std::rand() % 9;
-      if (dst >= this->id - 1)
-        dst = (dst + 1) % 10;
-      dst++;
-      this->msg_req.set_dst_address(dst);
-      this->msg_req.set_index(this->sentMessageCount);
-      this->msg_req.set_hops(1);
-      this->msg_req.set_time(current.Double());
+    unsigned int dst = std::rand() % 9;
+    if (dst >= this->id - 1)
+      dst = (dst + 1) % 10;
+    dst++;
+    this->msg_req.set_dst_address(dst);
+    this->msg_req.set_index(this->sentMessageCount);
+    this->msg_req.set_hops(1);
+    this->msg_req.set_time(current.Double());
 
-      this->msg_req.set_dist_comm(0);
-      this->msg_req.set_dist_motion(0);
+    this->msg_req.set_dist_comm(0);
+    this->msg_req.set_dist_motion(0);
 
-      math::Pose currentPose = this->model->GetWorldPose();
-      gazebo::msgs::Vector3d* prevLocMsg = this->msg_req.mutable_prev_loc();
-      prevLocMsg->set_x(currentPose.pos.x);
-      prevLocMsg->set_y(currentPose.pos.y);
-      prevLocMsg->set_z(currentPose.pos.z);
+    math::Pose currentPose = this->model->GetWorldPose();
+    gazebo::msgs::Vector3d* prevLocMsg = this->msg_req.mutable_prev_loc();
+    prevLocMsg->set_x(currentPose.pos.x);
+    prevLocMsg->set_y(currentPose.pos.y);
+    prevLocMsg->set_z(currentPose.pos.z);
 
-      this->pub->Publish(this->msg_req);
-      this->lastSentTime = current;
-      this->sentMessageCount++;
-    }
+    this->pub->Publish(this->msg_req);
+    this->lastSentTime = current;
+    this->sentMessageCount++;
   }
 
   ProcessincomingMsgsStamped();
@@ -112,7 +111,9 @@ void AdHocClientPlugin::OnUpdate()
 void AdHocClientPlugin::OnSimCmd(
   const boost::shared_ptr<adhoc::msgs::SimInfo const> &_req)
 {
-  std::lock_guard<std::mutex> lk(this->simInfoMutex);
+  std::lock_guard<std::mutex> lk1(this->simInfoMutex);
+  std::lock_guard<std::mutex> lk2(this->messageMutex);
+
   if (!this->running && _req->state() == "start")
   {
     this->running = true;
@@ -128,14 +129,11 @@ void AdHocClientPlugin::OnSimCmd(
     this->totalDistComm = 0;
     this->totalDistMotion = 0;
 
-    gzmsg << this->model->GetName() << ": clearing hashList" << std::endl;
+    //gzmsg << this->model->GetName() << ": clearing hashList" << std::endl;
     this->hashList.clear();
-    gzmsg << this->model->GetName() << ": clearing incomingMsgsSpamped" << std::endl;
-    while (!this->incomingMsgsStamped.empty())
-    {
-      this->incomingMsgsStamped.pop_front();
-    }
-    gzmsg << this->model->GetName() << ": done" << std::endl;
+    //gzmsg << this->model->GetName() << ": clearing incomingMsgsSpamped" << std::endl;
+    this->incomingMsgsStamped.clear();
+    //gzmsg << this->model->GetName() << ": done" << std::endl;
 
     // start recording
     adhoc::msgs::SimInfo msg;
@@ -185,6 +183,7 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
 
   while (!this->incomingMsgsStamped.empty())
   {
+    //gzmsg << "Client(" << this->model->GetName() << "): incomingMsgsStamped.front()" << std::endl;
     auto &p = this->incomingMsgsStamped.front();
     auto &t = p.second;
     if (current.Double() - t.Double() < this->delayTime)
@@ -262,6 +261,7 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
       }
     }
 
+    //gzmsg << "Client(" << this->model->GetName() << "): incomingMsgsStamped.pop_front" << std::endl;
     this->incomingMsgsStamped.pop_front();
   }
 }
@@ -269,6 +269,8 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
 //////////////////////////////////////////////////
 void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
 {
+  std::lock_guard<std::mutex> lk(this->messageMutex);
+
   adhoc::msgs::Datagram tempMsg(*_msg);
   // For tracking purposes.
   math::Pose currentPose = this->model->GetWorldPose();
@@ -283,12 +285,10 @@ void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram 
   prevLocMsg->set_z(currentPose.pos.z);
 
   // Just save the message, it will be processed later.
-  std::lock_guard<std::mutex> lk(this->messageMutex);
-  std::pair<adhoc::msgs::Datagram, common::Time> p;
   common::Time t = this->model->GetWorld()->GetSimTime();
-  p.first = tempMsg;
-  p.second = t;
-  this->incomingMsgsStamped.push_back(p);
+  //gzmsg << "Client (" << this->model->GetName() << "): incomingMsgsStamped.push_back" << std::endl;
+  this->incomingMsgsStamped.push_back(
+    std::pair<adhoc::msgs::Datagram, common::Time>(tempMsg, t));
 }
 
 //////////////////////////////////////////////////
