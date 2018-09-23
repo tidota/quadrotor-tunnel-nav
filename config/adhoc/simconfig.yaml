@@ -28,6 +28,19 @@ setting_list:
   - simD3S1_3
   - simD3S1_4
   - simD3S1_5
+  - simD5S0_3
+  - simD5S0_4
+  - simD5S0_5
+  - simD5S0_6
+  - simD5S0_7
+  - simD5S0_8
+  - simD5S0_9
+  - simD5S1_0
+  - simD5S1_1
+  - simD5S1_2
+  - simD5S1_3
+  - simD5S1_4
+  - simD5S1_5
   - simD7S0_3
   - simD7S0_4
   - simD7S0_5
