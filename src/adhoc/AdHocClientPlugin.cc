@@ -69,6 +69,13 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_sdf*/)
   this->totalDistMotion = 0;
 
   std::srand(std::time(nullptr));
+
+  this->sendStoppedResponse = false;
+  ros::NodeHandle n;
+  this->cmdVelMonitorSub
+    = n.subscribe(
+      "/" + this->model->GetName() + "/cmd_vel", 1,
+      &AdHocClientPlugin::OnCmdVel, this);
 }
 
 //////////////////////////////////////////////////
@@ -143,18 +150,7 @@ void AdHocClientPlugin::OnSimCmd(
   }
   else if (this->running && _req->state() == "stop")
   {
-    adhoc::msgs::SimInfo msg;
-    msg.set_state("stopped");
-    msg.set_robot_name(this->model->GetName());
-    msg.set_delay_time(this->delayTime);
-    msg.set_sent_message_count(this->sentMessageCount);
-    msg.set_recv_message_count(this->recvMessageCount);
-    msg.set_total_hops(this->totalHops);
-    msg.set_total_round_trip_time(this->totalRoundTripTime);
-    msg.set_total_dist_comm(this->totalDistComm);
-    msg.set_total_dist_motion(this->totalDistMotion);
-    this->simCommResPub->Publish(msg);
-
+    this->sendStoppedResponse = true;
     this->running = false;
   }
   else
@@ -321,4 +317,29 @@ void AdHocClientPlugin::RegistHash(const unsigned char *_hash)
   std::string str;
   str.assign((const char*)_hash, SHA256_DIGEST_LENGTH);
   this->hashList.push_back(str);
+}
+
+//////////////////////////////////////////////////
+void AdHocClientPlugin::OnCmdVel(
+  const ros::MessageEvent<geometry_msgs::Twist const>& event)
+{
+  auto cmd = event.getMessage();
+
+  if (this->sendStoppedResponse
+    && cmd->linear.x == 0 && cmd->linear.y == 0 && cmd->linear.z == 0
+    && cmd->angular.x == 0 && cmd->angular.y == 0 && cmd->angular.z == 0)
+  {
+    adhoc::msgs::SimInfo msg;
+    msg.set_state("stopped");
+    msg.set_robot_name(this->model->GetName());
+    msg.set_delay_time(this->delayTime);
+    msg.set_sent_message_count(this->sentMessageCount);
+    msg.set_recv_message_count(this->recvMessageCount);
+    msg.set_total_hops(this->totalHops);
+    msg.set_total_round_trip_time(this->totalRoundTripTime);
+    msg.set_total_dist_comm(this->totalDistComm);
+    msg.set_total_dist_motion(this->totalDistMotion);
+    this->simCommResPub->Publish(msg);
+    this->sendStoppedResponse = false;
+  }
 }

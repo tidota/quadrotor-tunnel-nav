@@ -91,6 +91,9 @@ namespace gazebo
     /// \brief list of robot names.
     private: std::vector<std::string> robotList;
 
+    /// \brief list of maps from robot's name to its initial pose.
+    private: std::map<std::string, math::Pose> initPoseList;
+
     /// \brief list of simulation settings.
     private: std::queue<std::string> settingList;
 
