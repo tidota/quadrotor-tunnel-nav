@@ -2,6 +2,9 @@ simulation_period: 60.0
 communication_range: 8.0
 
 setting_list:
+  - simD0S0_0
+  - simD0S0_1
+  - simD0S0_2
   - simD0S0_3
   - simD0S0_4
   - simD0S0_5
@@ -15,6 +18,9 @@ setting_list:
   - simD0S1_3
   - simD0S1_4
   - simD0S1_5
+  - simD3S0_0
+  - simD3S0_1
+  - simD3S0_2
   - simD3S0_3
   - simD3S0_4
   - simD3S0_5
@@ -28,6 +34,9 @@ setting_list:
   - simD3S1_3
   - simD3S1_4
   - simD3S1_5
+  - simD5S0_0
+  - simD5S0_1
+  - simD5S0_2
   - simD5S0_3
   - simD5S0_4
   - simD5S0_5
@@ -41,6 +50,9 @@ setting_list:
   - simD5S1_3
   - simD5S1_4
   - simD5S1_5
+  - simD7S0_0
+  - simD7S0_1
+  - simD7S0_2
   - simD7S0_3
   - simD7S0_4
   - simD7S0_5
@@ -54,6 +66,9 @@ setting_list:
   - simD7S1_3
   - simD7S1_4
   - simD7S1_5
+  - simD9S0_0
+  - simD9S0_1
+  - simD9S0_2
   - simD9S0_3
   - simD9S0_4
   - simD9S0_5
@@ -67,6 +82,18 @@ setting_list:
   - simD9S1_3
   - simD9S1_4
   - simD9S1_5
+
+simD0S0_0:
+  delay_time: 0
+  robot_speed: 0.0
+
+simD0S0_1:
+  delay_time: 0
+  robot_speed: 0.1
+
+simD0S0_2:
+  delay_time: 0
+  robot_speed: 0.2
 
 simD0S0_3:
   delay_time: 0
@@ -120,6 +147,18 @@ simD0S1_5:
   delay_time: 0
   robot_speed: 1.5
 
+simD3S0_0:
+  delay_time: 3
+  robot_speed: 0.0
+
+simD3S0_1:
+  delay_time: 3
+  robot_speed: 0.1
+
+simD3S0_2:
+  delay_time: 3
+  robot_speed: 0.2
+
 simD3S0_3:
   delay_time: 3
   robot_speed: 0.3
@@ -171,6 +210,18 @@ simD3S1_4:
 simD3S1_5:
   delay_time: 3
   robot_speed: 1.5
+
+simD5S0_0:
+  delay_time: 5
+  robot_speed: 0.0
+
+simD5S0_1:
+  delay_time: 5
+  robot_speed: 0.1
+
+simD5S0_2:
+  delay_time: 5
+  robot_speed: 0.2
 
 simD5S0_3:
   delay_time: 5
@@ -224,6 +275,18 @@ simD5S1_5:
   delay_time: 5
   robot_speed: 1.5
 
+simD7S0_0:
+  delay_time: 7
+  robot_speed: 0.0
+
+simD7S0_1:
+  delay_time: 7
+  robot_speed: 0.1
+
+simD7S0_2:
+  delay_time: 7
+  robot_speed: 0.2
+
 simD7S0_3:
   delay_time: 7
   robot_speed: 0.3
@@ -275,6 +338,18 @@ simD7S1_4:
 simD7S1_5:
   delay_time: 7
   robot_speed: 1.5
+
+simD9S0_0:
+  delay_time: 9
+  robot_speed: 0.0
+
+simD9S0_1:
+  delay_time: 9
+  robot_speed: 0.1
+
+simD9S0_2:
+  delay_time: 9
+  robot_speed: 0.2
 
 simD9S0_3:
   delay_time: 9
