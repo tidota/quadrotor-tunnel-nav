@@ -9,6 +9,7 @@
 #include <memory>
 #include <utility>
 
+#include <geometry_msgs/Twist.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 
@@ -34,17 +35,25 @@ namespace gazebo
     private: void OnUpdate();
 
     /// \brief Callback to receive a request from the world plugin.
-    public: void OnSimCmd(const boost::shared_ptr<adhoc::msgs::SimInfo const> &_req);
+    public:
+      void OnSimCmd(const boost::shared_ptr<adhoc::msgs::SimInfo const> &_req);
+
+    /// \brief Callback function to monitor cmd_vel.
+    public:
+      void OnCmdVel(const ros::MessageEvent<geometry_msgs::Twist const>& event);
 
     /// \brief Process all incoming messages.
     private: void ProcessincomingMsgsStamped();
 
     /// \brief Function called each time a new datagram message is received.
     /// \param[in] _msg The incoming message.
-    private: void OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
+    private:
+      void OnMessage(
+        const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
 
     /// \brief Make a hash string based on the message.
-    private: void CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash);
+    private:
+      void CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash);
 
     /// \brief Check if the given hash value is already registered.
     private: bool HasHash(const unsigned char *_hash);
@@ -122,6 +131,12 @@ namespace gazebo
 
     /// \brief (For tracking purposes) total motion distance taken by packets.
     private: double totalDistMotion;
+
+    /// \brief Subscriber to monior the cmd_vel.
+    private: ros::Subscriber cmdVelMonitorSub;
+
+    /// \brief Set this to true so cmd_vel is zero before responding.
+    private: bool sendStoppedResponse;
   };
 }
 #endif

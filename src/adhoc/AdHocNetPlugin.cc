@@ -107,17 +107,17 @@ void AdHocNetPlugin::OnUpdate()
       if (current.Double() - this->startTime.Double() >= this->simPeriod)
       {
         gzmsg << "*** Simulation period passed ***" << std::endl;
-        // Set the robot's speed to 0.
-        std_msgs::Float32 vel;
-        vel.data = 0;
-        this->navVelUpdatePub.publish(vel);
-
         this->listStopResponses.clear();
         adhoc::msgs::SimInfo start;
         start.set_state("stop");
         start.set_robot_name("");
         this->simCmdPub->Publish(start);
         this->finished = true;
+
+        // Set the robot's speed to 0.
+        std_msgs::Float32 vel;
+        vel.data = 0;
+        this->navVelUpdatePub.publish(vel);
       }
 
       if (this->CheckTopoChange())
