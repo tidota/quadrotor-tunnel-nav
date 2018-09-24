@@ -107,6 +107,11 @@ void AdHocNetPlugin::OnUpdate()
       if (current.Double() - this->startTime.Double() >= this->simPeriod)
       {
         gzmsg << "*** Simulation period passed ***" << std::endl;
+        // Set the robot's speed to 0.
+        std_msgs::Float32 vel;
+        vel.data = 0;
+        this->navVelUpdatePub.publish(vel);
+
         this->listStopResponses.clear();
         adhoc::msgs::SimInfo start;
         start.set_state("stop");
@@ -159,6 +164,11 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
     if (allReady)
     {
       gzmsg << "ALL READY!" << std::endl;
+      for (auto robotName: this->robotList)
+      {
+        this->initPoseList[robotName]
+          = this->world->GetModel(robotName)->GetWorldPose();
+      }
       break;
     }
     ros::Duration(0.1).sleep();
@@ -279,7 +289,21 @@ void AdHocNetPlugin::OnSimCmdResponse(
       fs << ss.str();
       fs.close();
 
-      this->StartNewTrial();
+      // Reset the robot's pose.
+      for (auto robotName: this->robotList)
+      {
+        auto model = this->world->GetModel(robotName);
+        for (auto link: model->GetLinks())
+        {
+          link->ResetPhysicsStates();
+        }
+        model->SetWorldPose(this->initPoseList[robotName]);
+        //model->Reset();
+      }
+      // Once the flag is set to false, the plugin starts to check the robot's
+      // pose and start the next simulation trial when they reach the specific
+      // altitude.
+      this->robotsReadyToComm = false;
     }
   }
 }
@@ -415,7 +439,6 @@ void AdHocNetPlugin::StartNewTrial()
   if (this->settingList.size() > 0)
   {
     gzmsg << "StartNewTrial" << std::endl;
-    gzmsg << "starting new trial" << std::endl;
     std::string settingName = this->settingList.front();
     this->settingList.pop();
 
