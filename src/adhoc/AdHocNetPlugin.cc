@@ -120,10 +120,7 @@ void AdHocNetPlugin::OnUpdate()
         this->navVelUpdatePub.publish(vel);
       }
 
-      if (this->CheckTopoChange())
-      {
-        this->topoChangeCount++;
-      }
+      this->topoChangeCount += this->CheckTopoChange();
 
       this->ProcessIncomingMsgs();
     }
@@ -398,9 +395,9 @@ void AdHocNetPlugin::RegistHash(const unsigned char *_hash)
 }
 
 //////////////////////////////////////////////////
-bool AdHocNetPlugin::CheckTopoChange()
+int AdHocNetPlugin::CheckTopoChange()
 {
-  bool changed = false;
+  int count = 0;
   for (int i = 1; i <= 9; ++i)
   {
     for (int j = i + 1; j <= 10; ++j)
@@ -420,7 +417,7 @@ bool AdHocNetPlugin::CheckTopoChange()
       bool inRange = (length <= this->commRange);
       if (inRange != this->topoList[std::to_string(i)+":"+std::to_string(j)])
       {
-        changed = true;
+        count++;
         this->topoList[std::to_string(i)+":"+std::to_string(j)] = inRange;
         if (inRange)
           gzdbg << i << ":" << j << ", connected" << std::endl;
@@ -430,7 +427,7 @@ bool AdHocNetPlugin::CheckTopoChange()
     }
   }
 
-  return changed;
+  return count;
 }
 
 //////////////////////////////////////////////////

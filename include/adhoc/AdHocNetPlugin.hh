@@ -71,7 +71,7 @@ namespace gazebo
     private: void RegistHash(const unsigned char *_hash);
 
     /// \brief Check if the net topology changed.
-    private: bool CheckTopoChange();
+    private: int CheckTopoChange();
 
     /// \brief Initialize the simulation status.
     private: void StartNewTrial();
