@@ -500,6 +500,10 @@ void AdHocNetPlugin::StartNewTrial()
   }
   else
   {
-    gzmsg << "Simulation done" << std::endl;
+    gzmsg << "Simulation done: " << std::endl
+          << this->world->GetSimTime().FormattedString() << " (Sim Time)"
+          << std::endl
+          << this->world->GetRealTime().FormattedString() << " (Real Time)"
+          << std::endl;
   }
 }
