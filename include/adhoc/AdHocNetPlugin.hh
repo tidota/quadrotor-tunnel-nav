@@ -100,11 +100,17 @@ namespace gazebo
     /// \brief True if the communication started.
     private: bool started;
 
+    /// \brief True if they stopped to create new messages.
+    private: bool stopping;
+
     /// \brief True if the communicaiton finished.
     private: bool finished;
 
     /// \brief Simulation start time.
     private: common::Time startTime;
+
+    /// \brief Time when the last packet was received.
+    private: common::Time lastRecvTime;
 
     /// \brief delay time currently used.
     private: double currentDelayTime;

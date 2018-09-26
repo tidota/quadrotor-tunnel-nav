@@ -25,6 +25,7 @@ void AdHocClientPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_sdf*/)
         << " for " << this->model->GetScopedName() << std::endl;
 
   this->running = false;
+  this->stopping = false;
   this->delayTime = 0;
 
   this->node = transport::NodePtr(new transport::Node());
@@ -86,7 +87,8 @@ void AdHocClientPlugin::OnUpdate()
 
   // at some interval, initiate a communication.
   common::Time current = this->model->GetWorld()->GetSimTime();
-  if (this->running && current.Double() - this->lastSentTime.Double() > 0.5)
+  if (this->running && !this->stopping
+    && current.Double() - this->lastSentTime.Double() > 0.5)
   {
     unsigned int dst = std::rand() % 9;
     if (dst >= this->id - 1)
@@ -124,6 +126,7 @@ void AdHocClientPlugin::OnSimCmd(
   if (!this->running && _req->state() == "start")
   {
     this->running = true;
+    this->stopping = false;
     this->delayTime = _req->delay_time();
 
     gzmsg << "Delay Time(" << this->model->GetName() << "): "
@@ -148,10 +151,15 @@ void AdHocClientPlugin::OnSimCmd(
     msg.set_robot_name(this->model->GetName());
     this->simCommResPub->Publish(msg);
   }
-  else if (this->running && _req->state() == "stop")
+  else if (this->running && !this->stopping && _req->state() == "stop_sending")
+  {
+    this->stopping = true;
+  }
+  else if (this->running && this->stopping && _req->state() == "stop")
   {
     this->sendStoppedResponse = true;
     this->running = false;
+    this->stopping = false;
   }
   else
   {
