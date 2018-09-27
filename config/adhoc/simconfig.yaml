@@ -1,5 +1,5 @@
 simulation_period: 60.0
-communication_range: 8.0
+communication_range: 9.0
 
 setting_list:
   - simD0S0_0
