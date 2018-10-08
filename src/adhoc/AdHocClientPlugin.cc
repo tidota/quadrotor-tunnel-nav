@@ -108,6 +108,10 @@ void AdHocClientPlugin::OnUpdate()
     prevLocMsg->set_y(currentPose.pos.y);
     prevLocMsg->set_z(currentPose.pos.z);
 
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    this->CalcHash(this->msg_req, hash);
+    this->RegistHash(hash);
+
     this->pub->Publish(this->msg_req);
     this->lastSentTime = current;
     this->sentMessageCount++;
@@ -224,6 +228,10 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
           prevLocMsg->set_x(currentPose.pos.x);
           prevLocMsg->set_y(currentPose.pos.y);
           prevLocMsg->set_z(currentPose.pos.z);
+
+          unsigned char hash[SHA256_DIGEST_LENGTH];
+          this->CalcHash(this->msg_res, hash);
+          this->RegistHash(hash);
 
           this->pub->Publish(this->msg_res);
         }

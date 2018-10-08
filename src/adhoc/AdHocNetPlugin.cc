@@ -129,7 +129,7 @@ void AdHocNetPlugin::OnUpdate()
       else if(current.Double() - this->startTime.Double()
         >= this->simPeriod + 1.0)
       {
-        gzmsg << "*** Simulation period passed. Stopping ***" << std::endl;
+        gzmsg << "*** All communication done. Stopped. ***" << std::endl;
         this->listStopResponses.clear();
         adhoc::msgs::SimInfo start;
         start.set_state("stop_sending");
@@ -438,10 +438,10 @@ int AdHocNetPlugin::CheckTopoChange()
       {
         count++;
         this->topoList[std::to_string(i)+":"+std::to_string(j)] = inRange;
-        if (inRange)
-          gzdbg << i << ":" << j << ", connected" << std::endl;
-        else
-          gzdbg << i << ":" << j << ", disconnected" << std::endl;
+        //if (inRange)
+        //  gzdbg << i << ":" << j << ", connected" << std::endl;
+        //else
+        //  gzdbg << i << ":" << j << ", disconnected" << std::endl;
       }
     }
   }
