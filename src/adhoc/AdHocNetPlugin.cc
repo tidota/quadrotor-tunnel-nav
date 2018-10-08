@@ -56,10 +56,10 @@ void AdHocNetPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/)
   this->robotsReadyToComm = false;
 
   this->startFlyingPub
-     = this->n.advertise<std_msgs::Bool>("/start_flying", 1, true);
+    = this->n.advertise<std_msgs::Bool>("/start_flying", 1, true);
 
   this->navVelUpdatePub
-     = this->n.advertise<std_msgs::Float32>("/nav_vel_update", 1);
+    = this->n.advertise<std_msgs::Float32>("/nav_vel_update", 1);
 
   this->robotCheckThread
     = std::thread(&AdHocNetPlugin::CheckRobotsReadyTh, this);
@@ -104,20 +104,38 @@ void AdHocNetPlugin::OnUpdate()
         this->lastStatPrintTime = current;
       }
 
-      if (current.Double() - this->startTime.Double() >= this->simPeriod)
+      if (this->stopping)
       {
-        gzmsg << "*** Simulation period passed ***" << std::endl;
+        std::lock_guard<std::mutex> lk(this->messageMutex);
+        // check if no more message is not coming.
+        if (current.Double() - this->lastRecvTime.Double()
+              > this->currentDelayTime
+            && this->incomingMsgs.empty())
+        {
+          gzmsg << "*** Simulation period passed. Stopping ***" << std::endl;
+          this->listStopResponses.clear();
+          adhoc::msgs::SimInfo start;
+          start.set_state("stop");
+          start.set_robot_name("");
+          this->simCmdPub->Publish(start);
+          this->finished = true;
+
+          // Set the robot's speed to 0.
+          std_msgs::Float32 vel;
+          vel.data = 0;
+          this->navVelUpdatePub.publish(vel);
+        }
+      }
+      else if(current.Double() - this->startTime.Double()
+        >= this->simPeriod + 1.0)
+      {
+        gzmsg << "*** All communication done. Stopped. ***" << std::endl;
         this->listStopResponses.clear();
         adhoc::msgs::SimInfo start;
-        start.set_state("stop");
+        start.set_state("stop_sending");
         start.set_robot_name("");
         this->simCmdPub->Publish(start);
-        this->finished = true;
-
-        // Set the robot's speed to 0.
-        std_msgs::Float32 vel;
-        vel.data = 0;
-        this->navVelUpdatePub.publish(vel);
+        this->stopping = true;
       }
 
       this->topoChangeCount += this->CheckTopoChange();
@@ -360,6 +378,7 @@ void AdHocNetPlugin::OnMessage(
   // Just save the message, it will be processed later.
   std::lock_guard<std::mutex> lk(this->messageMutex);
   this->incomingMsgs.push_back(*_req);
+  this->lastRecvTime = this->world->GetSimTime();
 }
 
 //////////////////////////////////////////////////
@@ -419,10 +438,10 @@ int AdHocNetPlugin::CheckTopoChange()
       {
         count++;
         this->topoList[std::to_string(i)+":"+std::to_string(j)] = inRange;
-        if (inRange)
-          gzdbg << i << ":" << j << ", connected" << std::endl;
-        else
-          gzdbg << i << ":" << j << ", disconnected" << std::endl;
+        //if (inRange)
+        //  gzdbg << i << ":" << j << ", connected" << std::endl;
+        //else
+        //  gzdbg << i << ":" << j << ", disconnected" << std::endl;
       }
     }
   }
@@ -444,6 +463,7 @@ void AdHocNetPlugin::StartNewTrial()
     this->n.param(settingName, settingMap, settingMap);
 
     this->started = false;
+    this->stopping = false;
     this->finished = false;
 
     this->totalSentPackets = 0;

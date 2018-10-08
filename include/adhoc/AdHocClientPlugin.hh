@@ -79,6 +79,9 @@ namespace gazebo
     /// \brief True if the communication running.
     private: bool running;
 
+    /// \brief True if the client is no longer creating new messages.
+    private: bool stopping;
+
     /// \brief True if the communication stopped.
     private: bool finished;
 
