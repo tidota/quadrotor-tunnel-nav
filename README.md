@@ -115,6 +115,15 @@ catkin_make
 roslaunch quadrotor_tunnel_nav I-tunnel-40x10.launch
 ```
 
+The results are stored in csv files under `~/.ros/`
+
+When you restart the simulation more than once, you had better to remove old
+results, including ROS's log files.
+```
+rm ~/.ros/*.csv
+rosclean purge
+```
+
 ---
 
 # Memorandum
