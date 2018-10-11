@@ -64,16 +64,16 @@ namespace gazebo
     /// \brief Checks all robots are ready to fly
     public: void CheckRobotsReadyTh();
 
+    /// \brief Callback executed when a new request is received.
+    /// \param[in] _req The datagram/packet contained in the request.
+    private: void OnMessage(
+      const boost::shared_ptr<adhoc::msgs::Datagram const> &_req);
+
     /// \brief Callback to receive a response from a client.
     /// \param[in] _res A message containing simulation statistics from the
     ///                 model plugin.
     public: void OnSimCmdResponse(
         const boost::shared_ptr<adhoc::msgs::SimInfo const> &_res);
-
-    /// \brief Callback executed when a new request is received.
-    /// \param[in] _req The datagram/packet contained in the request.
-    private: void OnMessage(
-      const boost::shared_ptr<adhoc::msgs::Datagram const> &_req);
 
     /// \brief Process all incoming messages.
     private: void ProcessIncomingMsgs();

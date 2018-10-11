@@ -121,6 +121,31 @@ void AdHocClientPlugin::OnUpdate()
 }
 
 //////////////////////////////////////////////////
+void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
+{
+  std::lock_guard<std::mutex> lk(this->messageMutex);
+
+  adhoc::msgs::Datagram tempMsg(*_msg);
+  // For tracking purposes.
+  math::Pose currentPose = this->model->GetWorldPose();
+  gazebo::msgs::Vector3d* prevLocMsg = tempMsg.mutable_prev_loc();
+  double dx = currentPose.pos.x - prevLocMsg->x();
+  double dy = currentPose.pos.y - prevLocMsg->y();
+  double dz = currentPose.pos.z - prevLocMsg->z();
+  double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+  tempMsg.set_dist_comm(_msg->dist_comm() + dist);
+  prevLocMsg->set_x(currentPose.pos.x);
+  prevLocMsg->set_y(currentPose.pos.y);
+  prevLocMsg->set_z(currentPose.pos.z);
+
+  // Just save the message, it will be processed later.
+  common::Time t = this->model->GetWorld()->GetSimTime();
+  //gzmsg << "Client (" << this->model->GetName() << "): incomingMsgsStamped.push_back" << std::endl;
+  this->incomingMsgsStamped.push_back(
+    std::pair<adhoc::msgs::Datagram, common::Time>(tempMsg, t));
+}
+
+//////////////////////////////////////////////////
 void AdHocClientPlugin::OnSimCmd(
   const boost::shared_ptr<adhoc::msgs::SimInfo const> &_req)
 {
@@ -181,6 +206,31 @@ void AdHocClientPlugin::OnSimCmd(
             << "): "
             << _req->state() << std::endl;
     }
+  }
+}
+
+//////////////////////////////////////////////////
+void AdHocClientPlugin::OnCmdVel(
+  const ros::MessageEvent<geometry_msgs::Twist const>& _event)
+{
+  auto cmd = event.getMessage();
+
+  if (this->sendStoppedResponse
+    && cmd->linear.x == 0 && cmd->linear.y == 0 && cmd->linear.z == 0
+    && cmd->angular.x == 0 && cmd->angular.y == 0 && cmd->angular.z == 0)
+  {
+    adhoc::msgs::SimInfo msg;
+    msg.set_state("stopped");
+    msg.set_robot_name(this->model->GetName());
+    msg.set_delay_time(this->delayTime);
+    msg.set_sent_message_count(this->sentMessageCount);
+    msg.set_recv_message_count(this->recvMessageCount);
+    msg.set_total_hops(this->totalHops);
+    msg.set_total_round_trip_time(this->totalRoundTripTime);
+    msg.set_total_dist_comm(this->totalDistComm);
+    msg.set_total_dist_motion(this->totalDistMotion);
+    this->simCommResPub->Publish(msg);
+    this->sendStoppedResponse = false;
   }
 }
 
@@ -279,31 +329,6 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
 }
 
 //////////////////////////////////////////////////
-void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
-{
-  std::lock_guard<std::mutex> lk(this->messageMutex);
-
-  adhoc::msgs::Datagram tempMsg(*_msg);
-  // For tracking purposes.
-  math::Pose currentPose = this->model->GetWorldPose();
-  gazebo::msgs::Vector3d* prevLocMsg = tempMsg.mutable_prev_loc();
-  double dx = currentPose.pos.x - prevLocMsg->x();
-  double dy = currentPose.pos.y - prevLocMsg->y();
-  double dz = currentPose.pos.z - prevLocMsg->z();
-  double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
-  tempMsg.set_dist_comm(_msg->dist_comm() + dist);
-  prevLocMsg->set_x(currentPose.pos.x);
-  prevLocMsg->set_y(currentPose.pos.y);
-  prevLocMsg->set_z(currentPose.pos.z);
-
-  // Just save the message, it will be processed later.
-  common::Time t = this->model->GetWorld()->GetSimTime();
-  //gzmsg << "Client (" << this->model->GetName() << "): incomingMsgsStamped.push_back" << std::endl;
-  this->incomingMsgsStamped.push_back(
-    std::pair<adhoc::msgs::Datagram, common::Time>(tempMsg, t));
-}
-
-//////////////////////////////////////////////////
 void AdHocClientPlugin::CalcHash(
   const adhoc::msgs::Datagram &_msg, unsigned char *_hash)
 {
@@ -333,29 +358,4 @@ void AdHocClientPlugin::RegistHash(const unsigned char *_hash)
   std::string str;
   str.assign((const char*)_hash, SHA256_DIGEST_LENGTH);
   this->hashList.push_back(str);
-}
-
-//////////////////////////////////////////////////
-void AdHocClientPlugin::OnCmdVel(
-  const ros::MessageEvent<geometry_msgs::Twist const>& _event)
-{
-  auto cmd = event.getMessage();
-
-  if (this->sendStoppedResponse
-    && cmd->linear.x == 0 && cmd->linear.y == 0 && cmd->linear.z == 0
-    && cmd->angular.x == 0 && cmd->angular.y == 0 && cmd->angular.z == 0)
-  {
-    adhoc::msgs::SimInfo msg;
-    msg.set_state("stopped");
-    msg.set_robot_name(this->model->GetName());
-    msg.set_delay_time(this->delayTime);
-    msg.set_sent_message_count(this->sentMessageCount);
-    msg.set_recv_message_count(this->recvMessageCount);
-    msg.set_total_hops(this->totalHops);
-    msg.set_total_round_trip_time(this->totalRoundTripTime);
-    msg.set_total_dist_comm(this->totalDistComm);
-    msg.set_total_dist_motion(this->totalDistMotion);
-    this->simCommResPub->Publish(msg);
-    this->sendStoppedResponse = false;
-  }
 }

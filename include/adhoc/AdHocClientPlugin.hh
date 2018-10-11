@@ -35,6 +35,11 @@ namespace gazebo
     /// \brief Callback for World Update events.
     private: void OnUpdate();
 
+    /// \brief Function called each time a new datagram message is received.
+    /// \param[in] _msg The incoming message.
+    private: void OnMessage(
+        const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
+
     /// \brief Callback to receive a request from the world plugin.
     /// \param[in] _req A message containing a command from the world plugin.
     public: void OnSimCmd(
@@ -47,11 +52,6 @@ namespace gazebo
 
     /// \brief Process all incoming messages.
     private: void ProcessincomingMsgsStamped();
-
-    /// \brief Function called each time a new datagram message is received.
-    /// \param[in] _msg The incoming message.
-    private: void OnMessage(
-        const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
 
     /// \brief Make a hash string based on the message.
     /// \param[in] _msg A message to caculate a hash value.

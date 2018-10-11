@@ -198,6 +198,16 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
   }
 }
 
+/////////////////////////////////////////////////
+void AdHocNetPlugin::OnMessage(
+  const boost::shared_ptr<adhoc::msgs::Datagram const> &_req)
+{
+  // Just save the message, it will be processed later.
+  std::lock_guard<std::mutex> lk(this->messageMutex);
+  this->incomingMsgs.push_back(*_req);
+  this->lastRecvTime = this->world->GetSimTime();
+}
+
 //////////////////////////////////////////////////
 void AdHocNetPlugin::OnSimCmdResponse(
   const boost::shared_ptr<adhoc::msgs::SimInfo const> &_res)
@@ -369,16 +379,6 @@ void AdHocNetPlugin::ProcessIncomingMsgs()
 
     this->incomingMsgs.pop_front();
   }
-}
-
-/////////////////////////////////////////////////
-void AdHocNetPlugin::OnMessage(
-  const boost::shared_ptr<adhoc::msgs::Datagram const> &_req)
-{
-  // Just save the message, it will be processed later.
-  std::lock_guard<std::mutex> lk(this->messageMutex);
-  this->incomingMsgs.push_back(*_req);
-  this->lastRecvTime = this->world->GetSimTime();
 }
 
 //////////////////////////////////////////////////
