@@ -1,5 +1,5 @@
 # What is this?
-UAV tunnel navigation control, running on ROS. Simulated environments for Gazebo are included.
+UAV tunnel navigation control, running on ROS. Ad hoc network and enclosed environments for Gazebo are included.
 
 ---
 
@@ -43,6 +43,9 @@ TBA
 ---
 
 # Installation
+
+TODO: I will upgrade the package so they can run on ROS Melodic.
+
 ## Required Environment
 - OS: Ubuntu 16.04
 - ROS version: Kinetic
@@ -84,6 +87,35 @@ Then, you can see a quadrotor flying inside a tunnel in the simulator window.
 
 ---
 
+# Ad Hoc Network
+
+![environment for ad hoc network simulation](img/adhoc_env.jpg)
+
+This package also simulates Ad Hoc network composed of multiple UAVs based on [AllNet](http://alnt.org/). Please note that it will require high machine power. A desktop PC or workstation is recommended.
+This part of the package was tested and used on HP Z620.
+
+In a rectangular space, 10 UAVs fly around by the similar reactive controller mentioned above. The configuration of robot formation and network is defined in `config/adhoc/robots.yaml` and `config/adhoc/simconfig.yaml`.
+
+The communication is managed by a world plugin `AdHocNetPlugin` and a model plugin `AdHocClientPlugin`. The model plugin is applied to each robot and communicates with the world plugin. The world plugin checks the robot's location and determines to pass a packet based on the communication range.
+
+As of October 10, 2018, they are just broadcasting packets, but epidemic routing will be implemented in the future.
+
+Before running the simulation, the following command must run so that multiple nodes can open sockets to communicate with each other.
+
+```
+ulimit -n 9000
+```
+
+Then, in your catkin workspace, build the program and run it as follows.
+
+```
+. /opt/ros/kinetic/setup.bash
+catkin_make
+. devel/setup.bash
+roslaunch quadrotor_tunnel_nav I-tunnel-40x10.launch
+```
+
+---
 
 # Memorandum
 [Misc notes of ROS commands](MEMORANDUM.md)

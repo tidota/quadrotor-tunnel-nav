@@ -1,39 +1,27 @@
-/*
- * Copyright (C) 2018 Open Source Robotics Foundation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
 #ifndef ADHOCCLIENTPLUGIN_HH_
 #define ADHOCCLIENTPLUGIN_HH_
 
 #include <cstdint>
 #include <functional>
 #include <iostream>
+#include <list>
 #include <map>
 #include <memory>
-#include <queue>
 #include <utility>
 
+#include <geometry_msgs/Twist.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 
 #include <gazebo/common/Plugin.hh>
+#include <gazebo/math/Pose.hh>
+#include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
 
 #include "adhoc/CommonTypes.hh"
 #include "quadrotor_tunnel_nav/protobuf/datagram.pb.h"
+#include "quadrotor_tunnel_nav/protobuf/siminfo.pb.h"
 
 namespace gazebo
 {
@@ -43,21 +31,29 @@ namespace gazebo
     // Documentation inherited
     public: virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
 
-    // to receive a message to start operation.
-    public: void OnStartStopMessage(const ros::MessageEvent<std_msgs::Bool const>& event);
-
     /// \brief Callback for World Update events.
     private: void OnUpdate();
 
+    /// \brief Callback to receive a request from the world plugin.
+    public:
+      void OnSimCmd(const boost::shared_ptr<adhoc::msgs::SimInfo const> &_req);
+
+    /// \brief Callback function to monitor cmd_vel.
+    public:
+      void OnCmdVel(const ros::MessageEvent<geometry_msgs::Twist const>& event);
+
     /// \brief Process all incoming messages.
-    private: void ProcessIncomingMsgs();
+    private: void ProcessincomingMsgsStamped();
 
     /// \brief Function called each time a new datagram message is received.
     /// \param[in] _msg The incoming message.
-    private: void OnNetworkMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
+    private:
+      void OnMessage(
+        const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg);
 
     /// \brief Make a hash string based on the message.
-    private: void CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash);
+    private:
+      void CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash);
 
     /// \brief Check if the given hash value is already registered.
     private: bool HasHash(const unsigned char *_hash);
@@ -65,23 +61,52 @@ namespace gazebo
     /// \brief Register a hash value.
     private: void RegistHash(const unsigned char *_hash);
 
+    /// \brief Model pointer.
+    private: physics::ModelPtr model;
+
     /// \brief An Ignition Transport node for communications.
     private: transport::NodePtr node;
+
+    /// \brief id in the network
+    private: unsigned int id;
+
+    /// \brief Subscriber to the simulation command.
+    private: transport::SubscriberPtr simCommSub;
+
+    /// \brief Publisher to respond to the simulation command.
+    private: transport::PublisherPtr simCommResPub;
+
+    /// \brief True if the communication running.
+    private: bool running;
+
+    /// \brief True if the client is no longer creating new messages.
+    private: bool stopping;
+
+    /// \brief True if the communication stopped.
+    private: bool finished;
+
+    // statistics
+    private: int recvMessageCount;
+    private: int totalHops;
+    private: double totalRoundTripTime;
+
+    /// \brief Mutex for simulation information.
+    private: std::mutex simInfoMutex;
+
+    /// \brief index of message
+    private: unsigned int sentMessageCount;
+
+    /// \brief the time when the node last sent a message.
+    private: common::Time lastSentTime;
+
+    /// \brief the time when the node last processed messages.
+    private: double delayTime;
 
     /// \brief publisher to send out data.
     private: transport::PublisherPtr pub;
 
     /// \brief subscriber to receive data.
     private: transport::SubscriberPtr sub;
-
-    /// \brief Model pointer.
-    private: physics::ModelPtr model;
-
-    /// \brief id in the network
-    private: unsigned int id;
-
-    /// \brief index of message
-    private: unsigned int messageCount;
 
     /// \brief list of hash values
     private: std::vector<std::string> hashList;
@@ -92,38 +117,29 @@ namespace gazebo
     /// \brief message to send
     private: adhoc::msgs::Datagram msg_res;
 
-    /// \brief the time when the node last sent a message.
-    private: common::Time lastSent;
-
-    /// \brief the time when the node last processed messages.
-    private: double delayedTime;
-
     /// \brief pointer to the update even connection.
     private: event::ConnectionPtr updateConnection;
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.
-    private: std::queue<
-      std::pair<adhoc::msgs::Datagram, common::Time> > incomingMsgs;
+    private: std::list<std::pair<adhoc::msgs::Datagram, common::Time> >
+        incomingMsgsStamped;
 
     /// \brief Protect data from races.
-    private: std::mutex mutex;
+    private: std::mutex messageMutex;
 
-    private: ros::NodeHandle n;
+    /// \brief (For tracking purposes) total communication distance taken by
+    /// packets.
+    private: double totalDistComm;
 
-    private: bool started;
-    private: bool finished;
+    /// \brief (For tracking purposes) total motion distance taken by packets.
+    private: double totalDistMotion;
 
-    private: ros::Subscriber enableSub;
+    /// \brief Subscriber to monior the cmd_vel.
+    private: ros::Subscriber cmdVelMonitorSub;
 
-    private: std::mutex mutexStartStop;
-
-    private: transport::PublisherPtr clientOutputPub;
-
-    // statistics
-    private: int totalMessages;
-    private: int totalHops;
-    private: double totalRoundTripTime;
+    /// \brief Set this to true so cmd_vel is zero before responding.
+    private: bool sendStoppedResponse;
   };
 }
 #endif

@@ -72,9 +72,10 @@
     <remap from="pose" to="ground_truth_to_tf/pose"  if="$(arg use_ground_truth_for_control)" />
 
     <!-- load controllers -->
-    <include file="$(find hector_quadrotor_controllers)/launch/controller.launch">
-      <arg name="controllers" value="$(arg controllers)"/>
-    </include>
+    <!--<include file="$(find hector_quadrotor_controllers)/launch/controller.launch">-->
+      <!--<arg name="controllers" value="$(arg controllers)"/>-->
+    <!--</include>-->
+    <node pkg="quadrotor_tunnel_nav" type="delayed_preparer.py" name="robot_preparer" args="$(arg controllers)"/>
 
     <!-- load actions -->
     <include file="$(find hector_quadrotor_actions)/launch/actions.launch" />

@@ -1,7 +1,15 @@
 <?xml version="1.0"?>
-
 <launch>
-  <arg name="ns" default="robot"/>
+  <arg name="ns" default="robot1"/>
+  <arg name="x" default="0"/>
+  <arg name="y" default="-3"/>
+  <arg name="Y" default="0"/>
+
+  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+    <arg name="ns" value="$(arg ns)"/>
+    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
+    <arg name="x" value="$(arg x)"/><arg name="y" value="$(arg y)"/><arg name="Y" value="$(arg Y)"/>
+  </include>
 
   <group ns="$(arg ns)">
     <node name="main_control" pkg="quadrotor_tunnel_nav" type="main_control_node" args="wait" />
@@ -10,7 +18,6 @@
     <node name="turning_around" pkg="quadrotor_tunnel_nav" type="turn_node" args="" />
     <node name="steering" pkg="quadrotor_tunnel_nav" type="steer_node" args="" />
     <node name="staying_at_the_right_side" pkg="quadrotor_tunnel_nav" type="right_wall_node" args="" />
-    <node name="keep_going" pkg="quadrotor_tunnel_nav" type="keep_going_node" args="3.0" />
+    <node name="keep_going" pkg="quadrotor_tunnel_nav" type="keep_going_node" args="0" />
   </group>
-
 </launch>

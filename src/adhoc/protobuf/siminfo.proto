@@ -1,0 +1,36 @@
+syntax = "proto2";
+package adhoc.msgs;
+
+/// \ingroup adhoc_msgs
+/// \interface SimInfo
+/// \brief A message containing simulation information from a network client.
+
+message SimInfo
+{
+  /// \brief state
+  required string state                     = 1;
+
+  /// \brief model name
+  required string robot_name                = 2;
+
+  /// \brief Time of hop to delay.
+  optional double delay_time                = 3;
+
+  /// \brief Total # of Sent Messages.
+  optional uint32 sent_message_count        = 4;
+
+  /// \brief Total # of Received Messages.
+  optional uint32 recv_message_count        = 5;
+
+  /// \brief Total # of Hops.
+  optional uint32 total_hops                = 6;
+
+  /// \brief Total Round Trip Time.
+  optional double total_round_trip_time     = 7;
+
+  /// \brief Total distance of communication taken by packets.
+  optional double total_dist_comm           = 8;
+
+  /// \brief Total distance of motion taken by packets.
+  optional double total_dist_motion         = 9;
+}

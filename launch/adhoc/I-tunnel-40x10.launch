@@ -1,62 +1,69 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="gui" default="true"/>
+
+  <rosparam command="load" file="$(find quadrotor_tunnel_nav)/config/adhoc/robots.yaml" />
+  <rosparam command="load" file="$(find quadrotor_tunnel_nav)/config/adhoc/simconfig.yaml" />
   <include file="$(find hector_gazebo_worlds)/launch/start.launch">
    <arg name="world" value="$(find quadrotor_tunnel_nav)/worlds/adhoc/I-tunnel-40x10.world"/>
    <arg name="args" value="--verbose"/>
+   <arg name="gui" value="$(arg gui)"/>
   </include>
 
   <!-- Spawn simulated quadrotor uav -->
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+  <node if="$(arg gui)" pkg="quadrotor_tunnel_nav" type="auto_launch.py" name="robot_team_spawner"/>
+  <node unless="$(arg gui)" pkg="quadrotor_tunnel_nav" type="auto_launch.py" name="robot_team_spawner" args="--nogui"/>
+  <!--
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
     <arg name="ns" value="robot1"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
     <arg name="x" value="0"/><arg name="y" value="-3"/>
   </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
-    <arg name="ns" value="robot2"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
-    <arg name="x" value="-8"/><arg name="y" value="-3"/>
-  </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
     <arg name="ns" value="robot3"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
     <arg name="x" value="-16"/><arg name="y" value="-3"/>
   </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
-    <arg name="ns" value="robot4"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
-    <arg name="x" value="-16"/><arg name="y" value="3"/><arg name="Y" value="$(eval -3.14159265 / 2)"/>
-  </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
     <arg name="ns" value="robot5"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
     <arg name="x" value="-8"/><arg name="y" value="3"/><arg name="Y" value="3.14159265"/>
   </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
-    <arg name="ns" value="robot6"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
-    <arg name="x" value="0"/><arg name="y" value="3"/><arg name="Y" value="3.14159265"/>
-  </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
     <arg name="ns" value="robot7"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
     <arg name="x" value="8"/><arg name="y" value="3"/><arg name="Y" value="3.14159265"/>
   </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
-    <arg name="ns" value="robot8"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
-    <arg name="x" value="16"/><arg name="y" value="3"/><arg name="Y" value="3.14159265"/>
-  </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
     <arg name="ns" value="robot9"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
     <arg name="x" value="16"/><arg name="y" value="-3"/><arg name="Y" value="$(eval 3.14159265/2)"/>
   </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
-    <arg name="ns" value="robot10"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
-    <arg name="x" value="8"/><arg name="y" value="-3"/>
+-->
+    <!--
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
+    <arg name="ns" value="robot2"/>
+    <arg name="x" value="-8"/><arg name="y" value="-3"/>
   </include>
 
-  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/adhoc_control.launch"/>
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
+    <arg name="ns" value="robot4"/>
+    <arg name="x" value="-16"/><arg name="y" value="3"/><arg name="Y" value="$(eval -3.14159265 / 2)"/>
+  </include>
+
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
+    <arg name="ns" value="robot6"/>
+    <arg name="x" value="0"/><arg name="y" value="3"/><arg name="Y" value="3.14159265"/>
+  </include>
+
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
+    <arg name="ns" value="robot8"/>
+    <arg name="x" value="16"/><arg name="y" value="3"/><arg name="Y" value="3.14159265"/>
+  </include>
+
+  <include file="$(find quadrotor_tunnel_nav)/launch/adhoc/spawn_robot.launch">
+    <arg name="ns" value="robot10"/>
+    <arg name="x" value="8"/><arg name="y" value="-3"/>
+  </include>
+-->
 
 </launch>

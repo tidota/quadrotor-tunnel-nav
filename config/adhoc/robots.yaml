@@ -1,0 +1,61 @@
+robots:
+  - robot1
+  - robot3
+  - robot5
+  - robot7
+  - robot9
+  - robot2
+  - robot4
+  - robot6
+  - robot8
+  - robot10
+
+robot1:
+  x: 0
+  y: -2
+  Y: 0
+
+robot2:
+  x: -8
+  y: -2
+  Y: 0
+
+robot3:
+  x: -16
+  y: -2
+  Y: 0
+
+robot4:
+  x: -16
+  y: 2
+  Y: -3.14159265
+
+robot5:
+  x: -8
+  y: 2
+  Y: 3.14159265
+
+robot6:
+  x: 0
+  y: 2
+  Y: 3.14159265
+
+robot7:
+  x: 8
+  y: 2
+  Y: 3.14159265
+
+robot8:
+  x: 16
+  y: 2
+  Y: 3.14159265
+
+robot9:
+  x: 16
+  y: -2
+  Y: 0
+
+robot10:
+  x: 8
+  y: -2
+  Y: 0
