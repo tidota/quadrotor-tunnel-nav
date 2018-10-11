@@ -337,7 +337,7 @@ void AdHocClientPlugin::RegistHash(const unsigned char *_hash)
 
 //////////////////////////////////////////////////
 void AdHocClientPlugin::OnCmdVel(
-  const ros::MessageEvent<geometry_msgs::Twist const>& event)
+  const ros::MessageEvent<geometry_msgs::Twist const>& _event)
 {
   auto cmd = event.getMessage();
 
