@@ -36,9 +36,22 @@ namespace adhoc
 namespace gazebo
 {
   /// \brief A plugin that controls ad hoc communications.
+  ///
+  /// At the beginning, it waits until all robots are spawned in the
+  /// environrmnet. Then, it starts simulation based on the configuration file.
+  ///
+  /// At each trial, it sends out commands to fly to the middle altitude. Once
+  /// they reach the altitude, the plugin sends out commands to start flight and
+  /// communication, followed by monitoring the network performance.
+  ///
+  /// Once the duration passed, it sends out commands to stop creating new
+  /// packets. When they finish all packets in the network, the robots stops.
+  /// The plugin checks all robot's speeds and when they are all zero, it resets
+  /// the robot's positions and starts another simulation.
+  ///
   class AdHocNetPlugin : public WorldPlugin
   {
-    /// Constructor.
+    /// \breif. Constructor.
     public: AdHocNetPlugin()
     {}
 
@@ -48,18 +61,20 @@ namespace gazebo
     /// \brief Callback for World Update events.
     private: void OnUpdate();
 
-    /// brief Checks all robots are ready to fly
+    /// \brief Checks all robots are ready to fly
     public: void CheckRobotsReadyTh();
 
     /// brief Callback to receive a response from a client.
-    public: void OnSimCmdResponse(const boost::shared_ptr<adhoc::msgs::SimInfo const> &_res);
-
-    /// \brief Process all incoming messages.
-    private: void ProcessIncomingMsgs();
+    public: void OnSimCmdResponse(
+        const boost::shared_ptr<adhoc::msgs::SimInfo const> &_res);
 
     /// \brief Callback executed when a new request is received.
     /// \param _req The datagram contained in the request.
-    private: void OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_req);
+    private: void OnMessage(
+      const boost::shared_ptr<adhoc::msgs::Datagram const> &_req);
+
+    /// \brief Process all incoming messages.
+    private: void ProcessIncomingMsgs();
 
     /// \brief Make a hash string based on the message.
     private: void CalcHash(const adhoc::msgs::Datagram &_msg, unsigned char *_hash);
@@ -97,15 +112,6 @@ namespace gazebo
     /// \brief list of simulation settings.
     private: std::queue<std::string> settingList;
 
-    /// \brief True if the communication started.
-    private: bool started;
-
-    /// \brief True if they stopped to create new messages.
-    private: bool stopping;
-
-    /// \brief True if the communicaiton finished.
-    private: bool finished;
-
     /// \brief Simulation start time.
     private: common::Time startTime;
 
@@ -123,6 +129,31 @@ namespace gazebo
 
     /// \brief Period to run the communication (in seconds)
     private: double simPeriod;
+
+    /// \brief True if the all robots are flying at the specific altitude
+    /// and ready to start netowrking.
+    private: bool robotsReadyToComm;
+
+    /// \brief Thread object to check if robots are ready to fly.
+    private: std::thread robotCheckThread;
+
+    /// \brief Publisher to send a command to start flying.
+    private: ros::Publisher startFlyingPub;
+
+    /// \brief Publisher to update the robot speed.
+    private: ros::Publisher navVelUpdatePub;
+
+    /// \brief True if the communication started.
+    private: bool started;
+
+    /// \brief True if they stopped to create new messages.
+    private: bool stopping;
+
+    /// \brief True if the communicaiton finished.
+    private: bool finished;
+
+    /// \brief list of hash values
+    private: std::vector<std::string> hashList;
 
     /// \brief Total number of packets processed.
     private: int totalRecvPackets;
@@ -150,27 +181,8 @@ namespace gazebo
     private: std::vector<boost::shared_ptr<adhoc::msgs::SimInfo const>>
       listStopResponses;
 
-    /// \brief Mutex for the simulation information from clients.
-    private: std::mutex simInfoMutex;
-
-    /// \brief list of hash values
-    private: std::vector<std::string> hashList;
-
     /// \brief the last time to print the robot positions on the terminal.
     private: common::Time lastStatPrintTime;
-
-    /// \brief Thread object to check if robots are ready to fly.
-    private: std::thread robotCheckThread;
-
-    /// \brief Publisher to send a command to start flying.
-    private: ros::Publisher startFlyingPub;
-
-    /// \brief Publisher to update the robot speed.
-    private: ros::Publisher navVelUpdatePub;
-
-    /// \brief True if the all robots are flying at the specific altitude
-    /// and ready to start netowrking.
-    private: bool robotsReadyToComm;
 
     /// \brief Collection of incoming messages received during the last
     /// simulation step.
@@ -183,7 +195,13 @@ namespace gazebo
     private: std::map< std::string, transport::SubscriberPtr > subMap;
 
     /// \brief Mutex for communication data.
+    /// This mutex for items updated by OnUpdate and OnMessage.
     private: std::mutex messageMutex;
+
+    /// \brief Mutex for the simulation information from clients.
+    /// This mutex for items updated by OnUPdate and OnSimCmdResponse.
+    private: std::mutex simInfoMutex;
+
   };
 }
 #endif
