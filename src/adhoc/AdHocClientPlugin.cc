@@ -122,7 +122,8 @@ void AdHocClientPlugin::OnUpdate()
 }
 
 //////////////////////////////////////////////////
-void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
+void AdHocClientPlugin::OnMessage(
+  const boost::shared_ptr<adhoc::msgs::Datagram const> &_msg)
 {
   std::lock_guard<std::mutex> lk(this->messageMutex);
 
@@ -141,7 +142,6 @@ void AdHocClientPlugin::OnMessage(const boost::shared_ptr<adhoc::msgs::Datagram 
 
   // Just save the message, it will be processed later.
   common::Time t = this->model->GetWorld()->GetSimTime();
-  //gzmsg << "Client (" << this->model->GetName() << "): incomingMsgsStamped.push_back" << std::endl;
   this->incomingMsgsStamped.push_back(
     std::pair<adhoc::msgs::Datagram, common::Time>(tempMsg, t));
 }
@@ -169,11 +169,8 @@ void AdHocClientPlugin::OnSimCmd(
     this->totalDistComm = 0;
     this->totalDistMotion = 0;
 
-    //gzmsg << this->model->GetName() << ": clearing hashSet" << std::endl;
     this->hashSet.clear();
-    //gzmsg << this->model->GetName() << ": clearing incomingMsgsSpamped" << std::endl;
     this->incomingMsgsStamped.clear();
-    //gzmsg << this->model->GetName() << ": done" << std::endl;
 
     // start recording
     adhoc::msgs::SimInfo msg;
@@ -242,7 +239,6 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
 
   while (!this->incomingMsgsStamped.empty())
   {
-    //gzmsg << "Client(" << this->model->GetName() << "): incomingMsgsStamped.front()" << std::endl;
     auto &p = this->incomingMsgsStamped.front();
     auto &t = p.second;
     if (current.Double() - t.Double() < this->delayTime)
@@ -324,7 +320,6 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
       }
     }
 
-    //gzmsg << "Client(" << this->model->GetName() << "): incomingMsgsStamped.pop_front" << std::endl;
     this->incomingMsgsStamped.pop_front();
   }
 }
