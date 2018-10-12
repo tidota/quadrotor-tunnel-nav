@@ -7,6 +7,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <unordered_set>
 #include <utility>
 
 #include <geometry_msgs/Twist.h>
@@ -126,7 +127,7 @@ namespace gazebo
     private: bool sendStoppedResponse;
 
     /// \brief list of hash values
-    private: std::vector<std::string> hashList;
+    private: std::unordered_set<std::string> hashSet;
 
     /// \brief The number of received messages.
     private: int recvMessageCount;
