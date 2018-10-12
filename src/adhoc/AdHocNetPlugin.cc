@@ -107,9 +107,10 @@ void AdHocNetPlugin::OnUpdate()
       if (this->stopping)
       {
         std::lock_guard<std::mutex> lk(this->messageMutex);
+
         // check if no more message is not coming.
         if (current.Double() - this->lastRecvTime.Double()
-              > this->currentDelayTime
+              > this->currentDelayTime + 1.0
             && this->incomingMsgs.empty())
         {
           gzmsg << "*** Simulation period passed. Stopping ***" << std::endl;
@@ -127,7 +128,7 @@ void AdHocNetPlugin::OnUpdate()
         }
       }
       else if(current.Double() - this->startTime.Double()
-        >= this->simPeriod + 1.0)
+        >= this->simPeriod)
       {
         gzmsg << "*** All communication done. Stopped. ***" << std::endl;
         this->listStopResponses.clear();
@@ -140,6 +141,7 @@ void AdHocNetPlugin::OnUpdate()
 
       this->topoChangeCount += this->CheckTopoChange();
 
+      std::lock_guard<std::mutex> lk(this->messageMutex);
       this->ProcessIncomingMsgs();
     }
   }
@@ -336,8 +338,6 @@ void AdHocNetPlugin::OnSimCmdResponse(
 /////////////////////////////////////////////////
 void AdHocNetPlugin::ProcessIncomingMsgs()
 {
-  std::lock_guard<std::mutex> lk(this->messageMutex);
-
   while (!this->incomingMsgs.empty())
   {
     // Forward the messages.
