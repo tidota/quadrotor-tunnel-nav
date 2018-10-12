@@ -1,7 +1,6 @@
 #ifndef ADHOCNETPLUGIN_HH_
 #define ADHOCNETPLUGIN_HH_
 
-#include <list>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -76,9 +75,6 @@ namespace gazebo
     public: void OnSimCmdResponse(
         const boost::shared_ptr<adhoc::msgs::SimInfo const> &_res);
 
-    /// \brief Process all incoming messages.
-    private: void ProcessIncomingMsgs();
-
     /// \brief Make a hash string based on the message.
     /// \param[in] _msg A message to calculate a hash value.
     /// \param[out] _hash a hash value of the message.
@@ -124,10 +120,6 @@ namespace gazebo
 
     /// \brief Publisher for simulation command.
     private: transport::PublisherPtr simCmdPub;
-
-    /// \brief Collection of incoming messages received during the last
-    /// simulation step.
-    private: std::list<adhoc::msgs::Datagram> incomingMsgs;
 
     /// \brief List of received start responses.
     private: std::vector<boost::shared_ptr<adhoc::msgs::SimInfo const>>

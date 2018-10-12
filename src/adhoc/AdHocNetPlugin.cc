@@ -110,8 +110,7 @@ void AdHocNetPlugin::OnUpdate()
 
         // check if no more message is not coming.
         if (current.Double() - this->lastRecvTime.Double()
-              > this->currentDelayTime + 1.0
-            && this->incomingMsgs.empty())
+              > this->currentDelayTime + 1.0)
         {
           gzmsg << "*** Simulation period passed. Stopping ***" << std::endl;
           this->listStopResponses.clear();
@@ -201,11 +200,43 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
 void AdHocNetPlugin::OnMessage(
   const boost::shared_ptr<adhoc::msgs::Datagram const> &_req)
 {
-  // Just save the message, it will be processed later.
+  // Once a packet is received, it is instantaneously processed.
   std::lock_guard<std::mutex> lk(this->messageMutex);
-  this->incomingMsgs.push_back(*_req);
   this->lastRecvTime = this->world->GetSimTime();
-  this->ProcessIncomingMsgs();
+
+  physics::ModelPtr sender = this->world->GetModel(_req->robot_name());
+  this->totalSentPackets++;
+
+  if (sender)
+  {
+    for (int i = 1; i <= 10; ++i)
+    {
+      std::string name = "robot" + std::to_string(i);
+
+      if (name == sender->GetName())
+        continue;
+
+      physics::ModelPtr robot = this->world->GetModel(name);
+
+      if (robot)
+      {
+        // forward the message if the robot is within the range of the sender.
+        auto diffVec
+          = robot->GetWorldPose().CoordPositionSub(sender->GetWorldPose());
+        double length = fabs(diffVec.GetLength());
+
+        if (length <= this->commRange)
+        {
+          this->pubMap[robot->GetName()]->Publish(*_req);
+          unsigned char hash[SHA256_DIGEST_LENGTH];
+          this->CalcHash(*_req, hash);
+          if (!this->HasHash(hash))
+            this->RegistHash(hash);
+          this->totalRecvPackets++;
+        }
+      }
+    }
+  }
 }
 
 //////////////////////////////////////////////////
@@ -333,52 +364,6 @@ void AdHocNetPlugin::OnSimCmdResponse(
   }
 }
 
-/////////////////////////////////////////////////
-void AdHocNetPlugin::ProcessIncomingMsgs()
-{
-  while (!this->incomingMsgs.empty())
-  {
-    // Forward the messages.
-    auto const &msg = this->incomingMsgs.front();
-
-    physics::ModelPtr sender = this->world->GetModel(msg.robot_name());
-    this->totalSentPackets++;
-
-    if (sender)
-    {
-      for (int i = 1; i <= 10; ++i)
-      {
-        std::string name = "robot" + std::to_string(i);
-
-        if (name == sender->GetName())
-          continue;
-
-        physics::ModelPtr robot = this->world->GetModel(name);
-
-        if (robot)
-        {
-          // forward the message if the robot is within the range of the sender.
-          auto diffVec
-            = robot->GetWorldPose().CoordPositionSub(sender->GetWorldPose());
-          double length = fabs(diffVec.GetLength());
-
-          if (length <= this->commRange)
-          {
-            this->pubMap[robot->GetName()]->Publish(msg);
-            unsigned char hash[SHA256_DIGEST_LENGTH];
-            this->CalcHash(msg, hash);
-            if (!this->HasHash(hash))
-              this->RegistHash(hash);
-            this->totalRecvPackets++;
-          }
-        }
-      }
-    }
-
-    this->incomingMsgs.pop_front();
-  }
-}
-
 //////////////////////////////////////////////////
 void AdHocNetPlugin::CalcHash(
   const adhoc::msgs::Datagram &_msg, unsigned char *_hash)
@@ -469,8 +454,6 @@ void AdHocNetPlugin::StartNewTrial()
 
     gzmsg << "Net: clearing hashSet" << std::endl;
     this->hashSet.clear();
-    gzmsg << "Net: clearing incomingMsgs" << std::endl;
-    this->incomingMsgs.clear();
     gzmsg << "Net: done" << std::endl;
 
     this->n.getParam("simulation_period", this->simPeriod);
