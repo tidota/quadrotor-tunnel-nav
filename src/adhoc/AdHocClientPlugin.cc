@@ -213,7 +213,7 @@ void AdHocClientPlugin::OnSimCmd(
 void AdHocClientPlugin::OnCmdVel(
   const ros::MessageEvent<geometry_msgs::Twist const>& _event)
 {
-  auto cmd = event.getMessage();
+  auto cmd = _event.getMessage();
 
   if (this->sendStoppedResponse
     && cmd->linear.x == 0 && cmd->linear.y == 0 && cmd->linear.z == 0
