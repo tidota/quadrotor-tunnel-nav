@@ -140,9 +140,6 @@ void AdHocNetPlugin::OnUpdate()
       }
 
       this->topoChangeCount += this->CheckTopoChange();
-
-      std::lock_guard<std::mutex> lk(this->messageMutex);
-      this->ProcessIncomingMsgs();
     }
   }
 }
@@ -208,6 +205,7 @@ void AdHocNetPlugin::OnMessage(
   std::lock_guard<std::mutex> lk(this->messageMutex);
   this->incomingMsgs.push_back(*_req);
   this->lastRecvTime = this->world->GetSimTime();
+  this->ProcessIncomingMsgs();
 }
 
 //////////////////////////////////////////////////
