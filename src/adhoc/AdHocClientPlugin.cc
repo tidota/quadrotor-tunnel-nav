@@ -3,6 +3,7 @@
 #include <ctime>
 #include <fstream>
 #include <sstream>
+#include <unordered_set>
 
 #include <openssl/sha.h>
 
@@ -168,8 +169,8 @@ void AdHocClientPlugin::OnSimCmd(
     this->totalDistComm = 0;
     this->totalDistMotion = 0;
 
-    //gzmsg << this->model->GetName() << ": clearing hashList" << std::endl;
-    this->hashList.clear();
+    //gzmsg << this->model->GetName() << ": clearing hashSet" << std::endl;
+    this->hashSet.clear();
     //gzmsg << this->model->GetName() << ": clearing incomingMsgsSpamped" << std::endl;
     this->incomingMsgsStamped.clear();
     //gzmsg << this->model->GetName() << ": done" << std::endl;
@@ -344,12 +345,11 @@ bool AdHocClientPlugin::HasHash(const unsigned char *_hash)
 {
   std::string buff;
   buff.assign((const char*)_hash, SHA256_DIGEST_LENGTH);
-  for (auto h : this->hashList)
-  {
-    if (h == buff)
+
+  if (this->hashSet.count(buff) > 0)
       return true;
-  }
-  return false;
+  else
+      return false;
 }
 
 //////////////////////////////////////////////////
@@ -357,5 +357,5 @@ void AdHocClientPlugin::RegistHash(const unsigned char *_hash)
 {
   std::string str;
   str.assign((const char*)_hash, SHA256_DIGEST_LENGTH);
-  this->hashList.push_back(str);
+  this->hashSet.insert(str);
 }

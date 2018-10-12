@@ -6,6 +6,7 @@
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <unordered_set>
 
 #include <hector_uav_msgs/EnableMotors.h>
 #include <ros/ros.h>
@@ -189,7 +190,7 @@ namespace gazebo
     private: bool finished;
 
     /// \brief list of hash values
-    private: std::vector<std::string> hashList;
+    private: std::unordered_set<std::string> hashSet;
 
     /// \brief List of connections
     private: std::map<std::string, bool> topoList;
