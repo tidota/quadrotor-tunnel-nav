@@ -277,11 +277,11 @@ void AdHocNetPlugin::OnSimCmdResponse(
       ss << "Time," << elapsed << std::endl;
       ss << "Total # of Sent Packets," << this->totalSentPackets << std::endl;
       ss << "Total # of Recv Packets," << this->totalRecvPackets << std::endl;
-      ss << "Total # of Message," << this->hashList.size() << std::endl;
+      ss << "Total # of Message," << this->hashSet.size() << std::endl;
       ss << "Avg # of Packets per Sent Message,"
-         << ((double)this->totalSentPackets)/this->hashList.size() << std::endl;
+         << ((double)this->totalSentPackets)/this->hashSet.size() << std::endl;
       ss << "Avg # of Packets per Recv Message,"
-         << ((double)this->totalRecvPackets)/this->hashList.size() << std::endl;
+         << ((double)this->totalRecvPackets)/this->hashSet.size() << std::endl;
       ss << "Total # of Topology Changes,"
          << this->topoChangeCount << std::endl;
       ss << "Frequency of Topology Change,"
@@ -397,12 +397,11 @@ bool AdHocNetPlugin::HasHash(const unsigned char *_hash)
 {
   std::string buff;
   buff.assign((const char*)_hash, SHA256_DIGEST_LENGTH);
-  for (auto h : this->hashList)
-  {
-    if (h == buff)
+
+  if (this->hashSet.count(buff) != 0)
       return true;
-  }
-  return false;
+  else
+      return false;
 }
 
 //////////////////////////////////////////////////
@@ -410,7 +409,7 @@ void AdHocNetPlugin::RegistHash(const unsigned char *_hash)
 {
   std::string str;
   str.assign((const char*)_hash, SHA256_DIGEST_LENGTH);
-  this->hashList.push_back(str);
+  this->hashSet.insert(str);
 }
 
 //////////////////////////////////////////////////
@@ -470,8 +469,8 @@ void AdHocNetPlugin::StartNewTrial()
     this->totalRecvPackets = 0;
     this->topoChangeCount = 0;
 
-    gzmsg << "Net: clearing hashList" << std::endl;
-    this->hashList.clear();
+    gzmsg << "Net: clearing hashSet" << std::endl;
+    this->hashSet.clear();
     gzmsg << "Net: clearing incomingMsgs" << std::endl;
     this->incomingMsgs.clear();
     gzmsg << "Net: done" << std::endl;
