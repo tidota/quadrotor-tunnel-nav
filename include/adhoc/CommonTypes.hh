@@ -5,7 +5,7 @@
 
 // The following macroes are for old versions of gazebo.
 #if GAZEBO_MAJOR_VERSION >= 8
-#include <ignition/math/Pose3d.hh>
+#include <ignition/math/Pose3.hh>
 #define POSE ignition::math::Pose3d
 #define POS_X Pos().X()
 #define POS_Y Pos().Y()
