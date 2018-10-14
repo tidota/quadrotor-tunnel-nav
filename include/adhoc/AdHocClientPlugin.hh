@@ -19,19 +19,9 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
 
-#if GAZEBO_MAJOR_VERSION >= 9
-#include <ignition/math/Pose3.hh>
-#else
-#include <gazebo/math/Pose.hh>
-#endif
-
 #include "adhoc/CommonTypes.hh"
 #include "quadrotor_tunnel_nav/protobuf/datagram.pb.h"
 #include "quadrotor_tunnel_nav/protobuf/siminfo.pb.h"
-
-#if GAZEBO_MAJOR_VERSION >= 9
-using namespace ignition;
-#endif
 
 namespace gazebo
 {
