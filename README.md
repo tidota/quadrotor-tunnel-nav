@@ -42,17 +42,25 @@ TBA
 
 ---
 
-# Installation
+# Setup
 
-TODO: I will upgrade the package so they can run on ROS Melodic.
+This package should run in the following environments.
 
-## Required Environment
-- OS: Ubuntu 16.04
-- ROS version: Kinetic
-- Gazebo version: gazebo7
+As of October 14, 2018, the second one is experimental.
+<!--The second one is up-to-date and recommended.-->
 
-## Setup (Old)
-This package requires hector-quadrotor. Check [the details](SETUP.md).
+1. Ubuntu16.04 (Xenial)
+  - ROS: Kinetic
+  - Gazebo: gazebo7
+
+
+1. Ubuntu18.04 (Bionic)
+  - ROS: Melodic
+  - Gazebo: gazebo9
+
+##  OS: Ubuntu 16.04, ROS: Kinetic, Gazebo7
+
+This package requires [hector-quadrotor packages](https://github.com/tu-darmstadt-ros-pkg/hector_quadrotor). Check [the details](SETUP.md).
 
 ### Installation of this package
 ```
@@ -62,7 +70,13 @@ cd ..
 catkin_make
 ```
 
-## Setup (New)
+## OS: Ubuntu18.04, ROS: Melodic, Gazebo9
+
+If you do not have wstool,
+```
+sudo apt-get install python-wstool
+```
+
 Assume you are in the catkin workspace.
 
 Make a `src` directory if you do not have it yet.
