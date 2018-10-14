@@ -17,7 +17,6 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
-#include <ignition/math/Pose3.hh>
 #include <sdf/sdf.hh>
 
 #include "adhoc/CommonTypes.hh"
@@ -142,7 +141,7 @@ namespace gazebo
     private: std::vector<std::string> robotList;
 
     /// \brief list of maps from robot's name to its initial pose.
-    private: std::map<std::string, ignition::math::Pose3d> initPoseList;
+    private: std::map<std::string, POSE> initPoseList;
 
     /// \brief list of simulation settings.
     private: std::queue<std::string> settingList;

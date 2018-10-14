@@ -76,7 +76,7 @@ void AdHocNetPlugin::OnUpdate()
     for (std::string &robot: this->robotList)
     {
       auto model = this->world->ModelByName(robot);
-      if (!model || model->WorldPose().Pos().Z() < 4.9)
+      if (!model || model->WorldPose().POS_Z < 4.9)
         flag = false;
     }
     if (flag)
