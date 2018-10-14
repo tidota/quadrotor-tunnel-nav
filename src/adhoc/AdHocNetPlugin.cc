@@ -223,7 +223,7 @@ void AdHocNetPlugin::OnMessage(
         // forward the message if the robot is within the range of the sender.
         auto diffVec
           = robot->WorldPose().CoordPositionSub(sender->WorldPose());
-        double length = fabs(diffVec.GetLength());
+        double length = fabs(diffVec.Length());
 
         if (length <= this->commRange)
         {
@@ -413,7 +413,7 @@ int AdHocNetPlugin::CheckTopoChange()
 
       auto diffVec
         = robot1->WorldPose().CoordPositionSub(robot2->WorldPose());
-      double length = fabs(diffVec.GetLength());
+      double length = fabs(diffVec.Length());
 
       bool inRange = (length <= this->commRange);
       if (inRange != this->topoList[std::to_string(i)+":"+std::to_string(j)])
