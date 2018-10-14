@@ -103,7 +103,7 @@ void AdHocClientPlugin::OnUpdate()
     this->msg_req.set_dist_comm(0);
     this->msg_req.set_dist_motion(0);
 
-    ignition::math::Pose3d currentPose = this->model->WorldPose();
+    POSE currentPose = this->model->WorldPose();
     gazebo::msgs::Vector3d* prevLocMsg = this->msg_req.mutable_prev_loc();
     prevLocMsg->set_x(currentPose.Pos().X());
     prevLocMsg->set_y(currentPose.Pos().Y());
@@ -129,7 +129,7 @@ void AdHocClientPlugin::OnMessage(
 
   adhoc::msgs::Datagram tempMsg(*_msg);
   // For tracking purposes.
-  ignition::math::Pose3d currentPose = this->model->WorldPose();
+  POSE currentPose = this->model->WorldPose();
   gazebo::msgs::Vector3d* prevLocMsg = tempMsg.mutable_prev_loc();
   double dx = currentPose.Pos().X() - prevLocMsg->x();
   double dy = currentPose.Pos().Y() - prevLocMsg->y();
@@ -264,7 +264,7 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
           this->msg_res.set_time(msg.time());
 
           // For tracking purposes.
-          ignition::math::Pose3d currentPose = this->model->WorldPose();
+          POSE currentPose = this->model->WorldPose();
           gazebo::msgs::Vector3d* prevLocMsg = this->msg_res.mutable_prev_loc();
           double dx = currentPose.Pos().X() - prevLocMsg->x();
           double dy = currentPose.Pos().Y() - prevLocMsg->y();
@@ -304,7 +304,7 @@ void AdHocClientPlugin::ProcessincomingMsgsStamped()
         forwardMsg.set_hops(msg.hops() + 1);
 
         // For tracking purposes.
-        ignition::math::Pose3d currentPose = this->model->WorldPose();
+        POSE currentPose = this->model->WorldPose();
         gazebo::msgs::Vector3d* prevLocMsg = forwardMsg.mutable_prev_loc();
         double dx = currentPose.Pos().X() - prevLocMsg->x();
         double dy = currentPose.Pos().Y() - prevLocMsg->y();
