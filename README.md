@@ -89,7 +89,7 @@ In the `src`, make a rosinstall file `quadrotor_tunnel_nav.rosinstall` containin
 - git: {local-name: hector_gazebo, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_gazebo.git', version: kinetic-devel}
 - git: {local-name: hector_models, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_models.git', version: kinetic-devel}
 - git: {local-name: hector_slam, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_slam.git', version: catkin}
-- git: {local-name: quadrotor-tunnel-nav, uri: 'https://github.com/tidota/quadrotor-tunnel-nav.git', version: master}
+- git: {local-name: quadrotor-tunnel-nav, uri: 'https://github.com/tidota/quadrotor-tunnel-nav.git', version: gazebo9}
 ```
 
 Finally, run the following commands.
