@@ -82,7 +82,7 @@ Make a `src` directory if you do not have it yet.
 mkdir src
 ```
 
-In the `src`, make a rosinstall file `quadrotor_tunnel_nav.rosinstall` containing the following
+In the `src`, make or download [quadrotor_tunnel_nav.rosinstall](https://raw.githubusercontent.com/tidota/quadrotor-tunnel-nav/master/quadrotor_tunnel_nav.rosinstall) containing the following
 ```
 - git: {local-name: hector_quadrotor, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_quadrotor.git', version: kinetic-devel}
 - git: {local-name: hector_localization, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_localization.git', version: catkin}
