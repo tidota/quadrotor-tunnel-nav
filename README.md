@@ -50,11 +50,11 @@ As of October 14, 2018, the second one is experimental.
 <!--The second one is up-to-date and recommended.-->
 
 1. Ubuntu16.04 (Xenial)
-  - ROS: Kinetic
-  - Gazebo: gazebo7
+    - ROS: Kinetic
+    - Gazebo: gazebo7
 1. Ubuntu18.04 (Bionic)
-  - ROS: Melodic
-  - Gazebo: gazebo9
+    - ROS: Melodic
+    - Gazebo: gazebo9
 
 ##  OS: Ubuntu 16.04, ROS: Kinetic, Gazebo7
 
