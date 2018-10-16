@@ -138,11 +138,23 @@ The communication is managed by a world plugin `AdHocNetPlugin` and a model plug
 
 As of October 10, 2018, they are just broadcasting packets, but epidemic routing will be implemented in the future.
 
+---
 Before running the simulation, the following command must run so that multiple nodes can open sockets to communicate with each other.
-
 ```
 ulimit -n 9000
 ```
+
+If this does not work, [this page](https://superuser.com/questions/1200539/cannot-increase-open-file-limit-past-4096-ubuntu) may work.
+In `/etc/systemd/user.conf` and `/etc/systemd/system.conf`, edit the line of `#DefaultLimitNOFILE=` like this
+```
+DefaultLimitNOFILE=9000
+```
+And in `/etc/security/limits.conf`, add the following lines
+```
+<Your user ID> hard nofile 9000
+<Your user ID> soft nofile 9000
+```
+---
 
 Then, in your catkin workspace, build the program and run it as follows.
 
