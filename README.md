@@ -42,23 +42,61 @@ TBA
 
 ---
 
-# Installation
+# Setup
 
-TODO: I will upgrade the package so they can run on ROS Melodic.
+This package should run in the following environments.
 
-## Required Environment
-- OS: Ubuntu 16.04
-- ROS version: Kinetic
+As of October 14, 2018, the second one is experimental.
+<!--The second one is up-to-date and recommended.-->
 
-## Setup
-This package requires hector-quadrotor. Check [the details](SETUP.md).
+1. Ubuntu16.04 (Xenial)
+    - ROS: Kinetic
+    - Gazebo: gazebo7
+1. Ubuntu18.04 (Bionic)
+    - ROS: Melodic
+    - Gazebo: gazebo9
 
-## Installation of this package
+##  OS: Ubuntu 16.04, ROS: Kinetic, Gazebo7
+
+This package requires [hector-quadrotor packages](https://github.com/tu-darmstadt-ros-pkg/hector_quadrotor). Check [the details](SETUP.md).
+
+### Installation of this package
 ```
 cd ~/catkin/src
 git clone git@github.com:tidota/quadrotor-tunnel-nav.git
 cd ..
 catkin_make
+```
+
+## OS: Ubuntu18.04, ROS: Melodic, Gazebo9
+
+If you do not have wstool,
+```
+sudo apt-get install python-wstool
+```
+
+Assume you are in the catkin workspace.
+
+Make a `src` directory if you do not have it yet.
+```
+mkdir src
+```
+
+In the `src`, make or download [quadrotor_tunnel_nav.rosinstall](https://raw.githubusercontent.com/tidota/quadrotor-tunnel-nav/master/quadrotor_tunnel_nav.rosinstall) containing the following
+```
+- git: {local-name: hector_quadrotor, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_quadrotor.git', version: kinetic-devel}
+- git: {local-name: hector_localization, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_localization.git', version: catkin}
+- git: {local-name: hector_gazebo, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_gazebo.git', version: kinetic-devel}
+- git: {local-name: hector_models, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_models.git', version: kinetic-devel}
+- git: {local-name: hector_slam, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_slam.git', version: catkin}
+- git: {local-name: quadrotor-tunnel-nav, uri: 'https://github.com/tidota/quadrotor-tunnel-nav.git', version: gazebo9}
+```
+
+Finally, run the following commands.
+```
+wstool init src ./src/quadrotor_tunnel_nav.rosinstall
+wstool update -t src
+rosdep install --from-paths src --ignore-src --rosdistro=melodic -y
 ```
 
 ---
