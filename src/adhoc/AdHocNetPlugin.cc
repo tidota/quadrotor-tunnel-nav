@@ -75,8 +75,8 @@ void AdHocNetPlugin::OnUpdate()
     bool flag = true;
     for (std::string &robot: this->robotList)
     {
-      auto model = this->world->GetModel(robot);
-      if (!model || model->GetWorldPose().pos.z < 4.9)
+      auto model = this->world->ModelByName(robot);
+      if (!model || model->WorldPose().POS_Z < 4.9)
         flag = false;
     }
     if (flag)
@@ -90,14 +90,14 @@ void AdHocNetPlugin::OnUpdate()
   {
     if (this->started && !this->finished)
     {
-      auto current = this->world->GetSimTime();
+      auto current = this->world->SimTime();
 
       if (current.Double() - this->lastStatPrintTime.Double() >= 10.0)
       {
         // gzmsg << "===== locations =====" << std::endl;
         // for (auto model : this->world->GetModels())
         // {
-        //   auto pose = model->GetWorldPose();
+        //   auto pose = model->WorldPose();
         //   gzmsg << model->GetName() << ": " << pose << std::endl;
         // }
         // gzmsg << "=====================" << std::endl;
@@ -180,7 +180,7 @@ void AdHocNetPlugin::CheckRobotsReadyTh()
       for (auto robotName: this->robotList)
       {
         this->initPoseList[robotName]
-          = this->world->GetModel(robotName)->GetWorldPose();
+          = this->world->ModelByName(robotName)->WorldPose();
       }
       break;
     }
@@ -202,9 +202,9 @@ void AdHocNetPlugin::OnMessage(
 {
   // Once a packet is received, it is instantaneously processed.
   std::lock_guard<std::mutex> lk(this->messageMutex);
-  this->lastRecvTime = this->world->GetSimTime();
+  this->lastRecvTime = this->world->SimTime();
 
-  physics::ModelPtr sender = this->world->GetModel(_req->robot_name());
+  physics::ModelPtr sender = this->world->ModelByName(_req->robot_name());
   this->totalSentPackets++;
 
   if (sender)
@@ -216,14 +216,14 @@ void AdHocNetPlugin::OnMessage(
       if (name == sender->GetName())
         continue;
 
-      physics::ModelPtr robot = this->world->GetModel(name);
+      physics::ModelPtr robot = this->world->ModelByName(name);
 
       if (robot)
       {
         // forward the message if the robot is within the range of the sender.
         auto diffVec
-          = robot->GetWorldPose().CoordPositionSub(sender->GetWorldPose());
-        double length = fabs(diffVec.GetLength());
+          = robot->WorldPose().CoordPositionSub(sender->WorldPose());
+        double length = fabs(diffVec.Length());
 
         if (length <= this->commRange)
         {
@@ -258,8 +258,8 @@ void AdHocNetPlugin::OnSimCmdResponse(
     if (this->listStartResponses.size() == this->robotList.size())
     {
       this->CheckTopoChange();
-      this->startTime = this->world->GetSimTime();
-      this->lastStatPrintTime = this->world->GetSimTime();
+      this->startTime = this->world->SimTime();
+      this->lastStatPrintTime = this->world->SimTime();
       this->started = true;
 
       // start recording
@@ -278,7 +278,7 @@ void AdHocNetPlugin::OnSimCmdResponse(
     // if all are done.
     if (this->listStopResponses.size() == this->robotList.size())
     {
-      common::Time current = this->world->GetSimTime();
+      common::Time current = this->world->SimTime();
       double elapsed = current.Double() - this->startTime.Double();
 
       int sentMessageCount = 0;
@@ -348,7 +348,7 @@ void AdHocNetPlugin::OnSimCmdResponse(
       // Reset the robot's pose.
       for (auto robotName: this->robotList)
       {
-        auto model = this->world->GetModel(robotName);
+        auto model = this->world->ModelByName(robotName);
         for (auto link: model->GetLinks())
         {
           link->ResetPhysicsStates();
@@ -404,16 +404,16 @@ int AdHocNetPlugin::CheckTopoChange()
     for (int j = i + 1; j <= 10; ++j)
     {
       physics::ModelPtr robot1
-        = this->world->GetModel("robot" + std::to_string(i));
+        = this->world->ModelByName("robot" + std::to_string(i));
       physics::ModelPtr robot2
-        = this->world->GetModel("robot" + std::to_string(j));
+        = this->world->ModelByName("robot" + std::to_string(j));
 
       if (!robot1 || !robot2)
         continue;
 
       auto diffVec
-        = robot1->GetWorldPose().CoordPositionSub(robot2->GetWorldPose());
-      double length = fabs(diffVec.GetLength());
+        = robot1->WorldPose().CoordPositionSub(robot2->WorldPose());
+      double length = fabs(diffVec.Length());
 
       bool inRange = (length <= this->commRange);
       if (inRange != this->topoList[std::to_string(i)+":"+std::to_string(j)])
@@ -501,9 +501,9 @@ void AdHocNetPlugin::StartNewTrial()
   else
   {
     gzmsg << "Simulation done: " << std::endl
-          << this->world->GetSimTime().FormattedString() << " (Sim Time)"
+          << this->world->SimTime().FormattedString() << " (Sim Time)"
           << std::endl
-          << this->world->GetRealTime().FormattedString() << " (Real Time)"
+          << this->world->RealTime().FormattedString() << " (Real Time)"
           << std::endl;
   }
 }

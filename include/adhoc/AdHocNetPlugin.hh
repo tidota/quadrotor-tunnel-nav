@@ -14,7 +14,6 @@
 
 #include <gazebo/common/Event.hh>
 #include <gazebo/common/Plugin.hh>
-#include <gazebo/math/Pose.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
@@ -142,7 +141,7 @@ namespace gazebo
     private: std::vector<std::string> robotList;
 
     /// \brief list of maps from robot's name to its initial pose.
-    private: std::map<std::string, math::Pose> initPoseList;
+    private: std::map<std::string, POSE> initPoseList;
 
     /// \brief list of simulation settings.
     private: std::queue<std::string> settingList;
