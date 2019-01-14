@@ -277,6 +277,12 @@ add_executable(keep_going_node src/wall_follow/mains/keep_going.cpp)
 add_dependencies(keep_going_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} keep_going_lib)
 target_link_libraries(keep_going_node ${catkin_LIBRARIES} keep_going_lib)
 
+
+# SLAM
+add_executable(slam src/slam/slam.cpp)
+add_dependencies(slam ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(slam ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
