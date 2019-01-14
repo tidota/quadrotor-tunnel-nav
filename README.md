@@ -37,8 +37,13 @@ At the moment (as of Dec 25, 2017), it contains six nodes.
 
 ![diagram of nodes](./img/nodes_reactive.png)
 
-## Other approaches?
-TBA
+## SLAM
+
+Currently working on implementation of SLAM.
+
+_TODO_:
+- OctoMap
+- Localization
 
 ---
 
