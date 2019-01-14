@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
   hector_quadrotor_gazebo
   hector_gazebo_worlds
   hector_uav_msgs
+  octomap_ros
+  octomap_msgs
   roscpp
   rospy
   std_msgs
@@ -26,6 +28,8 @@ file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/include)
 
 find_package(gazebo REQUIRED)
 find_package(ignition-transport4 REQUIRED)
+
+find_package(octomap REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
@@ -133,9 +137,10 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${GAZEBO_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
-  include
+  ${OCTOMAP_INCLUDE_DIRS}
 )
 
 link_directories(
@@ -281,7 +286,7 @@ target_link_libraries(keep_going_node ${catkin_LIBRARIES} keep_going_lib)
 # SLAM
 add_executable(slam src/slam/slam.cpp)
 add_dependencies(slam ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(slam ${catkin_LIBRARIES})
+target_link_libraries(slam ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
 
 #############
 ## Install ##

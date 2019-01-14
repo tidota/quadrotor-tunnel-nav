@@ -8,6 +8,7 @@
 
 #include <map>
 
+#include <octomap/octomap.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Range.h>
 
@@ -88,9 +89,16 @@ public:
     subscribe_D(0)
     subscribe_D(1)
     subscribe_D(2)
+
+    m_octree = new octomap::OcTree(0.05);
+    m_octree->setProbHit(0.7);
+    m_octree->setProbMiss(0.4);
+    m_octree->setClampingThresMin(0.12);
+    m_octree->setClampingThresMax(0.97);
   }
   virtual ~SLAM_BASE()
   {
+    delete m_octree;
   }
 
 protected:
@@ -122,6 +130,9 @@ public:
   def_updateRange_D(0)
   def_updateRange_D(1)
   def_updateRange_D(2)
+
+protected:
+  octomap::OcTree *m_octree;
 };
 
 #endif // _SLAM_BASE_HPP
