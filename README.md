@@ -51,10 +51,10 @@ As of October 14, 2018, the second one is experimental.
 
 1. Ubuntu16.04 (Xenial)
     - ROS: Kinetic
-    - Gazebo: gazebo7
+    - Gazebo: Gazebo7
 1. Ubuntu18.04 (Bionic)
     - ROS: Melodic
-    - Gazebo: gazebo9
+    - Gazebo: Gazebo9
 
 ##  OS: Ubuntu 16.04, ROS: Kinetic, Gazebo7
 
@@ -63,7 +63,7 @@ This package requires [hector-quadrotor packages](https://github.com/tu-darmstad
 ### Installation of this package
 ```
 cd ~/catkin/src
-git clone git@github.com:tidota/quadrotor-tunnel-nav.git
+git clone --branch gazebo7 git@github.com:tidota/quadrotor-tunnel-nav.git
 cd ..
 catkin_make
 ```
@@ -89,7 +89,7 @@ In the `src`, make or download [quadrotor_tunnel_nav.rosinstall](https://raw.git
 - git: {local-name: hector_gazebo, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_gazebo.git', version: kinetic-devel}
 - git: {local-name: hector_models, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_models.git', version: kinetic-devel}
 - git: {local-name: hector_slam, uri: 'https://github.com/tu-darmstadt-ros-pkg/hector_slam.git', version: catkin}
-- git: {local-name: quadrotor-tunnel-nav, uri: 'https://github.com/tidota/quadrotor-tunnel-nav.git', version: gazebo9}
+- git: {local-name: quadrotor-tunnel-nav, uri: 'https://github.com/tidota/quadrotor-tunnel-nav.git', version: master}
 ```
 
 Finally, run the following commands.
