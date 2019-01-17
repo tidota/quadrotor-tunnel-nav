@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="ns" default="robot"/>
+
+  <group ns="$(arg ns)">
+    <node name="slam" pkg="quadrotor_tunnel_nav" type="slam" args="" />
+    
+    <!-- Console -->
+    <include file="$(find quadrotor_tunnel_nav)/launch/manual/sanwa_gamepad.launch" >
+      <arg name="control_mode" value="velocity"/>
+    </include>
+  </group>
+
+</launch>
