@@ -8,14 +8,39 @@ UAV tunnel navigation control, running on ROS. Ad hoc network and enclosed envir
 ![](./img/simu_Y.png)
 A tunnel with two branches. It was manually modeled by using Blender.
 
+To run the simulated environment with a single UAV,
+```
+roslaunch quadrotor_tunnel_nav single_uav_Y-tunnel.launch
+```
+To run the simulated environment with two UAVs,
+```
+roslaunch quadrotor_tunnel_nav multi_uav_Y-tunnel.launch
+```
+
 ## Indian Tunnel
 ![](./img/simu_Indian.png)
 The Indian lava tube, based on [the ranging sensor data provided by CMU](http://www.frc.ri.cmu.edu/projects/NIAC_Caves/). The details of generation of this 3D model can be found here:
 https://github.com/tidota/poisson-sampling
 
+To run the simulated environment with a single UAV,
+```
+roslaunch quadrotor_tunnel_nav single_uav_IndianTunnel.launch
+```
+To run the simulated environment with two UAVs,
+```
+roslaunch quadrotor_tunnel_nav multi_uav_IndianTunnel.launch
+```
+
 ---
 
 # Navigation Algorithms/Code
+
+The hector-quadrotor (built from the source) apparently [disables the motors in default](https://answers.ros.org/question/256590/hector-quadcopter-not-responding-to-cmd_vel-messages/) and it is required to call `enable_motors` service. The code in this repository basically calls this service internally, but in some case, here is how to call the service to enable the motors.
+```
+rosservice call /enable_motors true
+```
+The service name may be different and you should search it by `rosservice list | grep enable_motors`.
+
 ## Reactive Agent
 The program is composed of several nodes each of which represent a node to take care of a specific behavior.
 Every node takes the same sensory data and makes its own decision or control outputs (geometry_msgs/Twist).
@@ -37,6 +62,18 @@ At the moment (as of Dec 25, 2017), it contains six nodes.
 
 ![diagram of nodes](./img/nodes_reactive.png)
 
+### How to run?
+
+**Assume you have already launched the gazebo by one of the launch files above.**
+To run reactive agents for the signle UAV,
+```
+roslaunch quadrotor_tunnel_nav single_control.launch
+```
+To run reactive agents for the two UAVs,
+```
+roslaunch quadrotor_tunnel_nav multi_control.launch
+```
+
 ## SLAM
 
 Currently working on implementation of SLAM.
@@ -44,6 +81,12 @@ Currently working on implementation of SLAM.
 _TODO_:
 - OctoMap
 - Localization
+
+### How to run?
+**Assume you have already launched `signle_uav_*.launch`.**
+```
+roslaunch quadrotor_tunnel_nav start_slam.launch
+```
 
 ---
 
@@ -103,30 +146,6 @@ wstool init src ./src/quadrotor_tunnel_nav.rosinstall
 wstool update -t src
 rosdep install --from-paths src --ignore-src --rosdistro=melodic -y
 ```
-
----
-
-# How to run
-You need to launch two parts in separated terminal windows: Gazebo (simulation environment) and controller.
-
-## Gazebo:
-
-Y-tunnel
-```
-roslaunch quadrotor_tunnel_nav uav_Y-tunnel.launch
-```
-Indian Tunnel
-```
-roslaunch quadrotor_tunnel_nav uav_IndianTunnel.launch
-```
-
-## Controller:
-The hector-quadrotor (built from the source) apparently [disables the motors in default](https://answers.ros.org/question/256590/hector-quadcopter-not-responding-to-cmd_vel-messages/) and it is required to enable them.
-```
-rosservice call /enable_motors true
-roslaunch quadrotor_tunnel_nav control.launch
-```
-Then, you can see a quadrotor flying inside a tunnel in the simulator window.
 
 ---
 
