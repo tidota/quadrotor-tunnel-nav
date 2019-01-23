@@ -8,6 +8,7 @@
 
 #include <map>
 
+#include <geometry_msgs/PoseStamped.h>
 #include <octomap/octomap.h>
 #include <octomap/math/Pose6D.h>
 #include <ros/ros.h>
@@ -93,6 +94,9 @@ public:
     subscribe_D(1)
     subscribe_D(2)
 
+    r_pose_sub = n.subscribe(
+      "ground_truth_to_tf/pose", 1, &SLAM_BASE::updateRobotPose, this);
+
     // sensor's pose w.r.t. the robot's reference frame.
     pose_h[0] = octomath::Pose6D( 0.05,  0.00,  0.05,  0.00,  0.00,  0.00);
     pose_h[1] = octomath::Pose6D( 0.05,  0.05,  0.05,  0.00,  0.00,  PI/4);
@@ -129,6 +133,8 @@ private:
   ros::Subscriber rng_u_sub[3];
   ros::Subscriber rng_d_sub[3];
 
+  ros::Subscriber r_pose_sub;
+
 protected:
   sensor_msgs::Range rng_h[8];
   sensor_msgs::Range rng_u[3];
@@ -137,6 +143,10 @@ protected:
   octomath::Pose6D pose_h[8];
   octomath::Pose6D pose_u[3];
   octomath::Pose6D pose_d[3];
+
+  octomap::OcTree *m_octree;
+
+  geometry_msgs::PoseStamped r_pose;
 
 public:
   def_updateRange_H(0)
@@ -154,8 +164,11 @@ public:
   def_updateRange_D(1)
   def_updateRange_D(2)
 
-protected:
-  octomap::OcTree *m_octree;
+  void updateRobotPose(const geometry_msgs::PoseStamped::ConstPtr& new_pose)
+  {
+    ROS_INFO("This message is from updateRobotPose");
+    r_pose = *new_pose;
+  }
 };
 
 #endif // _SLAM_BASE_HPP
