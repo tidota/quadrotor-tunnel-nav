@@ -94,6 +94,13 @@ void SLAM::OnStartMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
 void SLAM::proc()
 {
   ROS_INFO("This message is from proc() of slam.cpp");
+
+  // what I need:
+  // ranging data (rng_x)
+  // each sensor's location (org_x) w.r.t. the robot
+  // the robot's location
+  // m_octree
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

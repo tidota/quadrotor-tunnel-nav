@@ -64,7 +64,7 @@ At the moment (as of Dec 25, 2017), it contains six nodes.
 
 ### How to run?
 
-**Assume you have already launched the gazebo by one of the launch files above.**
+**At first, launch the gazebo by one of the launch files above.**
 To run reactive agents for the signle UAV,
 ```
 roslaunch quadrotor_tunnel_nav single_control.launch
@@ -79,11 +79,11 @@ roslaunch quadrotor_tunnel_nav multi_control.launch
 Currently working on implementation of SLAM.
 
 _TODO_:
-- OctoMap
-- Localization
+- [ ] OctoMap
+- [ ] Localization
 
 ### How to run?
-**Assume you have already launched `signle_uav_*.launch`.**
+**At first, launch `signle_uav_*.launch`.**
 ```
 roslaunch quadrotor_tunnel_nav start_slam.launch
 ```

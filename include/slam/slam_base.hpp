@@ -9,6 +9,7 @@
 #include <map>
 
 #include <octomap/octomap.h>
+#include <octomap/math/Pose6D.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Range.h>
 
@@ -30,6 +31,8 @@
 #define TOPIC_RANGE_D0 "range_dfront"
 #define TOPIC_RANGE_D1 "range_down"
 #define TOPIC_RANGE_D2 "range_drear"
+
+#define PI 3.14159265
 
 //////////////////////////////////////////////////////////////////
 // macros
@@ -90,6 +93,22 @@ public:
     subscribe_D(1)
     subscribe_D(2)
 
+    // sensor's pose w.r.t. the robot's reference frame.
+    pose_h[0] = octomath::Pose6D( 0.05,  0.00,  0.05,  0.00,  0.00,  0.00);
+    pose_h[1] = octomath::Pose6D( 0.05,  0.05,  0.05,  0.00,  0.00,  PI/4);
+    pose_h[2] = octomath::Pose6D( 0.00,  0.05,  0.05,  0.00,  0.00,  PI/2);
+    pose_h[3] = octomath::Pose6D(-0.05,  0.05,  0.05,  0.00,  0.00,3*PI/4);
+    pose_h[4] = octomath::Pose6D(-0.05,  0.00,  0.05,  0.00,  0.00,  PI);
+    pose_h[5] = octomath::Pose6D(-0.05, -0.05,  0.05,  0.00,  0.00,5*PI/4);
+    pose_h[6] = octomath::Pose6D( 0.00, -0.05,  0.05,  0.00,  0.00,3*PI/2);
+    pose_h[7] = octomath::Pose6D( 0.05, -0.05,  0.05,  0.00,  0.00,7*PI/4);
+    pose_d[0] = octomath::Pose6D( 0.05/3,  0.00,  0.05,  0.00, -PI/4,  0.00);
+    pose_d[1] = octomath::Pose6D( 0.0000,  0.00,  0.05,  0.00, -PI/2,  0.00);
+    pose_d[2] = octomath::Pose6D(-0.05/3,  0.00,  0.05,  0.00, -PI/4,  PI);
+    pose_u[0] = octomath::Pose6D( 0.05/3,  0.00, -0.05,  0.00,  PI/4,  0.00);
+    pose_u[1] = octomath::Pose6D( 0.0000,  0.00, -0.05,  0.00,  PI/2,  0.00);
+    pose_u[2] = octomath::Pose6D(-0.05/3,  0.00, -0.05,  0.00,  PI/4,  PI);
+
     m_octree = new octomap::OcTree(0.05);
     m_octree->setProbHit(0.7);
     m_octree->setProbMiss(0.4);
@@ -114,6 +133,10 @@ protected:
   sensor_msgs::Range rng_h[8];
   sensor_msgs::Range rng_u[3];
   sensor_msgs::Range rng_d[3];
+
+  octomath::Pose6D pose_h[8];
+  octomath::Pose6D pose_u[3];
+  octomath::Pose6D pose_d[3];
 
 public:
   def_updateRange_H(0)
