@@ -146,6 +146,14 @@ void SLAM::proc()
 
     m_octree->insertRay(sensor_global, point_global, 9.0);
   }
+
+  octomap_msgs::Octomap map;
+  map.header.frame_id = "base_link";
+  map.header.stamp = ros::Time::now();
+  if (octomap_msgs::fullMapToMsg(*m_octree, map))
+    map_pub.publish(map);
+  else
+    ROS_ERROR("Error serializing OctoMap");
 }
 
 

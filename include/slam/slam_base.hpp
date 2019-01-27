@@ -11,6 +11,8 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <octomap/octomap.h>
 #include <octomap/math/Pose6D.h>
+#include <octomap_msgs/conversions.h>
+#include <octomap_msgs/Octomap.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Range.h>
 
@@ -97,6 +99,8 @@ public:
     r_pose_sub = n.subscribe(
       "ground_truth_to_tf/pose", 1, &SLAM_BASE::updateRobotPose, this);
 
+    map_pub = n.advertise<octomap_msgs::Octomap>("octomap", 1);
+
     // sensor's pose w.r.t. the robot's reference frame.
     pose_h[0] = octomath::Pose6D( 0.05,  0.00,  0.05,  0.00,  0.00,  0.00);
     pose_h[1] = octomath::Pose6D( 0.05,  0.05,  0.05,  0.00,  0.00,  PI/4);
@@ -147,6 +151,8 @@ protected:
   octomap::OcTree *m_octree;
 
   geometry_msgs::PoseStamped r_pose;
+
+  ros::Publisher map_pub;
 
 public:
   def_updateRange_H(0)
