@@ -100,8 +100,55 @@ void SLAM::proc()
   // each sensor's location (org_x) w.r.t. the robot
   // the robot's location
   // m_octree
-  
+
+  // TODO:
+  // for each sensor reading:
+  // Translate the sensor's location
+  // Calculate the detected point
+  // update the octree map
+
+  octomath::Vector3 r_position(
+    r_pose.pose.position.x, r_pose.pose.position.y, r_pose.pose.position.z);
+  octomath::Quaternion r_rotation(
+    r_pose.pose.orientation.w, r_pose.pose.orientation.x,
+    r_pose.pose.orientation.y, r_pose.pose.orientation.z);
+  octomath::Pose6D pose_robot(r_position, r_rotation);
+
+  for (int i = 0; i < 8; ++i)
+  {
+    octomath::Vector3 point_sensor(rng_h[i].range, 0, 0);
+
+    octomath::Vector3 sensor_global = pose_robot.transform(pose_h[i].trans());
+    octomath::Vector3 point_global
+      = pose_robot.transform(pose_h[i].transform(point_sensor));
+
+    m_octree->insertRay(sensor_global, point_global, 9.0);
+  }
+
+  for (int i = 0; i < 3; ++i)
+  {
+    octomath::Vector3 point_sensor(rng_u[i].range, 0, 0);
+
+    octomath::Vector3 sensor_global = pose_robot.transform(pose_u[i].trans());
+    octomath::Vector3 point_global
+      = pose_robot.transform(pose_u[i].transform(point_sensor));
+
+    m_octree->insertRay(sensor_global, point_global, 9.0);
+  }
+
+  for (int i = 0; i < 3; ++i)
+  {
+    octomath::Vector3 point_sensor(rng_d[i].range, 0, 0);
+
+    octomath::Vector3 sensor_global = pose_robot.transform(pose_d[i].trans());
+    octomath::Vector3 point_global
+      = pose_robot.transform(pose_d[i].transform(point_sensor));
+
+    m_octree->insertRay(sensor_global, point_global, 9.0);
+  }
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 SLAM::SLAM(const bool _enable): enable(_enable)
