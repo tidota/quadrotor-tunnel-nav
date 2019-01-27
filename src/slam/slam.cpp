@@ -107,6 +107,8 @@ void SLAM::proc()
   // Calculate the detected point
   // update the octree map
 
+  auto rostime = ros::Time::now();
+
   octomath::Vector3 r_position(
     r_pose.pose.position.x, r_pose.pose.position.y, r_pose.pose.position.z);
   octomath::Quaternion r_rotation(
@@ -148,12 +150,69 @@ void SLAM::proc()
   }
 
   octomap_msgs::Octomap map;
-  map.header.frame_id = "base_link";
-  map.header.stamp = ros::Time::now();
+  map.header.frame_id = "world";
+  map.header.stamp = rostime;
   if (octomap_msgs::fullMapToMsg(*m_octree, map))
     map_pub.publish(map);
   else
     ROS_ERROR("Error serializing OctoMap");
+
+  if (marker_counter >= 5)
+  {
+    m_octree->toMaxLikelihood();
+    m_octree->prune();
+
+    for (octomap::OcTree::iterator it = m_octree->begin(m_octree->getTreeDepth()),
+         end = m_octree->end(); it != end; ++it)
+    {
+
+      if (m_octree->isNodeOccupied(*it))
+      {
+
+        double x = it.getX();
+        double z = it.getZ();
+        double y = it.getY();
+
+        unsigned idx = it.getDepth();
+        geometry_msgs::Point cubeCenter;
+        cubeCenter.x = x;
+        cubeCenter.y = y;
+        cubeCenter.z = z;
+
+        occupiedNodesVis.markers[idx].points.push_back(cubeCenter);
+      }
+    }
+
+    for (unsigned i= 0; i < occupiedNodesVis.markers.size(); ++i)
+    {
+      double size = m_octree->getNodeSize(i);
+
+      occupiedNodesVis.markers[i].header.frame_id = "world";
+      occupiedNodesVis.markers[i].header.stamp = rostime;
+      occupiedNodesVis.markers[i].ns = "robot";
+      occupiedNodesVis.markers[i].id = i;
+      occupiedNodesVis.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
+      occupiedNodesVis.markers[i].scale.x = size;
+      occupiedNodesVis.markers[i].scale.y = size;
+      occupiedNodesVis.markers[i].scale.z = size;
+
+      occupiedNodesVis.markers[i].color = m_color;
+
+      if (occupiedNodesVis.markers[i].points.size() > 0)
+        occupiedNodesVis.markers[i].action = visualization_msgs::Marker::ADD;
+      else
+        occupiedNodesVis.markers[i].action = visualization_msgs::Marker::DELETE;
+    }
+
+    marker_pub.publish(occupiedNodesVis);
+
+    marker_counter = 0;
+  }
+  else
+  {
+    marker_counter++;
+  }
+
 }
 
 

@@ -15,6 +15,8 @@
 #include <octomap_msgs/Octomap.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Range.h>
+#include <std_msgs/ColorRGBA.h>
+#include <visualization_msgs/MarkerArray.h>
 
 ///////////////////////////////////////////////////////////////
 // Constants
@@ -110,18 +112,27 @@ public:
     pose_h[5] = octomath::Pose6D(-0.05, -0.05,  0.05,  0.00,  0.00,5*PI/4);
     pose_h[6] = octomath::Pose6D( 0.00, -0.05,  0.05,  0.00,  0.00,3*PI/2);
     pose_h[7] = octomath::Pose6D( 0.05, -0.05,  0.05,  0.00,  0.00,7*PI/4);
-    pose_d[0] = octomath::Pose6D( 0.05/3,  0.00,  0.05,  0.00, -PI/4,  0.00);
-    pose_d[1] = octomath::Pose6D( 0.0000,  0.00,  0.05,  0.00, -PI/2,  0.00);
-    pose_d[2] = octomath::Pose6D(-0.05/3,  0.00,  0.05,  0.00, -PI/4,  PI);
-    pose_u[0] = octomath::Pose6D( 0.05/3,  0.00, -0.05,  0.00,  PI/4,  0.00);
-    pose_u[1] = octomath::Pose6D( 0.0000,  0.00, -0.05,  0.00,  PI/2,  0.00);
-    pose_u[2] = octomath::Pose6D(-0.05/3,  0.00, -0.05,  0.00,  PI/4,  PI);
+    pose_d[0] = octomath::Pose6D( 0.05/3,  0.00,  0.05,  0.00,  PI/4,  0.00);
+    pose_d[1] = octomath::Pose6D( 0.0000,  0.00,  0.05,  0.00,  PI/2,  0.00);
+    pose_d[2] = octomath::Pose6D(-0.05/3,  0.00,  0.05,  0.00,  PI/4,  PI);
+    pose_u[0] = octomath::Pose6D( 0.05/3,  0.00, -0.05,  0.00, -PI/4,  0.00);
+    pose_u[1] = octomath::Pose6D( 0.0000,  0.00, -0.05,  0.00, -PI/2,  0.00);
+    pose_u[2] = octomath::Pose6D(-0.05/3,  0.00, -0.05,  0.00, -PI/4,  PI);
 
-    m_octree = new octomap::OcTree(0.05);
+    m_octree = new octomap::OcTree(0.25);
     m_octree->setProbHit(0.7);
     m_octree->setProbMiss(0.4);
     m_octree->setClampingThresMin(0.12);
     m_octree->setClampingThresMax(0.97);
+
+    occupiedNodesVis.markers.resize(m_octree->getTreeDepth()+1);
+
+    marker_pub = n.advertise<visualization_msgs::MarkerArray>("map_marker", 1);
+    m_color.r = 1;
+    m_color.g = 1;
+    m_color.b = 0.3;
+    m_color.a = 1;
+    marker_counter = 0;
   }
   virtual ~SLAM_BASE()
   {
@@ -153,6 +164,11 @@ protected:
   geometry_msgs::PoseStamped r_pose;
 
   ros::Publisher map_pub;
+
+  int marker_counter;
+  visualization_msgs::MarkerArray occupiedNodesVis;
+  std_msgs::ColorRGBA m_color;
+  ros::Publisher marker_pub;
 
 public:
   def_updateRange_H(0)
