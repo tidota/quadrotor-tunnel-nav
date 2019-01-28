@@ -162,13 +162,12 @@ void SLAM::proc()
     m_octree->toMaxLikelihood();
     m_octree->prune();
 
-    for (octomap::OcTree::iterator it = m_octree->begin(m_octree->getTreeDepth()),
-         end = m_octree->end(); it != end; ++it)
+    for (
+      octomap::OcTree::iterator it = m_octree->begin(m_octree->getTreeDepth()),
+      end = m_octree->end(); it != end; ++it)
     {
-
-      if (m_octree->isNodeOccupied(*it))
+      if (m_octree->isNodeAtThreshold(*it))
       {
-
         double x = it.getX();
         double z = it.getZ();
         double y = it.getY();
@@ -179,7 +178,14 @@ void SLAM::proc()
         cubeCenter.y = y;
         cubeCenter.z = z;
 
-        occupiedNodesVis.markers[idx].points.push_back(cubeCenter);
+        if (m_octree->isNodeOccupied(*it))
+        {
+          occupiedNodesVis.markers[idx].points.push_back(cubeCenter);
+        }
+        else
+        {
+          freeNodesVis.markers[idx].points.push_back(cubeCenter);
+        }
       }
     }
 
@@ -196,15 +202,36 @@ void SLAM::proc()
       occupiedNodesVis.markers[i].scale.y = size;
       occupiedNodesVis.markers[i].scale.z = size;
 
-      occupiedNodesVis.markers[i].color = m_color;
+      occupiedNodesVis.markers[i].color = m_color_occupied;
 
       if (occupiedNodesVis.markers[i].points.size() > 0)
         occupiedNodesVis.markers[i].action = visualization_msgs::Marker::ADD;
       else
         occupiedNodesVis.markers[i].action = visualization_msgs::Marker::DELETE;
     }
+    marker_occupied_pub.publish(occupiedNodesVis);
 
-    marker_pub.publish(occupiedNodesVis);
+    for (unsigned i= 0; i < freeNodesVis.markers.size(); ++i)
+    {
+      double size = m_octree->getNodeSize(i);
+
+      freeNodesVis.markers[i].header.frame_id = "world";
+      freeNodesVis.markers[i].header.stamp = rostime;
+      freeNodesVis.markers[i].ns = "robot";
+      freeNodesVis.markers[i].id = i;
+      freeNodesVis.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
+      freeNodesVis.markers[i].scale.x = size;
+      freeNodesVis.markers[i].scale.y = size;
+      freeNodesVis.markers[i].scale.z = size;
+
+      freeNodesVis.markers[i].color = m_color_free;
+
+      if (freeNodesVis.markers[i].points.size() > 0)
+        freeNodesVis.markers[i].action = visualization_msgs::Marker::ADD;
+      else
+        freeNodesVis.markers[i].action = visualization_msgs::Marker::DELETE;
+    }
+    marker_free_pub.publish(freeNodesVis);
 
     marker_counter = 0;
   }

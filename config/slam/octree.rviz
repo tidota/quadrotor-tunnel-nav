@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /MarkerArray1
       Splitter Ratio: 0.5
     Tree Height: 694
   - Class: rviz/Selection
@@ -52,7 +53,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /robot/map_marker
+      Marker Topic: /robot/map_marker_occupied
       Name: MarkerArray
       Namespaces:
         robot: true
@@ -72,6 +73,14 @@ Visualization Manager:
       Shape: Arrow
       Topic: /robot/ground_truth_to_tf/pose
       Unreliable: false
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /robot/map_marker_free
+      Name: MarkerArray
+      Namespaces:
+        robot: true
+      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:

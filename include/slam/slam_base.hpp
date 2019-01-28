@@ -126,12 +126,21 @@ public:
     m_octree->setClampingThresMax(0.97);
 
     occupiedNodesVis.markers.resize(m_octree->getTreeDepth()+1);
+    m_color_occupied.r = 1;
+    m_color_occupied.g = 1;
+    m_color_occupied.b = 0.3;
+    m_color_occupied.a = 0.5;
+    freeNodesVis.markers.resize(m_octree->getTreeDepth()+1);
+    m_color_free.r = 1;
+    m_color_free.g = 1;
+    m_color_free.b = 1;
+    m_color_free.a = 0.05;
 
-    marker_pub = n.advertise<visualization_msgs::MarkerArray>("map_marker", 1);
-    m_color.r = 1;
-    m_color.g = 1;
-    m_color.b = 0.3;
-    m_color.a = 1;
+    marker_occupied_pub
+      = n.advertise<visualization_msgs::MarkerArray>("map_marker_occupied", 1);
+    marker_free_pub
+      = n.advertise<visualization_msgs::MarkerArray>("map_marker_free", 1);
+
     marker_counter = 0;
   }
   virtual ~SLAM_BASE()
@@ -167,8 +176,11 @@ protected:
 
   int marker_counter;
   visualization_msgs::MarkerArray occupiedNodesVis;
-  std_msgs::ColorRGBA m_color;
-  ros::Publisher marker_pub;
+  std_msgs::ColorRGBA m_color_occupied;
+  visualization_msgs::MarkerArray freeNodesVis;
+  std_msgs::ColorRGBA m_color_free;
+  ros::Publisher marker_occupied_pub;
+  ros::Publisher marker_free_pub;
 
 public:
   def_updateRange_H(0)
