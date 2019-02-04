@@ -3,6 +3,8 @@
 // Implementation of SLAM
 //
 
+#include <cmath>
+
 #include <signal.h>
 
 #include <geometry_msgs/Twist.h>
@@ -181,6 +183,16 @@ void SLAM::proc()
         if (m_octree->isNodeOccupied(*it))
         {
           occupiedNodesVis.markers[idx].points.push_back(cubeCenter);
+
+          double cosR = std::cos(PI*z/10.0)*0.8+0.2;
+          double cosG = std::cos(PI*(2.0/3.0+z/10.0))*0.8+0.2;
+          double cosB = std::cos(PI*(4.0/3.0+z/10.0))*0.8+0.2;
+          std_msgs::ColorRGBA clr;
+          clr.r = (cosR > 0)? cosR: 0;
+          clr.g = (cosG > 0)? cosG: 0;
+          clr.b = (cosB > 0)? cosB: 0;
+          clr.a = 0.5;
+          occupiedNodesVis.markers[idx].colors.push_back(clr);
         }
         else
         {
@@ -202,7 +214,7 @@ void SLAM::proc()
       occupiedNodesVis.markers[i].scale.y = size;
       occupiedNodesVis.markers[i].scale.z = size;
 
-      occupiedNodesVis.markers[i].color = m_color_occupied;
+      //occupiedNodesVis.markers[i].color = m_color_occupied;
 
       if (occupiedNodesVis.markers[i].points.size() > 0)
         occupiedNodesVis.markers[i].action = visualization_msgs::Marker::ADD;
