@@ -1,0 +1,32 @@
+# Ros loop update frequency
+update_loop_frequency: 100 # Hz (or 100 updates per sec)
+
+# Absolute path to the folder where to save *.simplemap
+# Note: everything in '/tmp' folder is removed if computer is restarted
+simplemap_save_folder: /tmp/
+
+# More documentation:
+# http://www.mrpt.org/tutorials/programming/odometry-and-motion-models/probabilistic_motion_models/
+# http://mrpt.ual.es/reference/devel/_c_action_robot_movement3_d_8cpp_source.html
+motion_model:
+  type: "6dof" # choose thrun or gaussian
+  6dof_motion_model_options:
+    a1: 0.05
+    a2: 0.05
+    a3: 0.05
+    a4: 0.05
+    a5: 0.05
+    a6: 0.05
+    a7: 0.05
+    a8: 0.05
+    a9: 0.05
+    a10: 0.05
+    additional_std_XYZ:  0.001
+    additional_std_angle: 0.05
+
+mrpt_visualization_options:
+  show_window:         true
+  camera_follow_robot: false
+  window_update_delay: 1     # [ms]
+  width:               600   # [pix]
+  height:              500   # [pix]

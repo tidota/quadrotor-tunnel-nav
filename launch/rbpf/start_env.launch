@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Start Gazebo with wg world running in (max) realtime -->
+  <include file="$(find hector_gazebo_worlds)/launch/start.launch">
+   <arg name="world" value="$(find hi_lavatube)/worlds/hi_lavatube.world"/>
+  </include>
+
+</launch>

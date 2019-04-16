@@ -22,6 +22,12 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+
+  laser_geometry
+  nav_msgs
+  mrpt_bridge
+  visualization_msgs
+  dynamic_reconfigure
 )
 
 file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/include)
@@ -29,7 +35,15 @@ file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/include)
 find_package(gazebo REQUIRED)
 find_package(ignition-transport4 REQUIRED)
 
+# Octomap
 find_package(octomap REQUIRED)
+
+# MRPT packages
+find_package(MRPT 1.5 REQUIRED gui obs slam)
+message(STATUS "MRPT_VERSION: ${MRPT_VERSION}")
+if(MRPT_VERSION VERSION_LESS "1.9.9")
+  set (CMAKE_CXX_STANDARD 14)
+endif()
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
@@ -125,7 +139,9 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES quadrotor_tunnel_nav
-  CATKIN_DEPENDS message_runtime gazebo_ros hector_gazebo_plugins hector_quadrotor_description hector_gazebo_worlds roscpp rospy std_msgs
+  CATKIN_DEPENDS
+    message_runtime gazebo_ros hector_gazebo_plugins hector_quadrotor_description hector_gazebo_worlds roscpp rospy std_msgs
+    visualization_msgs nav_msgs sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -287,6 +303,17 @@ target_link_libraries(keep_going_node ${catkin_LIBRARIES} keep_going_lib)
 add_executable(slam src/slam/slam.cpp)
 add_dependencies(slam ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(slam ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
+
+# RBPF
+add_executable(mrpt_rbpf_slam
+    src/rbpf/mrpt_rbpf_slam.cpp
+    src/rbpf/mrpt_rbpf_slam_wrapper.cpp
+    src/rbpf/mrpt_rbpf_slam_node.cpp
+    src/rbpf/options.cpp
+)
+TARGET_LINK_LIBRARIES(mrpt_rbpf_slam ${MRPT_LIBRARIES}
+    ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
