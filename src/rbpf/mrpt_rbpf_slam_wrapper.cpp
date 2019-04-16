@@ -184,6 +184,7 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
     pair.second.pop();
 
     CObservationRange::Ptr range = CObservationRange::Create();
+    range->sensedData.resize(1);
 
     mrpt::poses::CPose3D pose = range_poses_[p_msg->header.frame_id];
     mrpt_bridge::range::ros2mrpt(*p_msg, *range);
