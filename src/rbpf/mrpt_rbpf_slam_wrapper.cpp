@@ -188,11 +188,25 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
 
     mrpt::poses::CPose3D pose = range_poses_[p_msg->header.frame_id];
     mrpt_bridge::range::ros2mrpt(*p_msg, *range);
+    mrpt_bridge::convert(p_msg->header.stamp, range->timestamp);
 
     sensory_frame_ = CSensoryFrame::Create();
 
     CObservation::Ptr obs = CObservation::Ptr(range);
     sensory_frame_->insert(obs);
+    //timeLastUpdate_ = obs->timestamp;
+
+    // ros::Time stamp;
+    // mrpt_bridge::convert(timeLastUpdate_, stamp);
+    // ROS_INFO_STREAM("==========================================================");
+    // ROS_INFO_STREAM(
+    //   "Time: " << ros::Time::now()
+    //   << ", p_msg->header.stamp: " << p_msg->header.stamp
+    //   << ", range->timestamp: " << range->timestamp
+    //   << ", stamp: " << stamp);
+    // ROS_INFO_STREAM(
+    //   "p_msg->range: " << p_msg->range
+    //   << ", range->sensedData[0].sensedDistance: " << range->sensedData[0].sensedDistance);
   }
 
   //CObservationOdometry::Ptr odometry;
@@ -540,6 +554,7 @@ void PFslamWrapper::publishTF()
   mapBuilder_.mapPDF.getEstimatedPosePDF(curPDF);
 
   curPDF.getMean(robotPose);
+  ROS_INFO_STREAM("robotPose: " << robotPose.x() << ", " << robotPose.y() << ", " << robotPose.z());
 
   tf::Stamped<tf::Pose> odom_to_map;
   tf::Transform tmp_tf;
