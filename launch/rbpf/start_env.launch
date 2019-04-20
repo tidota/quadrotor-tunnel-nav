@@ -2,7 +2,13 @@
 <launch>
   <!-- Start Gazebo with wg world running in (max) realtime -->
   <include file="$(find hector_gazebo_worlds)/launch/start.launch">
-   <arg name="world" value="$(find hi_lavatube)/worlds/hi_lavatube.world"/>
+   <arg name="world" value="$(find quadrotor_tunnel_nav)/worlds/IndianTunnel.world"/>
   </include>
+
+  <!-- Spawn simulated quadrotor uav -->
+  <include file="$(find quadrotor_tunnel_nav)/launch/rbpf/start_robot.launch"/>
+
+  <!-- Start rviz visualization with preset config
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find quadrotor_tunnel_nav)/rviz_cfg/outdoor_flight.rviz"/>-->
 
 </launch>

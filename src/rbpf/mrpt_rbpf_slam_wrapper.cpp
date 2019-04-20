@@ -34,7 +34,7 @@ bool PFslamWrapper::getParams(const ros::NodeHandle& nh_p)
 
 // TODO : check the parameters
 //
-  nh_p.param<std::string>("global_frame_id", global_frame_id_, "world");
+  nh_p.param<std::string>("global_frame_id", global_frame_id_, "map");
   ROS_INFO("global_frame_id: %s", global_frame_id_.c_str());
 
   nh_p.param<std::string>("odom_frame_id", odom_frame_id_, "odom");
