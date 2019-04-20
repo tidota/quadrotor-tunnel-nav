@@ -155,6 +155,7 @@ void PFslam::initSlam(PFslam::Options options)
 
 // TODO: should remove them?
 // they are for visualization by MRPT.
+/*
 void PFslam::init3Dwindow()
 {
 #if MRPT_HAS_WXWIDGETS
@@ -258,4 +259,5 @@ void PFslam::run3Dwindow()
     win3D_->forceRepaint();
   }
 }
+*/
 }  // namespace mrpt_rbpf_slam

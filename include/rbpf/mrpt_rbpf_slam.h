@@ -1,7 +1,7 @@
 #pragma once
 #include <ros/console.h>
 
-#include <mrpt/gui/CDisplayWindow3D.h>
+//#include <mrpt/gui/CDisplayWindow3D.h>
 #include <mrpt/random.h>
 #include <mrpt/slam/CMetricMapBuilderRBPF.h>
 #if MRPT_VERSION >= 0x199
@@ -21,7 +21,7 @@
 #include <mrpt/poses/CPosePDFGaussian.h>
 #include <mrpt/system/filesystem.h>
 #include <mrpt/system/os.h>
-#include <mrpt/gui/CDisplayWindow3D.h>
+//#include <mrpt/gui/CDisplayWindow3D.h>
 #include <mrpt/version.h>
 #include <mrpt/maps/CMultiMetricMap.h>
 #include <mrpt/obs/CActionCollection.h>
@@ -57,9 +57,9 @@ public:
   PFslam() = default;
   virtual ~PFslam();
 
-  void init3Dwindow();
-
-  void run3Dwindow();
+  // void init3Dwindow();
+  //
+  // void run3Dwindow();
 
   /**
    * @brief Read ini file
@@ -104,6 +104,6 @@ protected:
   const mrpt::maps::CMultiMetricMap* metric_map_;  ///< receive map after iteration of SLAM to metric map
   mrpt::poses::CPose3DPDFParticles curPDF;         ///< current robot pose
 
-  mrpt::gui::CDisplayWindow3D::Ptr win3D_;  ///< MRPT window
+  //mrpt::gui::CDisplayWindow3D::Ptr win3D_;  ///< MRPT window
 };
 }  // namespace mrpt_rbpf_slam

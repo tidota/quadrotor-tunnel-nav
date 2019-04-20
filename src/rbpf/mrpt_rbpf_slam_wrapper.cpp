@@ -115,7 +115,7 @@ bool PFslamWrapper::init(ros::NodeHandle& nh)
   }
 
   mapBuilder_ = mrpt::slam::CMetricMapBuilderRBPF(options_.rbpfMappingOptions_);
-  init3Dwindow();
+  //init3Dwindow();
   return true;
 }
 
@@ -223,7 +223,7 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   t_exec_ = tictac_.Tac();
   ROS_INFO("Map building executed in %.03fms", 1000.0f * t_exec_);
   publishMapPose();
-  run3Dwindow();
+  //run3Dwindow();
   publishTF();
 }
 
