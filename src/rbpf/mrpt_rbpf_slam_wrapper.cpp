@@ -217,7 +217,9 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   timeLastUpdate_ = sensory_frame_->getObservationByIndex(0)->timestamp;
 
   tictac_.Tic();
+  ROS_INFO("================= processActionObservation start ====================");
   mapBuilder_.processActionObservation(*action_, *sensory_frame_);
+  ROS_INFO("================= processActionObservation end ====================");
   t_exec_ = tictac_.Tac();
   ROS_INFO("Map building executed in %.03fms", 1000.0f * t_exec_);
   publishMapPose();
