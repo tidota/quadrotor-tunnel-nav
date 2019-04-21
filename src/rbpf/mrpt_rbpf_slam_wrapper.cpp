@@ -306,6 +306,7 @@ void PFslamWrapper::publishVisMap()
   metric_map_ = mapBuilder_.mapPDF.getCurrentMostLikelyMetricMap();
   mrpt::maps::COctoMap::Ptr octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
   octomap::OcTree &m_octree = octomap->getOctomap<octomap::OcTree>();
+  visualization_msgs::MarkerArray occupiedNodesVis;
   occupiedNodesVis.markers.resize(m_octree.getTreeDepth()+1);
   ROS_INFO_STREAM("beginning! TreeDepth: " << m_octree.getTreeDepth() << ", size of maps: " << metric_map_->maps.size());
 

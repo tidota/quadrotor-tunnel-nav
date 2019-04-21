@@ -159,7 +159,6 @@ private:
   float t_exec_;  ///< the time which take one SLAM update execution
 
   // visualization of the map
-  visualization_msgs::MarkerArray occupiedNodesVis;
   std_msgs::ColorRGBA m_color_occupied;
   ros::Publisher marker_occupied_pub;
   int marker_counter;
