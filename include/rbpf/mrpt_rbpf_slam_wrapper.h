@@ -29,7 +29,7 @@
 //#include <visualization_msgs/MarkerArray.h>
 //#include <visualization_msgs/Marker.h>
 // mrpt msgs
-#include "mrpt_msgs/ObservationRangeBeacon.h"
+//#include "mrpt_msgs/ObservationRangeBeacon.h"
 // mrpt bridge libs
 #include <mrpt_bridge/pose.h>
 #include <mrpt_bridge/map.h>

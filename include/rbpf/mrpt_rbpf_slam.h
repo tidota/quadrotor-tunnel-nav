@@ -29,7 +29,8 @@
 #include <mrpt/obs/CActionRobotMovement3D.h>
 //#include <mrpt/obs/CObservationBeaconRanges.h>
 //#include <mrpt/obs/CObservationBearingRange.h>
-#include <mrpt/obs/CObservationOdometry.h>
+//#include <mrpt/obs/CObservationOdometry.h>
+#include <mrpt/obs/CObservationPointCloud.h>
 //#include <mrpt/obs/CRawlog.h>
 #include <mrpt/obs/CSensoryFrame.h>
 

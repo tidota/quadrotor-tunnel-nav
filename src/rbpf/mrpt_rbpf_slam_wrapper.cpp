@@ -178,22 +178,33 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   using namespace mrpt::maps;
   using namespace mrpt::obs;
 
+  // create a local point cloud observation w.r.t. the robot's ref frame.
+  CObservationPointCloud::Ptr pc = CObservationPointCloud::Create();
   for (auto& pair: sensor_buffer)
   {
     auto p_msg = pair.second.front();
     pair.second.pop();
 
-    CObservationRange::Ptr range = CObservationRange::Create();
-    range->sensedData.resize(1);
+    mrpt_bridge::convert(p_msg->header.stamp, pc->timestamp);
 
-    mrpt::poses::CPose3D pose = range_poses_[p_msg->header.frame_id];
-    mrpt_bridge::range::ros2mrpt(*p_msg, *range);
-    mrpt_bridge::convert(p_msg->header.stamp, range->timestamp);
+    mrpt::poses::CPoint3D dtpoint
+      = range_poses_[p_msg->header.frame_id]
+      + mrpt::poses::CPoint3D(p_msg->range, 0, 0);
+    pc->pointcloud->insertPointFast(dtpoint.x(), dtpoint.y(), dtpoint.z());
 
-    sensory_frame_ = CSensoryFrame::Create();
-
-    CObservation::Ptr obs = CObservation::Ptr(range);
-    sensory_frame_->insert(obs);
+    //
+    // CObservationRange::Ptr range = CObservationRange::Create();
+    // range->sensedData.resize(1);
+    //
+    // mrpt::poses::CPose3D pose = range_poses_[p_msg->header.frame_id];
+    // mrpt_bridge::range::ros2mrpt(*p_msg, *range);
+    // mrpt_bridge::convert(p_msg->header.stamp, range->timestamp);
+    //
+    // sensory_frame_ = CSensoryFrame::Create();
+    //
+    // CObservation::Ptr obs = CObservation::Ptr(range);
+    // sensory_frame_->insert(obs);
+    //
     //timeLastUpdate_ = obs->timestamp;
 
     // ros::Time stamp;
@@ -208,6 +219,10 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
     //   "p_msg->range: " << p_msg->range
     //   << ", range->sensedData[0].sensedDistance: " << range->sensedData[0].sensedDistance);
   }
+
+  sensory_frame_ = CSensoryFrame::Create();
+  CObservation::Ptr obs = CObservation::Ptr(pc);
+  sensory_frame_->insert(obs);
 
   //CObservationOdometry::Ptr odometry;
   mrpt::poses::CPose3D odometry;
