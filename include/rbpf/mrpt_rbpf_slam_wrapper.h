@@ -147,7 +147,7 @@ private:
   // Subscribers
   std::vector<ros::Subscriber> sensorSub_;  ///< list of sensors topics
 
-  ros::Publisher pub_map_, pub_metadata_, pub_particles_;
+  ros::Publisher pub_map_, /*pub_metadata_,*/ pub_particles_;
 
   tf::TransformListener listenerTF_;         ///< transform listener
   tf::TransformBroadcaster tf_broadcaster_;  ///< transform broadcaster

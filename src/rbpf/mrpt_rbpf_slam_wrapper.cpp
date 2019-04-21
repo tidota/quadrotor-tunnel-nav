@@ -58,17 +58,11 @@ bool PFslamWrapper::init(ros::NodeHandle& nh)
 
   PFslam::readIniFile(ini_filename_);
 
-// TODO: change publishers?
-//
   /// Create publishers///
   // publish grid map
-  pub_map_ = nh.advertise<nav_msgs::OccupancyGrid>("map", 1, true);
-  pub_metadata_ = nh.advertise<nav_msgs::MapMetaData>("map_metadata", 1, true);
+  pub_map_ = nh.advertise<octomap_msgs::Octomap>("map", 1, true);
   // robot pose
   pub_particles_ = nh.advertise<geometry_msgs::PoseArray>("particlecloud", 1, true);
-  // ro particles poses
-  //pub_particles_beacons_ = nh.advertise<geometry_msgs::PoseArray>("particlecloud_beacons", 1, true);
-  //beacon_viz_pub_ = nh.advertise<visualization_msgs::MarkerArray>("/beacons_viz", 1);
 
   // read sensor topics
   std::vector<std::string> lstSources;
@@ -204,13 +198,16 @@ void PFslamWrapper::publishMapPose()
   // if I received new grid maps from 2D laser scan sensors
   metric_map_ = mapBuilder_.mapPDF.getCurrentMostLikelyMetricMap();
   mapBuilder_.mapPDF.getEstimatedPosePDF(curPDF);
-  if (metric_map_->m_gridMaps.size())
+  if (metric_map_->maps.size())
   {
+    mrpt::maps::COctoMap::Ptr octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
+    octomap::OcTree &m_octree = octomap->getOctomap<octomap::OcTree>();
     // publish map
-    nav_msgs::OccupancyGrid msg;
-    mrpt_bridge::convert(*metric_map_->m_gridMaps[0], msg);
-    pub_map_.publish(msg);
-    pub_metadata_.publish(msg.info);
+    octomap_msgs::Octomap msg;
+    if (octomap_msgs::fullMapToMsg(m_octree, msg))
+      pub_map_.publish(msg);
+    else
+      ROS_ERROR("Error serializing OctoMap");
   }
 
   // publish pose
@@ -359,7 +356,7 @@ void PFslamWrapper::publishVisMap()
     occupiedNodesVis.markers[i].scale.y = size;
     occupiedNodesVis.markers[i].scale.z = size;
 
-    occupiedNodesVis.markers[i].color = m_color_occupied;
+    //occupiedNodesVis.markers[i].color = m_color_occupied;
 
     if (occupiedNodesVis.markers[i].points.size() > 0)
       occupiedNodesVis.markers[i].action = visualization_msgs::Marker::ADD;
