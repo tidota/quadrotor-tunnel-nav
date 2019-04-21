@@ -149,8 +149,24 @@ Visualization Manager:
       Marker Topic: /map_marker_occupied
       Name: MarkerArray
       Namespaces:
-        {}
+        robot: true
       Queue Size: 100
+      Value: true
+    - Alpha: 1
+      Arrow Length: 0.30000001192092896
+      Axes Length: 0.30000001192092896
+      Axes Radius: 0.009999999776482582
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.07000000029802322
+      Head Radius: 0.029999999329447746
+      Name: PoseArray
+      Shaft Length: 0.23000000417232513
+      Shaft Radius: 0.009999999776482582
+      Shape: Arrow (Flat)
+      Topic: /particlecloud
+      Unreliable: false
       Value: true
   Enabled: true
   Global Options:
@@ -177,25 +193,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 18.694101333618164
+      Distance: 22.987329483032227
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.08391579985618591
-        Y: 1.039613962173462
-        Z: 0.33877328038215637
+        X: 0.7458137273788452
+        Y: -0.06808622181415558
+        Z: 1.8804593086242676
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5903983116149902
+      Pitch: 0.5603983402252197
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.3003971576690674
+      Yaw: 1.3553966283798218
     Saved: ~
 Window Geometry:
   Displays:
