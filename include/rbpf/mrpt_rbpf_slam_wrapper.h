@@ -34,6 +34,13 @@
 
 #include <mrpt_bridge/time.h>
 
+// map visualization
+#include <octomap_msgs/conversions.h>
+#include <octomap_msgs/Octomap.h>
+#include <std_msgs/ColorRGBA.h>
+#include <visualization_msgs/MarkerArray.h>
+#define PI 3.14159265
+
 namespace mrpt_rbpf_slam
 {
 /**
@@ -119,10 +126,10 @@ public:
   void publishTF();
 
   /**
-   * @brief Correct visualization for ro slam
+   * @brief Publish map (for visualization)
    *
    */
-  //void vizBeacons();
+  void publishVisMap();
 
 private:
   std::string ini_filename_;     ///< name of ini file
@@ -150,5 +157,11 @@ private:
   mrpt::utils::CTicTac tictac_;
 #endif
   float t_exec_;  ///< the time which take one SLAM update execution
+
+  // visualization of the map
+  visualization_msgs::MarkerArray occupiedNodesVis;
+  std_msgs::ColorRGBA m_color_occupied;
+  ros::Publisher marker_occupied_pub;
+  int marker_counter;
 };
 }  // namespace mrpt_rbpf_slam

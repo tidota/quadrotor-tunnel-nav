@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1
-        - /TF1/Status1
+        - /MarkerArray1
       Splitter Ratio: 0.5
     Tree Height: 694
   - Class: rviz/Selection
@@ -71,6 +71,8 @@ Visualization Manager:
           Value: true
         ground_truth/world:
           Value: true
+        map:
+          Value: true
         nav:
           Value: true
         ray_dfront_link:
@@ -101,15 +103,13 @@ Visualization Manager:
           Value: true
         ray_urear_link:
           Value: true
-        world:
-          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        world:
+        map:
           nav:
             base_footprint:
               base_stabilized:
@@ -144,6 +144,14 @@ Visualization Manager:
                     {}
       Update Interval: 0
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /map_marker_occupied
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -169,7 +177,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 5.159228801727295
+      Distance: 18.694101333618164
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

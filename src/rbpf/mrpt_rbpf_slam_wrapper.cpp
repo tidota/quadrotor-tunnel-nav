@@ -85,6 +85,16 @@ bool PFslamWrapper::init(ros::NodeHandle& nh)
 
   mapBuilder_ = mrpt::slam::CMetricMapBuilderRBPF(options_.rbpfMappingOptions_);
   //init3Dwindow();
+
+  // map visualization
+  m_color_occupied.r = 1;
+  m_color_occupied.g = 1;
+  m_color_occupied.b = 0.3;
+  m_color_occupied.a = 0.5;
+  marker_occupied_pub
+    = nh.advertise<visualization_msgs::MarkerArray>("map_marker_occupied", 1);
+  marker_counter = 0;
+
   return true;
 }
 
@@ -186,6 +196,7 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   ROS_INFO("Map building executed in %.03fms", 1000.0f * t_exec_);
   publishMapPose();
   publishTF();
+  publishVisMap();
 }
 // =============================================================
 void PFslamWrapper::publishMapPose()
@@ -285,4 +296,77 @@ void PFslamWrapper::publishTF()
   tf_broadcaster_.sendTransform(tmp_tf_stamped);
 }
 
+void PFslamWrapper::publishVisMap()
+{
+  // publish it oly once at each 10 updates.
+  if (marker_counter < 10)
+  {
+    ++marker_counter;
+    return;
+  }
+  marker_counter = 0;
+
+  metric_map_ = mapBuilder_.mapPDF.getCurrentMostLikelyMetricMap();
+  mrpt::maps::COctoMap::Ptr octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
+  octomap::OcTree &m_octree = octomap->getOctomap<octomap::OcTree>();
+  occupiedNodesVis.markers.resize(m_octree.getTreeDepth()+1);
+  ROS_INFO_STREAM("beginning! TreeDepth: " << m_octree.getTreeDepth() << ", size of maps: " << metric_map_->maps.size());
+
+  for (
+    octomap::OcTree::iterator it = m_octree.begin(m_octree.getTreeDepth()),
+    end = m_octree.end(); it != end; ++it)
+  {
+    if (m_octree.isNodeAtThreshold(*it))
+    {
+      double x = it.getX();
+      double z = it.getZ();
+      double y = it.getY();
+
+      unsigned idx = it.getDepth();
+      geometry_msgs::Point cubeCenter;
+      cubeCenter.x = x;
+      cubeCenter.y = y;
+      cubeCenter.z = z;
+
+      if (m_octree.isNodeOccupied(*it))
+      {
+        ROS_INFO("map vis: if (m_octree.isNodeOccupied(*it))");
+        occupiedNodesVis.markers[idx].points.push_back(cubeCenter);
+
+        double cosR = std::cos(PI*z/10.0)*0.8+0.2;
+        double cosG = std::cos(PI*(2.0/3.0+z/10.0))*0.8+0.2;
+        double cosB = std::cos(PI*(4.0/3.0+z/10.0))*0.8+0.2;
+        std_msgs::ColorRGBA clr;
+        clr.r = (cosR > 0)? cosR: 0;
+        clr.g = (cosG > 0)? cosG: 0;
+        clr.b = (cosB > 0)? cosB: 0;
+        clr.a = 0.5;
+        occupiedNodesVis.markers[idx].colors.push_back(clr);
+      }
+    }
+  }
+
+  for (unsigned i= 0; i < occupiedNodesVis.markers.size(); ++i)
+  {
+    double size = m_octree.getNodeSize(i);
+
+    occupiedNodesVis.markers[i].header.frame_id = "map";
+    occupiedNodesVis.markers[i].header.stamp = ros::Time::now();
+    occupiedNodesVis.markers[i].ns = "robot";
+    occupiedNodesVis.markers[i].id = i;
+    occupiedNodesVis.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
+    occupiedNodesVis.markers[i].scale.x = size;
+    occupiedNodesVis.markers[i].scale.y = size;
+    occupiedNodesVis.markers[i].scale.z = size;
+
+    occupiedNodesVis.markers[i].color = m_color_occupied;
+
+    if (occupiedNodesVis.markers[i].points.size() > 0)
+      occupiedNodesVis.markers[i].action = visualization_msgs::Marker::ADD;
+    else
+      occupiedNodesVis.markers[i].action = visualization_msgs::Marker::DELETE;
+  }
+  if (occupiedNodesVis.markers.size() > 0)
+    marker_occupied_pub.publish(occupiedNodesVis);
+}
 }  // namespace mrpt_rbpf_slam
