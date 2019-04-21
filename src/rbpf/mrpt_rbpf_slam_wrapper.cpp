@@ -179,7 +179,10 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   using namespace mrpt::obs;
 
   // create a local point cloud observation w.r.t. the robot's ref frame.
-  CObservationPointCloud::Ptr pc = CObservationPointCloud::Create();
+  // as of 4/21, 2019, the version of MRPT for ROS is 1.5 and CObservationPointCloud is not available.
+  // Temporarily, CObservation3DRangeScan is used.
+  CObservation3DRangeScan::Ptr pc = CObservation3DRangeScan::Create();
+  // CObservationPointCloud::Ptr pc = CObservationPointCloud::Create();
   for (auto& pair: sensor_buffer)
   {
     auto p_msg = pair.second.front();
@@ -190,7 +193,12 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
     mrpt::poses::CPoint3D dtpoint
       = range_poses_[p_msg->header.frame_id]
       + mrpt::poses::CPoint3D(p_msg->range, 0, 0);
-    pc->pointcloud->insertPointFast(dtpoint.x(), dtpoint.y(), dtpoint.z());
+
+    pc->points3D_x.push_back(dtpoint.x());
+    pc->points3D_y.push_back(dtpoint.y());
+    pc->points3D_z.push_back(dtpoint.z());
+    pc->hasPoints3D = true;
+    // pc->pointcloud->insertPointFast(dtpoint.x(), dtpoint.y(), dtpoint.z());
 
     //
     // CObservationRange::Ptr range = CObservationRange::Create();
