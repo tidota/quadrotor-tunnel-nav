@@ -66,7 +66,7 @@ void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
 
   mrpt::poses::CPose3D incOdoPose = odometry - odomLastObservation_;
   odomLastObservation_ = odometry;
-  odom_move.computeFromOdometry(incOdoPose, options_.motion_model_options_);
+  odom_move.computeFromOdometry_model6DOF(incOdoPose, options_.motion_model_options_);
   action_->insert(odom_move);
 }
 
