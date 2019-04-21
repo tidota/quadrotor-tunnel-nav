@@ -1,7 +1,6 @@
 #pragma once
 #include <ros/console.h>
 
-//#include <mrpt/gui/CDisplayWindow3D.h>
 #include <mrpt/random.h>
 #include <mrpt/slam/CMetricMapBuilderRBPF.h>
 #if MRPT_VERSION >= 0x199
@@ -21,21 +20,14 @@
 #include <mrpt/poses/CPosePDFGaussian.h>
 #include <mrpt/system/filesystem.h>
 #include <mrpt/system/os.h>
-//#include <mrpt/gui/CDisplayWindow3D.h>
 #include <mrpt/version.h>
 #include <mrpt/maps/CMultiMetricMap.h>
 #include <mrpt/obs/CActionCollection.h>
-//#include <mrpt/obs/CActionRobotMovement2D.h>
 #include <mrpt/obs/CActionRobotMovement3D.h>
-//#include <mrpt/obs/CObservationBeaconRanges.h>
-//#include <mrpt/obs/CObservationBearingRange.h>
-//#include <mrpt/obs/CObservationOdometry.h>
 
 #include <mrpt/obs/CObservation3DRangeScan.h> // may replace with the following for MRPT v1.9+
 //#include <mrpt/obs/CObservationPointCloud.h>
 
-
-//#include <mrpt/obs/CRawlog.h>
 #include <mrpt/obs/CSensoryFrame.h>
 
 namespace mrpt_rbpf_slam
@@ -62,10 +54,6 @@ public:
   PFslam() = default;
   virtual ~PFslam();
 
-  // void init3Dwindow();
-  //
-  // void run3Dwindow();
-
   /**
    * @brief Read ini file
    *
@@ -77,15 +65,6 @@ public:
    * @brief initialize the SLAM
    */
   void initSlam(Options options);
-
-  /**
-   * @brief Read pairs of actions and observations from rawlog file
-   *
-   * @param[in] rawlog_filename the name of rawlog file to read
-   * @param[out] data vector of pairs of actions and observations
-   */
-  //void readRawlog(const std::string& rawlog_filename,
-  //                std::vector<std::pair<mrpt::obs::CActionCollection, mrpt::obs::CSensoryFrame>>& data);
 
   /**
    * @brief Calculate the actions from odometry model for current observation
@@ -102,13 +81,10 @@ protected:
   mrpt::obs::CSensoryFrame::Ptr sensory_frame_;   ///< observations
 
   mrpt::poses::CPose3D odomLastObservation_;  ///< last observation of odometry
-  //mrpt::poses::CPose2D odomLastObservation_;  ///< last observation of odometry
   bool use_motion_model_default_options_;     ///< used default odom_params
   mrpt::system::TTimeStamp timeLastUpdate_;   ///< last update of the pose and map
 
   const mrpt::maps::CMultiMetricMap* metric_map_;  ///< receive map after iteration of SLAM to metric map
   mrpt::poses::CPose3DPDFParticles curPDF;         ///< current robot pose
-
-  //mrpt::gui::CDisplayWindow3D::Ptr win3D_;  ///< MRPT window
 };
 }  // namespace mrpt_rbpf_slam

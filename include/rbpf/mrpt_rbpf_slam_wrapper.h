@@ -23,25 +23,16 @@
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 
-//#include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/Range.h>
 
-//#include <visualization_msgs/MarkerArray.h>
-//#include <visualization_msgs/Marker.h>
-// mrpt msgs
-//#include "mrpt_msgs/ObservationRangeBeacon.h"
 // mrpt bridge libs
 #include <mrpt_bridge/pose.h>
 #include <mrpt_bridge/map.h>
 #include <mrpt_bridge/mrpt_log_macros.h>
 
 #include <mrpt_bridge/range.h>
-//#include <mrpt_bridge/laser_scan.h>
-//#include <mrpt_bridge/beacon.h>
 
 #include <mrpt_bridge/time.h>
-
-//#include <mrpt/obs/CObservationBeaconRanges.h>
 
 namespace mrpt_rbpf_slam
 {
@@ -91,30 +82,6 @@ public:
   void rangeCallback(const sensor_msgs::Range& msg);
 
   /**
-   * @brief Callback function for the beacons
-   *
-   * Given the range only observation wait for odometry,
-   * create the pair of action and observation,
-   * implement one SLAM update,
-   * publish map and pose.
-   *
-   * @param msg  the beacon message
-   */
-  //void callbackBeacon(const mrpt_msgs::ObservationRangeBeacon& msg);
-
-  /**
-   * @brief Callback function for the laser scans
-   *
-   * Given the laser scans  wait for odometry,
-   * create the pair of action and observation,
-   * implement one SLAM update,
-   * publish map and pose.
-   *
-   * @param msg  the laser scan message
-   */
-  //void laserCallback(const sensor_msgs::LaserScan& msg);
-
-  /**
    * @brief Wait for transform between odometry frame and the robot frame
    *
    * @param[out] des position of the robot with respect to odometry frame
@@ -158,10 +125,6 @@ public:
   //void vizBeacons();
 
 private:
-  //double rawlog_play_delay_;   ///< delay of replay from rawlog file
-  //bool rawlog_play_{ false };  ///< true if rawlog file exists
-
-  //std::string rawlog_filename_;  ///< name of rawlog file
   std::string ini_filename_;     ///< name of ini file
   std::string global_frame_id_;  ///< /map frame
   std::string odom_frame_id_;    ///< /odom frame
@@ -170,8 +133,6 @@ private:
   // Sensor source
   std::string sensor_source_;
   std::map<std::string, mrpt::poses::CPose3D> range_poses_;   ///< range poses with respect to the map
-  //std::map<std::string, mrpt::poses::CPose3D> laser_poses_;   ///< laser scan poses with respect to the map
-  //std::map<std::string, mrpt::poses::CPose3D> beacon_poses_;  ///< beacon poses with respect to the map
 
   // buffer of sensor messages
   std::map<std::string, std::queue< std::shared_ptr<sensor_msgs::Range> > > sensor_buffer;
@@ -179,16 +140,7 @@ private:
   // Subscribers
   std::vector<ros::Subscriber> sensorSub_;  ///< list of sensors topics
 
-  // read rawlog file
-  //std::vector<std::pair<mrpt::obs::CActionCollection, mrpt::obs::CSensoryFrame>> data_;  ///< vector of pairs of actions
-                                                                                         ///< and obsrvations from
-                                                                                         /// rawlog file
-
-  //std::vector<mrpt::opengl::CEllipsoid::Ptr> viz_beacons_;
-
   ros::Publisher pub_map_, pub_metadata_, pub_particles_;
-  //ros::Publisher pub_map_, pub_metadata_, pub_particles_, pub_particles_beacons_,
-  //    beacon_viz_pub_;  ///< publishers for map and pose particles
 
   tf::TransformListener listenerTF_;         ///< transform listener
   tf::TransformBroadcaster tf_broadcaster_;  ///< transform broadcaster
