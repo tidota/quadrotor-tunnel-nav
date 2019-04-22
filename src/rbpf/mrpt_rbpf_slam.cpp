@@ -8,6 +8,11 @@
 #include <mrpt/version.h>
 #include <mrpt_bridge/utils.h>
 
+// For calculation of motion model
+#include <mrpt/obs/CActionRobotMovement3D.h>
+#include <mrpt/poses/CPose3DPDFParticles.h>
+#include <mrpt/random.h>
+
 namespace mrpt_rbpf_slam
 {
 PFslam::~PFslam()
@@ -70,72 +75,39 @@ void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
   // Just apply Gaussian
   //odom_move.computeFromOdometry_model6DOF(incOdoPose, options_.motion_model_options_);
   {
-    CPose3DPDFParticles* aux;
-    const mrpt::math::TPose3D nullPose(0, 0, 0, 0, 0, 0);
+    using namespace mrpt::poses;
+    using namespace mrpt::random;
 
-    mrpt::poses::CPose3DPDF::Ptr poseChangeTemp =
-        mrpt::make_aligned_shared<CPose3DPDFParticles>();
-    aux = dynamic_cast<CPose3DPDFParticles*>(poseChangeTemp.get());
+    CPose3DPDFParticles		*aux;
+    static CPose3D nullPose(0,0,0,0,0,0);
+
+    mrpt::poses::CPose3DPDFPtr poseChangeTemp = CPose3DPDFParticles::Create();
+    aux = static_cast<CPose3DPDFParticles*>( poseChangeTemp.pointer() );
 
     // Set the number of particles:
-    aux->resetDeterministic(nullPose, o.mm6DOFModel.nParticlesCount);
+    aux->resetDeterministic(nullPose, 300);
+
     // Draw samples:
-    for (size_t i = 0; i < o.mm6DOFModel.nParticlesCount; i++)
+    for (size_t i = 0; i < 300; i++)
     {
-       float Ayaw1_draw =
-           Ayaw1 + (o.mm6DOFModel.a1 * Ayaw1 + o.mm6DOFModel.a2 * Atrans) *
-                       getRandomGenerator().drawGaussian1D_normalized();
-       float Apitch1_draw =
-           Apitch1 + (o.mm6DOFModel.a3 * odometryIncrement.z()) *
-                         getRandomGenerator().drawGaussian1D_normalized();
-       float Atrans_draw =
-           Atrans + (o.mm6DOFModel.a4 * Atrans + o.mm6DOFModel.a5 * Ayaw2 +
-                     o.mm6DOFModel.a6 * (Aroll + Apitch2)) *
-                        getRandomGenerator().drawGaussian1D_normalized();
-
-       float Aroll_draw =
-           Aroll + (o.mm6DOFModel.a7 * Aroll) *
-                       getRandomGenerator().drawGaussian1D_normalized();
-       float Apitch2_draw =
-           Apitch2 + (o.mm6DOFModel.a8 * Apitch2) *
-                         getRandomGenerator().drawGaussian1D_normalized();
-       float Ayaw2_draw =
-           Ayaw2 + (o.mm6DOFModel.a9 * Ayaw2 + o.mm6DOFModel.a10 * Atrans) *
-                       getRandomGenerator().drawGaussian1D_normalized();
-
-       // Output:
-       aux->m_particles[i].d.x =
-           Atrans_draw * sin(Apitch1_draw) * cos(Ayaw1_draw) +
-           motionModelConfiguration.mm6DOFModel.additional_std_XYZ *
-               getRandomGenerator().drawGaussian1D_normalized();
-       aux->m_particles[i].d.y =
-           Atrans_draw * sin(Apitch1_draw) * sin(Ayaw1_draw) +
-           motionModelConfiguration.mm6DOFModel.additional_std_XYZ *
-               getRandomGenerator().drawGaussian1D_normalized();
-       aux->m_particles[i].d.z =
-           Atrans_draw * cos(Apitch1_draw) +
-           motionModelConfiguration.mm6DOFModel.additional_std_XYZ *
-               getRandomGenerator().drawGaussian1D_normalized();
-
-       double new_yaw =
-           Ayaw1_draw + Ayaw2_draw +
-           motionModelConfiguration.mm6DOFModel.additional_std_angle *
-               getRandomGenerator().drawGaussian1D_normalized();
-       double new_pitch =
-           Apitch1_draw + Apitch2_draw +
-           motionModelConfiguration.mm6DOFModel.additional_std_angle *
-               getRandomGenerator().drawGaussian1D_normalized();
-       double new_roll =
-           Aroll_draw +
-           motionModelConfiguration.mm6DOFModel.additional_std_angle *
-               getRandomGenerator().drawGaussian1D_normalized();
-
-       aux->m_particles[i].d.yaw = new_yaw;
-       aux->m_particles[i].d.pitch = new_pitch;
-       aux->m_particles[i].d.roll = new_roll;
+      auto trn = incOdoPose.norm();
+      aux->m_particles[i].d->x(
+        incOdoPose.x()
+        + trn * 0.01 * randomGenerator.drawGaussian1D_normalized());
+      aux->m_particles[i].d->y(
+        incOdoPose.y()
+        + trn * 0.01 * randomGenerator.drawGaussian1D_normalized());
+      aux->m_particles[i].d->z(
+        incOdoPose.z()
+        + trn * 0.01 * randomGenerator.drawGaussian1D_normalized());
+      aux->m_particles[i].d->setYawPitchRoll(
+        incOdoPose.yaw() + 0.005 * randomGenerator.drawGaussian1D_normalized(),
+        incOdoPose.pitch() + 0.05 * randomGenerator.drawGaussian1D_normalized(),
+        incOdoPose.roll() + 0.005 * randomGenerator.drawGaussian1D_normalized());
+      aux->m_particles[i].d->normalizeAngles();
     }
 
-    poseChange.copyFrom(*poseChangeTemp);
+    odom_move.poseChange.copyFrom(*poseChangeTemp);
   }
 
   action_->insert(odom_move);
