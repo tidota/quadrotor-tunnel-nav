@@ -78,7 +78,6 @@ bool PFslamWrapper::init(ros::NodeHandle& nh)
   }
 
   mapBuilder_ = mrpt::slam::CMetricMapBuilderRBPF(options_.rbpfMappingOptions_);
-  //init3Dwindow();
 
   // map visualization
   m_color_occupied.r = 1;
@@ -195,7 +194,6 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
 // =============================================================
 void PFslamWrapper::publishMapPose()
 {
-  // if I received new grid maps from 2D laser scan sensors
   metric_map_ = mapBuilder_.mapPDF.getCurrentMostLikelyMetricMap();
   mapBuilder_.mapPDF.getEstimatedPosePDF(curPDF);
   if (metric_map_->maps.size())
@@ -220,7 +218,6 @@ void PFslamWrapper::publishMapPose()
     const auto p = mrpt::poses::CPose3D(curPDF.getParticlePose(i));
     mrpt_bridge::convert(p, poseArray.poses[i]);
   }
-
   pub_particles_.publish(poseArray);
 }
 
@@ -244,8 +241,6 @@ void PFslamWrapper::updateSensorPose(const std::string& frame_id)
         Rdes(r, c) = Rsrc.getRow(r)[c];
     pose.setRotationMatrix(Rdes);
     range_poses_[frame_id] = pose;
-    //laser_poses_[frame_id] = pose;
-    //beacon_poses_[frame_id] = pose;
   }
   catch (tf::TransformException ex)
   {
@@ -261,7 +256,6 @@ void PFslamWrapper::publishTF()
   mapBuilder_.mapPDF.getEstimatedPosePDF(curPDF);
 
   curPDF.getMean(robotPose);
-  ROS_INFO_STREAM("robotPose: " << robotPose.x() << ", " << robotPose.y() << ", " << robotPose.z());
 
   tf::Stamped<tf::Pose> odom_to_map;
   tf::Transform tmp_tf;
@@ -308,8 +302,6 @@ void PFslamWrapper::publishVisMap()
   octomap::OcTree &m_octree = octomap->getOctomap<octomap::OcTree>();
   visualization_msgs::MarkerArray occupiedNodesVis;
   occupiedNodesVis.markers.resize(m_octree.getTreeDepth()+1);
-  ROS_INFO_STREAM("beginning! TreeDepth: " << m_octree.getTreeDepth() << ", size of maps: " << metric_map_->maps.size());
-
   for (
     octomap::OcTree::iterator it = m_octree.begin(m_octree.getTreeDepth()),
     end = m_octree.end(); it != end; ++it)
@@ -328,7 +320,6 @@ void PFslamWrapper::publishVisMap()
 
       if (m_octree.isNodeOccupied(*it))
       {
-        ROS_INFO("map vis: if (m_octree.isNodeOccupied(*it))");
         occupiedNodesVis.markers[idx].points.push_back(cubeCenter);
 
         double cosR = std::cos(PI*z/10.0)*0.8+0.2;

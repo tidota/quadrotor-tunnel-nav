@@ -1,5 +1,5 @@
 # Ros loop update frequency
-update_loop_frequency: 100 # Hz (or 100 updates per sec)
+update_loop_frequency: 20 # Hz (or 20 updates per sec)
 
 # Absolute path to the folder where to save *.simplemap
 # Note: everything in '/tmp' folder is removed if computer is restarted
@@ -11,18 +11,19 @@ simplemap_save_folder: /tmp/
 motion_model:
   type: "6dof" # choose thrun or gaussian
   6dof_motion_model_options:
-    a1: 0.05
-    a2: 0.05
-    a3: 0.05
-    a4: 0.05
-    a5: 0.05
-    a6: 0.05
-    a7: 0.05
-    a8: 0.05
-    a9: 0.05
-    a10: 0.05
+    nParticlesCount: 20
+    a1: 0.005
+    a2: 0.005
+    a3: 0.005
+    a4: 0.005
+    a5: 0.005
+    a6: 0.005
+    a7: 0.005
+    a8: 0.005
+    a9: 0.005
+    a10: 0.005
     additional_std_XYZ:  0.001
-    additional_std_angle: 0.05
+    additional_std_angle: 0.00
 
 mrpt_visualization_options:
   show_window:         true

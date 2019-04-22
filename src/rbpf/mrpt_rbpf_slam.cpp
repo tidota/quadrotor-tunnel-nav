@@ -102,7 +102,7 @@ void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
         + trn * 0.01 * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->setYawPitchRoll(
         incOdoPose.yaw() + 0.005 * randomGenerator.drawGaussian1D_normalized(),
-        incOdoPose.pitch() + 0.05 * randomGenerator.drawGaussian1D_normalized(),
+        incOdoPose.pitch() + 0.005 * randomGenerator.drawGaussian1D_normalized(),
         incOdoPose.roll() + 0.005 * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->normalizeAngles();
     }
@@ -111,6 +111,11 @@ void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
   }
 
   action_->insert(odom_move);
+  auto pose = odom_move.poseChange.getPoseMean();
+  ROS_INFO_STREAM("odom_move: norm = " << pose.norm()
+  << ", pitch = " << (pose.pitch() * 180.0 / 3.15159265)
+  << ", roll = " << (pose.roll() * 180.0 / 3.15159265)
+  << ", yaw = " << (pose.yaw() * 180.0 / 3.15159265));
 }
 
 void PFslam::initSlam(PFslam::Options options)
