@@ -220,9 +220,11 @@ void PFslamWrapper::publishMapPose()
   }
   pub_particles_.publish(poseArray);
 
+  /*
   ROS_INFO_STREAM("# of particles: " << mapBuilder_.mapPDF.m_particles.size());
   for (int i = 0; i < mapBuilder_.mapPDF.m_particles.size(); ++i)
     ROS_INFO_STREAM("m_particles[" << i << "]: " << mapBuilder_.mapPDF.m_particles[i].log_w);
+  */
 }
 
 void PFslamWrapper::updateSensorPose(const std::string& frame_id)

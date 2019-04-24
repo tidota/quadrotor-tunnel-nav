@@ -111,11 +111,14 @@ void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
   }
 
   action_->insert(odom_move);
+
+  /*
   auto pose = odom_move.poseChange.getPoseMean();
   ROS_INFO_STREAM("odom_move: norm = " << pose.norm()
   << ", pitch = " << (pose.pitch() * 180.0 / 3.15159265)
   << ", roll = " << (pose.roll() * 180.0 / 3.15159265)
   << ", yaw = " << (pose.yaw() * 180.0 / 3.15159265));
+  */
 }
 
 void PFslam::initSlam(PFslam::Options options)
