@@ -310,6 +310,7 @@ add_executable(mrpt_rbpf_slam
     src/rbpf/mrpt_rbpf_slam_wrapper.cpp
     src/rbpf/mrpt_rbpf_slam_node.cpp
     src/rbpf/options.cpp
+    src/rbpf/CustomOctoMap.cpp
 )
 TARGET_LINK_LIBRARIES(mrpt_rbpf_slam ${MRPT_LIBRARIES}
     ${catkin_LIBRARIES}
