@@ -86,8 +86,7 @@ bool PFslamWrapper::init(ros::NodeHandle& nh)
   {
     auto map = mrpt::maps::CustomOctoMap::Create();
     auto org
-      = static_cast<mrpt::maps::COctoMapPtr>(
-          particle.d->mapTillNow.maps[0].get_ptr());
+      = mrpt::maps::COctoMap::Ptr(particle.d->mapTillNow.maps[0].get_ptr());
 
     // TODO: copy settings
     map->insertionOptions = org->insertionOptions;
@@ -221,9 +220,7 @@ void PFslamWrapper::publishMapPose()
   mapBuilder_.mapPDF.getEstimatedPosePDF(curPDF);
   if (metric_map_->maps.size())
   {
-    mrpt::maps::COctoMapPtr octomap
-      = static_cast<mrpt::maps::COctoMapPtr>(
-          metric_map_->maps[0].get_ptr());
+    auto octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
     octomap::OcTree &m_octree = octomap->getOctomap<octomap::OcTree>();
     // publish map
     octomap_msgs::Octomap msg;
