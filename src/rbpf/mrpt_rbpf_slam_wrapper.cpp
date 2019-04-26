@@ -2,6 +2,8 @@
 
 #include "rbpf/options.h"
 
+#include "rbpf/CustomOctoMap.h"
+
 namespace
 {
 bool isFileExists(const std::string& name)
@@ -78,6 +80,24 @@ bool PFslamWrapper::init(ros::NodeHandle& nh)
   }
 
   mapBuilder_ = mrpt::slam::CMetricMapBuilderRBPF(options_.rbpfMappingOptions_);
+
+  // replace the map with the customized octomap
+  for (auto& particle: mapBuilder_.mapPDF.m_particles)
+  {
+    auto map = mrpt::maps::CustomOctoMap::Create();
+    auto org
+      = static_cast<mrpt::maps::COctoMapPtr>(
+          particle.d->mapTillNow.maps[0].get_ptr());
+
+    // TODO: copy settings
+    map->insertionOptions = org->insertionOptions;
+    map->renderingOptions = org->renderingOptions;
+    map->likelihoodOptions = org->likelihoodOptions;
+    map->setResolution(org->getResolution());
+
+    particle.d->mapTillNow.maps[0] = map;
+  }
+
 
   // map visualization
   m_color_occupied.r = 1;
@@ -188,8 +208,11 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   t_exec_ = tictac_.Tac();
   ROS_INFO("Map building executed in %.03fms", 1000.0f * t_exec_);
   publishMapPose();
+  ROS_INFO("Here?1");
   publishTF();
+  ROS_INFO("Here?2");
   publishVisMap();
+  ROS_INFO("Here?3");
 }
 // =============================================================
 void PFslamWrapper::publishMapPose()
@@ -198,7 +221,9 @@ void PFslamWrapper::publishMapPose()
   mapBuilder_.mapPDF.getEstimatedPosePDF(curPDF);
   if (metric_map_->maps.size())
   {
-    mrpt::maps::COctoMap::Ptr octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
+    mrpt::maps::COctoMapPtr octomap
+      = static_cast<mrpt::maps::COctoMapPtr>(
+          metric_map_->maps[0].get_ptr());
     octomap::OcTree &m_octree = octomap->getOctomap<octomap::OcTree>();
     // publish map
     octomap_msgs::Octomap msg;
@@ -304,7 +329,7 @@ void PFslamWrapper::publishVisMap()
   marker_counter = 0;
 
   metric_map_ = mapBuilder_.mapPDF.getCurrentMostLikelyMetricMap();
-  mrpt::maps::COctoMap::Ptr octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
+  auto octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
   octomap::OcTree &m_octree = octomap->getOctomap<octomap::OcTree>();
   visualization_msgs::MarkerArray occupiedNodesVis;
   occupiedNodesVis.markers.resize(m_octree.getTreeDepth()+1);

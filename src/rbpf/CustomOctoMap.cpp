@@ -34,6 +34,22 @@ using namespace mrpt::opengl;
 //  =========== Begin of Map definition ============
 //MAP_DEFINITION_REGISTER("CustomOctoMap,octoMap", mrpt::maps::CustomOctoMap)
 
+// These are defined because the linker otherwise complains.
+void  CustomOctoMap::writeToStream(mrpt::utils::CStream &out, int *version) const
+{
+	COctoMap::writeToStream(out, version);
+}
+void CustomOctoMap::readFromStream(mrpt::utils::CStream &in, int version)
+{
+	COctoMap::readFromStream(in, version);
+}
+
+
+void CustomOctoMap::setResolution(const double& res)
+{
+	PIMPL_GET_CONSTREF(OcTree, m_octomap).setResolution(res);
+}
+
 double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CObservation *obs, const mrpt::poses::CPose3D &takenFrom )
 {
 	octomap::point3d     sensorPt;
@@ -56,9 +72,9 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 		}
 	}
 
-	ROS_INFO_STREAM("HEEEEELOOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	//ROS_INFO_STREAM("HEEEEELOOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	return log_lik;
 }
 
 
-//IMPLEMENTS_SERIALIZABLE(CustomOctoMap, CMetricMap,mrpt::maps)
+IMPLEMENTS_SERIALIZABLE(CustomOctoMap, COctoMap,mrpt::maps)
