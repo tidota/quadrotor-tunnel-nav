@@ -305,15 +305,18 @@ add_dependencies(slam ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARG
 target_link_libraries(slam ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
 
 # RBPF
+add_library(custom_octomap src/rbpf/CustomOctoMap.cpp)
+
 add_executable(mrpt_rbpf_slam
     src/rbpf/mrpt_rbpf_slam.cpp
     src/rbpf/mrpt_rbpf_slam_wrapper.cpp
     src/rbpf/mrpt_rbpf_slam_node.cpp
     src/rbpf/options.cpp
-    src/rbpf/CustomOctoMap.cpp
 )
-TARGET_LINK_LIBRARIES(mrpt_rbpf_slam ${MRPT_LIBRARIES}
+target_link_libraries(mrpt_rbpf_slam
+    ${MRPT_LIBRARIES}
     ${catkin_LIBRARIES}
+    custom_octomap
 )
 
 #############
