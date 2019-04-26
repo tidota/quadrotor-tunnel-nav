@@ -306,9 +306,8 @@ target_link_libraries(slam ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
 
 # RBPF
 add_library(custom_octomap src/rbpf/CustomOctoMap.cpp)
-
+add_library(slam_core src/rbpf/mrpt_rbpf_slam.cpp)
 add_executable(mrpt_rbpf_slam
-    src/rbpf/mrpt_rbpf_slam.cpp
     src/rbpf/mrpt_rbpf_slam_wrapper.cpp
     src/rbpf/mrpt_rbpf_slam_node.cpp
     src/rbpf/options.cpp
@@ -316,6 +315,7 @@ add_executable(mrpt_rbpf_slam
 target_link_libraries(mrpt_rbpf_slam
     ${MRPT_LIBRARIES}
     ${catkin_LIBRARIES}
+    slam_core
     custom_octomap
 )
 
