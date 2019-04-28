@@ -39,6 +39,8 @@ bool PFslamWrapper::getParams(const ros::NodeHandle& nh_p)
   nh_p.param<std::string>("sensor_source", sensor_source_, "");
   ROS_INFO("sensor_source: %s", sensor_source_.c_str());
 
+  nh_p.param("update_loop_frequency", freq_, 100.);
+
   PFslam::Options options;
   if (!loadOptions(nh_p, options))
   {
@@ -153,6 +155,16 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   }
   sensor_buffer[msg.header.frame_id].push(std::make_shared<sensor_msgs::Range>(msg));
 
+  auto t_now = ros::Time::now();
+  for (auto& pair: sensor_buffer)
+  {
+    while (pair.second.size() > 0 and (t_now - pair.second.front()->header.stamp).toSec() > 1.0/freq_)
+    {
+      pair.second.pop();
+      ROS_INFO_STREAM("data discarded since it is old: " << pair.first);
+    }
+  }
+
   int count = 0;
   for (auto& pair: sensor_buffer)
   {
@@ -207,11 +219,8 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   t_exec_ = tictac_.Tac();
   ROS_INFO("Map building executed in %.03fms", 1000.0f * t_exec_);
   publishMapPose();
-  ROS_INFO("Here?1");
   publishTF();
-  ROS_INFO("Here?2");
   publishVisMap();
-  ROS_INFO("Here?3");
 }
 // =============================================================
 void PFslamWrapper::publishMapPose()

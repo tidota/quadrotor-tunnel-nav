@@ -21,15 +21,6 @@ int main(int argc, char** argv)
 
   ros::Duration(1).sleep();
 
-/* to remove
-  // If play from rawlog file options is specified
-  // play and then terminate application
-  if (slam.rawlogPlay())
-  {
-    return EXIT_SUCCESS;
-  }
-*/
-
   // Otherwise work as a usual rosnode
   while (ros::ok())
   {
