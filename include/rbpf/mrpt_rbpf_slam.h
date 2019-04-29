@@ -72,7 +72,7 @@ public:
    * @param[in] sensory_frame  current observation
    * @param[in] odometry raw odometry
    */
-  void observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
+  bool observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
                    const mrpt::poses::CPose3D& odometry);
 
 protected:
@@ -81,6 +81,7 @@ protected:
   mrpt::obs::CSensoryFrame::Ptr sensory_frame_;   ///< observations
 
   mrpt::poses::CPose3D odomLastObservation_;  ///< last observation of odometry
+  bool firstOdomPose_;
   bool use_motion_model_default_options_;     ///< used default odom_params
   mrpt::system::TTimeStamp timeLastUpdate_;   ///< last update of the pose and map
 

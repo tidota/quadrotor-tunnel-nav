@@ -209,15 +209,17 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   mrpt::poses::CPose3D odometry;
   odometryForCallback(odometry, msg.header);
 
-  observation(sensory_frame_, odometry);
-  timeLastUpdate_ = sensory_frame_->getObservationByIndex(0)->timestamp;
+  if (observation(sensory_frame_, odometry))
+  {
+    timeLastUpdate_ = sensory_frame_->getObservationByIndex(0)->timestamp;
 
-  tictac_.Tic();
-  ROS_INFO("================= processActionObservation start ====================");
-  mapBuilder_.processActionObservation(*action_, *sensory_frame_);
-  ROS_INFO("================= processActionObservation end ====================");
-  t_exec_ = tictac_.Tac();
-  ROS_INFO("Map building executed in %.03fms", 1000.0f * t_exec_);
+    tictac_.Tic();
+    ROS_INFO("================= processActionObservation start ====================");
+    mapBuilder_.processActionObservation(*action_, *sensory_frame_);
+    ROS_INFO("================= processActionObservation end ====================");
+    t_exec_ = tictac_.Tac();
+    ROS_INFO("Map building executed in %.03fms", 1000.0f * t_exec_);
+  }
   publishMapPose();
   publishTF();
   publishVisMap();
