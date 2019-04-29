@@ -60,6 +60,13 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 	if (!internal_build_PointCloud_for_observation(obs,&takenFrom, sensorPt, scan))
 		return 0; // Nothing to do.
 
+	const mrpt::math::TPoint3D origin(takenFrom.x(),takenFrom.y(),takenFrom.z());
+	const
+		mrpt::math::TPoint3D direction
+			= mrpt::poses::CPose3D(
+					0,0,0,takenFrom.yaw(),takenFrom.pitch(),takenFrom.roll())
+			+ mrpt::poses::CPoint3D(1,0,0);
+
 	octomap::OcTreeKey key;
 	const size_t N=scan.size();
 
@@ -68,7 +75,37 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 	double log_lik = 0;
 	for (size_t i=0;i<N;i+=likelihoodOptions.decimation)
 	{
-		if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(scan.getPoint(i), key))
+		bool done = false;
+		const octomap::point3d target = scan.getPoint(i);
+		octomap::OcTreeNode *node;
+
+		octomap::point3d hit;
+		if (PIMPL_GET_REF(OCTREE, m_octomap).castRay(
+				octomap::point3d(origin.x,origin.y,origin.z),
+				octomap::point3d(direction.x,direction.y,direction.z),
+				hit,true,10.0)) //ignoreUnknownCells = true, maxRange = 10.0
+		{
+			octomap::OcTreeKey hkey;
+			if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(target, key) &&
+					PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(hit, hkey))
+			{
+				if (key == hkey
+					&& (node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)))
+				{
+					log_lik += std::log(0.9999999999999999999999);
+					ROS_INFO("hit!!!!!!!!!!");
+				}
+				else
+				{
+					log_lik -= std::log(0.0000000000000000000001); // penalty
+					ROS_INFO("miss!!!!!!!!!!!");
+				}
+				done = true;
+			}
+		}
+
+		if (done == false &&
+			PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(target, key))
 		{
 			weight_total = 0;
 			key[0] -= search_range;
@@ -80,7 +117,7 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 				{
 					for (int iz = -search_range; iz <= search_range; ++iz)
 					{
-						octomap::OcTreeNode *node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/);
+						node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/);
 						if (node)
 						{
 							double prob = node->getOccupancy();
