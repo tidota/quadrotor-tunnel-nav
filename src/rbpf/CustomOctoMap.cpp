@@ -83,10 +83,11 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 		if (PIMPL_GET_REF(OCTREE, m_octomap).castRay(
 				octomap::point3d(origin.x,origin.y,origin.z),
 				octomap::point3d(direction.x,direction.y,direction.z),
-				hit,true,10.0)) //ignoreUnknownCells = true, maxRange = 10.0
+				hit,true,target.norm() + 1)) //ignoreUnknownCells = true, maxRange
 		{
 			double dist = (target - hit).norm();
-			log_lik += std::log(1.0/exp(dist*dist/0.5)/std::sqrt(0.5));
+			//log_lik += std::log(1.0/exp(dist*dist/0.5)/std::sqrt(0.5));
+			log_lik += std::log(1/0.5)/2.0 - dist*dist/0.5;
 			done = true;
 		}
 
