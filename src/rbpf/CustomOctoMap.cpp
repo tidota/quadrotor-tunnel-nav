@@ -63,12 +63,14 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 	octomap::OcTreeKey key;
 	const size_t N=scan.size();
 
-	int search_range = 2;
+	const int search_range = 2;
+	double weight_total;
 	double log_lik = 0;
 	for (size_t i=0;i<N;i+=likelihoodOptions.decimation)
 	{
 		if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(scan.getPoint(i), key))
 		{
+			weight_total = 0;
 			key[0] -= search_range;
 			key[1] -= search_range;
 			key[2] -= search_range;
@@ -82,11 +84,11 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 						if (node)
 						{
 							double prob = node->getOccupancy();
-							if (prob > 0.5)
-								log_lik
-									+= std::log(prob)
-											* (1 + 3*search_range
-													 - std::abs(ix) - std::abs(iy) - std::abs(iz));
+							double weight = (1 + 3*search_range
+									 - std::abs(ix) - std::abs(iy) - std::abs(iz));
+							log_lik
+								+= std::log(prob) * weight;
+							weight_total += weight;
 						}
 						++key[2];
 					}
@@ -96,6 +98,8 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 				key[1] -= 2*search_range;
 				++key[0];
 			}
+			if (weight_total != 0)
+				log_lik /= weight_total;
 		}
 	}
 
