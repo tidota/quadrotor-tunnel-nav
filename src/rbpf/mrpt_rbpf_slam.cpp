@@ -57,16 +57,22 @@ void PFslam::readIniFile(const std::string& ini_filename)
   options_.rbpfMappingOptions_.dumpToConsole();
 }
 
-void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
+bool PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
                          const mrpt::poses::CPose3D& odometry)
 {
   action_ = mrpt::obs::CActionCollection::Create();
   mrpt::obs::CActionRobotMovement3D odom_move;
   odom_move.timestamp = sensory_frame->getObservationByIndex(0)->timestamp;
 
-  if (odomLastObservation_.empty())
+  if (firstOdomPose_)
   {
-    odomLastObservation_ = odometry;
+    // the location is estimated based on incremental offset from the previous
+    // pose. By initializing the first pose with only x, y, z, the initial pose
+    // can be taken into considertation on the estimation.
+    odomLastObservation_ = mrpt::poses::CPose3D(
+      odometry.x(), odometry.y(), odometry.z(), 0, 0, 0);
+    firstOdomPose_ = false;
+    return false;
   }
 
   mrpt::poses::CPose3D incOdoPose = odometry - odomLastObservation_;
@@ -119,6 +125,7 @@ void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
   << ", roll = " << (pose.roll() * 180.0 / 3.15159265)
   << ", yaw = " << (pose.yaw() * 180.0 / 3.15159265));
   */
+  return true;
 }
 
 void PFslam::initSlam(PFslam::Options options)
@@ -141,5 +148,7 @@ void PFslam::initSlam(PFslam::Options options)
 #endif
 
   options_ = std::move(options);
+
+  firstOdomPose_ = true;
 }
 }  // namespace mrpt_rbpf_slam
