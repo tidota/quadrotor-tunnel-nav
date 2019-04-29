@@ -67,36 +67,36 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 	double log_lik = 0;
 	for (size_t i=0;i<N;i+=likelihoodOptions.decimation)
 	{
-		key[0] -= search_range;
-		key[1] -= search_range;
-		key[2] -= search_range;
-		for (int ix = -search_range; ix <= search_range; ++ix)
+		if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(scan.getPoint(i), key))
+		{
+			key[0] -= search_range;
+			key[1] -= search_range;
+			key[2] -= search_range;
+			for (int ix = -search_range; ix <= search_range; ++ix)
 			{
 				for (int iy = -search_range; iy <= search_range; ++iy)
 				{
 					for (int iz = -search_range; iz <= search_range; ++iz)
 					{
-						if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(scan.getPoint(i), key))
+						octomap::OcTreeNode *node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/);
+						if (node)
 						{
-							octomap::OcTreeNode *node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/);
-							if (node)
-							{
-								double prob = node->getOccupancy();
-								if (prob > 0.5)
-									log_lik
-										+= std::log(prob);
-											//	* (1 + 3*search_range
-											//			 - std::abs(ix) - std::abs(iy) - std::abs(iz));
-							}
-							++key[2];
+							double prob = node->getOccupancy();
+							if (prob > 0.5)
+								log_lik
+									+= std::log(prob)
+											* (1 + 3*search_range
+													 - std::abs(ix) - std::abs(iy) - std::abs(iz));
 						}
-						key[2] -= 2*search_range;
-						++key[1];
+						++key[2];
 					}
-					key[1] -= 2*search_range;
-					++key[0];
+					key[2] -= 2*search_range;
+					++key[1];
 				}
+				key[1] -= 2*search_range;
+				++key[0];
 			}
+		}
 	}
 
 	//ROS_INFO_STREAM("HEEEEELOOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
