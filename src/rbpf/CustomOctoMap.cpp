@@ -85,23 +85,9 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 				octomap::point3d(direction.x,direction.y,direction.z),
 				hit,true,10.0)) //ignoreUnknownCells = true, maxRange = 10.0
 		{
-			octomap::OcTreeKey hkey;
-			if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(target, key) &&
-					PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(hit, hkey))
-			{
-				if (key == hkey
-					&& (node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)))
-				{
-					log_lik += std::log(0.9999999999999999999999);
-					ROS_INFO("hit!!!!!!!!!!");
-				}
-				else
-				{
-					log_lik -= std::log(0.0000000000000000000001); // penalty
-					ROS_INFO("miss!!!!!!!!!!!");
-				}
-				done = true;
-			}
+			double dist = (target - hit).norm();
+			log_lik += std::log(1.0/exp(dist*dist/0.5)/std::sqrt(0.5));
+			done = true;
 		}
 
 		if (done == false &&
