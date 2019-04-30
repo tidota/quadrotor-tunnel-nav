@@ -99,13 +99,13 @@ bool PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
       auto trn = incOdoPose.norm();
       aux->m_particles[i].d->x(
         incOdoPose.x()
-        + trn * 0.5 * randomGenerator.drawGaussian1D_normalized());
+        + trn * 1.5 * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->y(
         incOdoPose.y()
-        + trn * 0.5 * randomGenerator.drawGaussian1D_normalized());
+        + trn * 1.5 * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->z(
         incOdoPose.z()
-        + trn * 0.5 * randomGenerator.drawGaussian1D_normalized());
+        + trn * 1.5 * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->setYawPitchRoll(
         incOdoPose.yaw() + 0.001 * randomGenerator.drawGaussian1D_normalized(),
         incOdoPose.pitch() + 0.001 * randomGenerator.drawGaussian1D_normalized(),

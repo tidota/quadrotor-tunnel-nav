@@ -63,13 +63,46 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 	octomap::OcTreeKey key;
 	const size_t N=scan.size();
 
-	const int search_range = 2;
+	const int search_range = 1;
+	double prob_buff;
 	double weight_total;
 	double log_lik = 0;
 	for (size_t i=0;i<N;i+=likelihoodOptions.decimation)
 	{
-		if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(scan.getPoint(i), key))
+		bool done = false;
+		const octomap::point3d target = scan.getPoint(i);
+		octomap::OcTreeNode *node;
+
+		const octomap::point3d direction = target - sensorPt;
+		const double dist = direction.norm();
+		const octomap::point3d origin = sensorPt + direction * (0.5 / 2.0 / dist);
+		//ROS_INFO_STREAM("sensorPt: " << sensorPt.x() << ", " << sensorPt.y() << ", " << sensorPt.z());
+		//ROS_INFO_STREAM("target: " << target.x() << ", " << target.y() << ", " << target.z());
+		//ROS_INFO_STREAM("direction: " << direction.x() << ", " << direction.y() << ", " << direction.z());
+
+		octomap::point3d hit;
+		if (PIMPL_GET_REF(OCTREE, m_octomap).castRay(
+				origin, direction, hit,
+				true, dist + 0.5*2)) //ignoreUnknownCells = true, maxRange
 		{
+			if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(hit, key) &&
+			 (node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)))
+			{
+				double err = (target - hit).norm();
+				double sigma = 0.5/4; // standard deviation: 95% is in one cell length
+
+				log_lik += std::log(node->getOccupancy())
+					- std::log(2*3.14159*sigma*sigma)/2.0 - err*err/sigma/sigma/2.0;
+				done = true;
+			}
+		}
+		// if an occupied cell is not hit, multiply 0.5 (so add log(0.5))
+		if (done == false)
+			log_lik += std::log(0.5);
+
+		if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(target, key))
+		{
+			prob_buff = 0;
 			weight_total = 0;
 			key[0] -= search_range;
 			key[1] -= search_range;
@@ -80,14 +113,13 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 				{
 					for (int iz = -search_range; iz <= search_range; ++iz)
 					{
-						octomap::OcTreeNode *node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/);
+						node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/);
 						if (node)
 						{
 							double prob = node->getOccupancy();
 							double weight = (1 + 3*search_range
 									 - std::abs(ix) - std::abs(iy) - std::abs(iz));
-							log_lik
-								+= std::log(prob) * weight;
+							prob_buff += prob * weight;
 							weight_total += weight;
 						}
 						++key[2];
@@ -99,7 +131,7 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 				++key[0];
 			}
 			if (weight_total != 0)
-				log_lik /= weight_total;
+				log_lik += std::log(prob_buff / weight_total);
 		}
 	}
 
