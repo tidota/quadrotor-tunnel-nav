@@ -132,6 +132,12 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 			}
 			if (weight_total != 0)
 				log_lik += std::log(prob_buff / weight_total);
+			else
+				log_lik += std::log(0.5);
+		}
+		else
+		{
+			log_lik += std::log(0.5);
 		}
 	}
 
