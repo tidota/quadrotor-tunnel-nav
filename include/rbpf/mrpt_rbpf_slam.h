@@ -81,7 +81,7 @@ protected:
   mrpt::obs::CSensoryFrame::Ptr sensory_frame_;   ///< observations
 
   mrpt::poses::CPose3D odomLastObservation_;  ///< last observation of odometry
-  bool firstOdomPose_;
+  bool odomLastPoseUninitalized_;
   bool use_motion_model_default_options_;     ///< used default odom_params
   mrpt::system::TTimeStamp timeLastUpdate_;   ///< last update of the pose and map
 

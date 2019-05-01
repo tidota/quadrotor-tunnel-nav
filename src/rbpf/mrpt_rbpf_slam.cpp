@@ -64,14 +64,14 @@ bool PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
   mrpt::obs::CActionRobotMovement3D odom_move;
   odom_move.timestamp = sensory_frame->getObservationByIndex(0)->timestamp;
 
-  if (firstOdomPose_)
+  if (odomLastPoseUninitalized_)
   {
     // the location is estimated based on incremental offset from the previous
     // pose. By initializing the first pose with only x, y, z, the initial pose
     // can be taken into considertation on the estimation.
     odomLastObservation_ = mrpt::poses::CPose3D(
       odometry.x(), odometry.y(), odometry.z(), 0, 0, 0);
-    firstOdomPose_ = false;
+    odomLastPoseUninitalized_ = false;
     return false;
   }
 
@@ -150,6 +150,6 @@ void PFslam::initSlam(PFslam::Options options)
 
   options_ = std::move(options);
 
-  firstOdomPose_ = true;
+  odomLastPoseUninitalized_ = true;
 }
 }  // namespace mrpt_rbpf_slam

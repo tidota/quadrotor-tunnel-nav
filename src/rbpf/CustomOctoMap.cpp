@@ -75,7 +75,7 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 
 		const octomap::point3d direction = target - sensorPt;
 		const double dist = direction.norm();
-		const octomap::point3d origin = sensorPt + direction * ((0.5/2.0 < dist)? (0.5/2.0 / dist): 0);
+		const octomap::point3d origin = sensorPt + direction * ((resolution_/2.0 < dist)? (resolution_/2.0 / dist): 0);
 		//ROS_INFO_STREAM("sensorPt: " << sensorPt.x() << ", " << sensorPt.y() << ", " << sensorPt.z());
 		//ROS_INFO_STREAM("target: " << target.x() << ", " << target.y() << ", " << target.z());
 		//ROS_INFO_STREAM("direction: " << direction.x() << ", " << direction.y() << ", " << direction.z());
@@ -83,13 +83,13 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 		octomap::point3d hit;
 		if (PIMPL_GET_REF(OCTREE, m_octomap).castRay(
 				origin, direction, hit,
-				true, dist + 0.5*2)) //ignoreUnknownCells = true, maxRange
+				true, dist + resolution_*2)) //ignoreUnknownCells = true, maxRange
 		{
 			if (PIMPL_GET_REF(OCTREE, m_octomap).coordToKeyChecked(hit, key) &&
 			 (node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)))
 			{
 				double err = (target - hit).norm();
-				double sigma = 0.5/4; // standard deviation: 95% is in one cell length
+				double sigma = resolution_/4; // standard deviation: 95% is in one cell length
 
 				log_lik += std::log(node->getOccupancy())
 					- std::log(2*3.14159*sigma*sigma)/2.0 - err*err/sigma/sigma/2.0;
@@ -115,7 +115,7 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 					{
 						octomap::point3d p = PIMPL_GET_REF(OCTREE, m_octomap).keyToCoord(key);
 						const double diffLen = std::fabs((p - sensorPt).norm() - dist);
-						if (diffLen < 0.5 &&
+						if (diffLen < resolution_ &&
 							(node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)))
 						{
 							double prob = node->getOccupancy();

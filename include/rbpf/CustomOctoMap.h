@@ -15,7 +15,7 @@ namespace mrpt
 			DEFINE_SERIALIZABLE( CustomOctoMap )
 
 		 public:
-			 CustomOctoMap(const double resolution=0.10): COctoMap(resolution){} //!< Default constructor
+			 CustomOctoMap(const double resolution=0.10): COctoMap(resolution), resolution_(resolution){} //!< Default constructor
 			 virtual ~CustomOctoMap(){} //!< Destructor
 
 			 void setResolution(const double& res);
@@ -23,6 +23,7 @@ namespace mrpt
 		private:
 			virtual double	 internal_computeObservationLikelihood( const mrpt::obs::CObservation *obs, const mrpt::poses::CPose3D &takenFrom ) MRPT_OVERRIDE;
 
+			const double resolution_;
 		}; // End of class def.
 		DEFINE_SERIALIZABLE_POST_CUSTOM_BASE_LINKAGE( CustomOctoMap , COctoMap, MAPS_IMPEXP )
 	} // End of namespace
