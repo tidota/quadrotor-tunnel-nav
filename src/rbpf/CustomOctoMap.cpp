@@ -63,7 +63,7 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 	octomap::OcTreeKey key;
 	const size_t N=scan.size();
 
-	const int search_range = 1;
+	const int search_range = 3;
 	double prob_buff;
 	double weight_total;
 	double log_lik = 0;
@@ -75,7 +75,7 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 
 		const octomap::point3d direction = target - sensorPt;
 		const double dist = direction.norm();
-		const octomap::point3d origin = sensorPt + direction * (0.5 / 2.0 / dist);
+		const octomap::point3d origin = sensorPt + direction * ((0.5/2.0 < dist)? (0.5/2.0 / dist): 0);
 		//ROS_INFO_STREAM("sensorPt: " << sensorPt.x() << ", " << sensorPt.y() << ", " << sensorPt.z());
 		//ROS_INFO_STREAM("target: " << target.x() << ", " << target.y() << ", " << target.z());
 		//ROS_INFO_STREAM("direction: " << direction.x() << ", " << direction.y() << ", " << direction.z());
@@ -113,8 +113,10 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 				{
 					for (int iz = -search_range; iz <= search_range; ++iz)
 					{
-						node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/);
-						if (node)
+						octomap::point3d p = PIMPL_GET_REF(OCTREE, m_octomap).keyToCoord(key);
+						const double diffLen = std::fabs((p - sensorPt).norm() - dist);
+						if (diffLen < 0.5 &&
+							(node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)))
 						{
 							double prob = node->getOccupancy();
 							double weight = (1 + 3*search_range

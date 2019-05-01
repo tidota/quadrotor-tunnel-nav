@@ -96,16 +96,18 @@ bool PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
     // Draw samples:
     for (size_t i = 0; i < 300; i++)
     {
-      auto trn = incOdoPose.norm();
+      const double trn = incOdoPose.norm();
+      const double amp = (trn * 1.5 < 0.07)? (trn) * 1.5: 0.07;
+      ROS_INFO_STREAM("trm: " << trn << ", amp: " << amp);
       aux->m_particles[i].d->x(
         incOdoPose.x()
-        + trn * 1.5 * randomGenerator.drawGaussian1D_normalized());
+        + amp * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->y(
         incOdoPose.y()
-        + trn * 1.5 * randomGenerator.drawGaussian1D_normalized());
+        + amp * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->z(
         incOdoPose.z()
-        + trn * 1.5 * randomGenerator.drawGaussian1D_normalized());
+        + amp * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->setYawPitchRoll(
         incOdoPose.yaw() + 0.001 * randomGenerator.drawGaussian1D_normalized(),
         incOdoPose.pitch() + 0.001 * randomGenerator.drawGaussian1D_normalized(),
