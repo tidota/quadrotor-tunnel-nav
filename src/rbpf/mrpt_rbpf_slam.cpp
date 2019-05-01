@@ -98,7 +98,6 @@ bool PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
     {
       const double trn = incOdoPose.norm();
       const double amp = (trn * 1.5 < 0.07)? (trn) * 1.5: 0.07;
-      ROS_INFO_STREAM("trm: " << trn << ", amp: " << amp);
       aux->m_particles[i].d->x(
         incOdoPose.x()
         + amp * randomGenerator.drawGaussian1D_normalized());
