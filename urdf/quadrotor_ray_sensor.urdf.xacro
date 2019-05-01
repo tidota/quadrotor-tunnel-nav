@@ -5,6 +5,10 @@
   xmlns:xacro="http://www.ros.org/wiki/xacro"
 >
 
+    <xacro:arg name="rate" default="20"/>
+    <xacro:arg name="min_range" default="0.01"/>
+    <xacro:arg name="max_range" default="10.0"/>
+
     <xacro:property name="M_PI" value="3.1415926535897931" />
 
     <!-- Included URDF Files -->
@@ -16,9 +20,9 @@
 
     <!-- ray sensors -->
     <xacro:include filename="$(find hector_sensors_description)/urdf/sonar_sensor.urdf.xacro" />
-    <xacro:property name="RATE" value="20" />
-    <xacro:property name="MIN" value="0.01" />
-    <xacro:property name="MAX" value="10.0" />
+    <xacro:property name="RATE" value="$(arg rate)" />
+    <xacro:property name="MIN" value="$(arg min_range)" />
+    <xacro:property name="MAX" value="$(arg max_range)" />
     <xacro:property name="DEG" value="3" />
     <xacro:property name="STEP_X" value="0.05" />
     <xacro:property name="STEP_Y" value="0.05" />
