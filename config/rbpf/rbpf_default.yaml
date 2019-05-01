@@ -1,5 +1,5 @@
 # Ros loop update frequency
-update_loop_frequency: 20 # Hz (or 20 updates per sec)
+update_loop_frequency: 5 # Hz (or 20 updates per sec)
 
 # Absolute path to the folder where to save *.simplemap
 # Note: everything in '/tmp' folder is removed if computer is restarted

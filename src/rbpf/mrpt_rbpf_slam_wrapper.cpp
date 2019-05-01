@@ -25,6 +25,11 @@ bool PFslamWrapper::getParams(const ros::NodeHandle& nh_p)
   nh_p.getParam("ini_filename", ini_filename_);
   ROS_INFO("ini_filename: %s", ini_filename_.c_str());
 
+  nh_p.param<std::string>("gtruthw_frame_id", gtruthw_frame_id_, "ground_truth/world");
+  ROS_INFO("gtruthw_frame_id: %s", gtruthw_frame_id_.c_str());
+  nh_p.param<std::string>("gtruthb_frame_id", gtruthb_frame_id_, "ground_truth/base_link");
+  ROS_INFO("gtruthb_frame_id: %s", gtruthb_frame_id_.c_str());
+
   nh_p.param<std::string>("global_frame_id", global_frame_id_, "map");
   ROS_INFO("global_frame_id: %s", global_frame_id_.c_str());
 
@@ -88,19 +93,14 @@ bool PFslamWrapper::init(ros::NodeHandle& nh)
     = nh.advertise<visualization_msgs::MarkerArray>("map_marker_occupied", 1);
   marker_counter = 0;
 
+  odometryOrgUnitialized_ = true;
+  locationOrgUnitialized_ = true;
+  gtruthLocOrgUnitialized_ = true;
+
   return true;
 }
 
 // ========================================================
-void PFslamWrapper::odometryForCallback(mrpt::poses::CPose3D& odometry,
-                                        const std_msgs::Header& _msg_header)
-{
-  mrpt::poses::CPose3D poseOdom;
-  if (this->waitForTransform(poseOdom, odom_frame_id_, base_frame_id_, _msg_header.stamp, ros::Duration(1)))
-  {
-    odometry = poseOdom;
-  }
-}
 bool PFslamWrapper::waitForTransform(mrpt::poses::CPose3D& des, const std::string& target_frame,
                                      const std::string& source_frame, const ros::Time& time,
                                      const ros::Duration& timeout, const ros::Duration& polling_sleep_duration)
@@ -174,11 +174,27 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   CObservation::Ptr obs = CObservation::Ptr(pc);
   sensory_frame_->insert(obs);
 
-  //CObservationOdometry::Ptr odometry;
-  mrpt::poses::CPose3D odometry;
-  odometryForCallback(odometry, msg.header);
+  currentTime_ = msg.header.stamp;
+  if (this->waitForTransform(odometry_, odom_frame_id_, base_frame_id_, currentTime_, ros::Duration(1)))
+  {
+    // store the initial odometry location.
+    if (odometryOrgUnitialized_)
+    {
+      odometryOrg_ = odometry_;
+      odometryOrgUnitialized_ = false;
+    }
+  }
+  if (this->waitForTransform(gtruthLoc_, gtruthw_frame_id_, gtruthb_frame_id_, currentTime_, ros::Duration(1)))
+  {
+    // store the initial gtruthLoc location.
+    if (gtruthLocOrgUnitialized_)
+    {
+      gtruthLocOrg_ = gtruthLoc_;
+      gtruthLocOrgUnitialized_ = false;
+    }
+  }
 
-  observation(sensory_frame_, odometry);
+  observation(sensory_frame_, odometry_);
   timeLastUpdate_ = sensory_frame_->getObservationByIndex(0)->timestamp;
 
   tictac_.Tic();
@@ -262,6 +278,14 @@ void PFslamWrapper::publishTF()
   mapBuilder_.mapPDF.getEstimatedPosePDF(curPDF);
 
   curPDF.getMean(robotPose);
+
+  location_ = robotPose;
+  // store the initial location location.
+  if (locationOrgUnitialized_)
+  {
+    locationOrg_ = location_;
+    locationOrgUnitialized_ = false;
+  }
 
   tf::Stamped<tf::Pose> odom_to_map;
   tf::Transform tmp_tf;

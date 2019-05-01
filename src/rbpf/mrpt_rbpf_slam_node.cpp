@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "rbpf/mrpt_rbpf_slam_wrapper.h"
 
 int main(int argc, char** argv)
@@ -30,10 +32,32 @@ int main(int argc, char** argv)
   }
 */
 
+  std::ofstream f;
+  f.open("eval_results.csv", std::ofstream::out);
+  if (f)
+  {
+    f << "Time,Odometry Err, SLAM Err" << std::endl;
+  }
   // Otherwise work as a usual rosnode
   while (ros::ok())
   {
     ros::spinOnce();
     rate.sleep();
+
+    if (f)
+    {
+      f << slam.getCurrentTime() << ",";
+      f << slam.getOdomErr() << ",";
+      f << slam.getSLAMErr() << std::endl;
+      ROS_INFO_STREAM("Time diff: " << (slam.getCurrentTime() - ros::Time::now().toSec()));
+    }
+    else
+    {
+      ROS_INFO_STREAM("FILE NOT OPEN, cannot write results!!!!");
+    }
+  }
+  if (f)
+  {
+    f.close();
   }
 }
