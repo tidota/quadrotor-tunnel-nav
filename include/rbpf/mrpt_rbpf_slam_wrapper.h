@@ -105,14 +105,6 @@ public:
                         const ros::Duration& polling_sleep_duration = ros::Duration(0.01));
 
   /**
-   * @brief Get the odometry for received observation
-   *
-   * @param[out] odometry odometry for received observation
-   * @param[in]  msg_header timestamp of the observation
-   */
-  void odometryForCallback(mrpt::poses::CPose3D& odometry, const std_msgs::Header& msg_header);
-
-  /**
    * @brief Update the pose of the sensor with respect to the robot
    *
    *@param frame_id the frame of the sensors
@@ -133,6 +125,8 @@ public:
 
 private:
   std::string ini_filename_;     ///< name of ini file
+  std::string gtruthw_frame_id_;  ///< /ground truth world
+  std::string gtruthb_frame_id_;  ///< /ground truth base_link
   std::string global_frame_id_;  ///< /map frame
   std::string odom_frame_id_;    ///< /odom frame
   std::string base_frame_id_;    ///< robot frame
@@ -165,5 +159,32 @@ private:
   std_msgs::ColorRGBA m_color_occupied;
   ros::Publisher marker_occupied_pub;
   int marker_counter;
+
+private:
+  // for evaluation
+  mrpt::poses::CPose3D odometry_; /// location estimated by odometry
+  mrpt::poses::CPose3D odometryOrg_; /// original location of odometry_
+  bool odometryOrgUnitialized_; /// whether odometryOrg_ is uninitialized
+  mrpt::poses::CPose3D location_; /// location estimated by SLAM
+  mrpt::poses::CPose3D locationOrg_; /// original location of location_
+  bool locationOrgUnitialized_; /// whether locationOrg_ is uninitialized
+  mrpt::poses::CPose3D gtruthLoc_; /// ground truth location
+  mrpt::poses::CPose3D gtruthLocOrg_; /// original location of gtruthLoc_
+  bool gtruthLocOrgUnitialized_; /// whether gtruthLocOrg_ is uninitialized
+  ros::Time currentTime_;
+
+public:
+  double getCurrentTime()
+  {
+    return currentTime_.toSec();
+  }
+  double getOdomErr()
+  {
+    return ((odometry_ - odometryOrg_) - (gtruthLoc_ - gtruthLocOrg_)).norm();
+  }
+  double getSLAMErr()
+  {
+    return ((location_ - locationOrg_) - (gtruthLoc_ - gtruthLocOrg_)).norm();
+  }
 };
 }  // namespace mrpt_rbpf_slam
