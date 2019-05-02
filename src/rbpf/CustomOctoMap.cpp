@@ -117,7 +117,7 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 						const double diffLen = (p - target).norm();
 						double prob;
 						double weight;
-						if (//diffLen < resolution_ &&
+						if (diffLen < (search_range + 0.5) * resolution_ && // in the sphere
 							(node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)) &&
 							(prob = node->getOccupancy()) > 0.5)
 						{
