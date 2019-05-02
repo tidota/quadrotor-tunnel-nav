@@ -24,6 +24,7 @@ int main(int argc, char** argv)
   ros::Duration(1).sleep();
 
   std::ofstream f;
+  double currT = ros::Time::now().toSec();
   f.open("eval_results.csv", std::ofstream::out);
   if (f)
   {
@@ -36,10 +37,14 @@ int main(int argc, char** argv)
 
     if (f)
     {
-      f << slam.getCurrentTime() << ",";
-      f << slam.getOdomErr() << ",";
-      f << slam.getSLAMErr() << std::endl;
-      ROS_INFO_STREAM("Time diff: " << (slam.getCurrentTime() - ros::Time::now().toSec()));
+      double tempT = slam.getCurrentTime();
+      if (currT != tempT)
+      {
+        currT = tempT;
+        f << currT << ",";
+        f << slam.getOdomErr() << ",";
+        f << slam.getSLAMErr() << std::endl;
+      }
     }
     else
     {

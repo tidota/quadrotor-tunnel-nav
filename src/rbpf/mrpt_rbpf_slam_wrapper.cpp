@@ -44,7 +44,7 @@ bool PFslamWrapper::getParams(const ros::NodeHandle& nh_p)
   nh_p.param<std::string>("sensor_source", sensor_source_, "");
   ROS_INFO("sensor_source: %s", sensor_source_.c_str());
 
-  nh_p.param("update_loop_frequency", freq_, 100.);
+  nh_p.param("sensor_rate", rate_, 10.); // see the yaml file for more details.
 
   PFslam::Options options;
   if (!loadOptions(nh_p, options))
@@ -158,7 +158,7 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   auto t_now = ros::Time::now();
   for (auto& pair: sensor_buffer)
   {
-    while (pair.second.size() > 0 and (t_now - pair.second.front()->header.stamp).toSec() > 1.0/freq_)
+    while (pair.second.size() > 0 and (t_now - pair.second.front()->header.stamp).toSec() > 1.0/rate_)
     {
       pair.second.pop();
       ROS_INFO_STREAM("data discarded since it is old: " << pair.first);
@@ -352,8 +352,8 @@ void PFslamWrapper::publishTF()
 
 void PFslamWrapper::publishVisMap()
 {
-  // publish it oly once at each 10 updates.
-  if (marker_counter < 10)
+  // publish it oly once at each <rate_> updates.
+  if (marker_counter < rate_)
   {
     ++marker_counter;
     return;

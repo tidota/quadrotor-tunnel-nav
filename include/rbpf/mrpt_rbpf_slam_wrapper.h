@@ -132,7 +132,7 @@ private:
   std::string base_frame_id_;    ///< robot frame
 
   // maximum frequency of updates
-  double freq_;
+  double rate_;
 
   // Sensor source
   std::string sensor_source_;
