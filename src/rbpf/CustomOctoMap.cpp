@@ -63,7 +63,7 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 	octomap::OcTreeKey key;
 	const size_t N=scan.size();
 
-	const int search_range = 3;
+	const int search_range = (resolution_ > 0.5)?(int)(1/resolution_)-1: 1;
 	double prob_buff;
 	double weight_total;
 	double log_lik = 0;
@@ -114,22 +114,23 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 					for (int iz = -search_range; iz <= search_range; ++iz)
 					{
 						octomap::point3d p = PIMPL_GET_REF(OCTREE, m_octomap).keyToCoord(key);
-						const double diffLen = std::fabs((p - sensorPt).norm() - dist);
-						double weight = (1 + 3*search_range
-														- std::abs(ix) - std::abs(iy) - std::abs(iz));
-						if (diffLen < resolution_ &&
-							(node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)))
+						const double diffLen = (p - target).norm();
+						double prob;
+						double weight;
+						if (//diffLen < resolution_ &&
+							(node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)) &&
+							(prob = node->getOccupancy()) > 0.5)
 						{
-							double prob = node->getOccupancy();
+							const double sigma = resolution_ / 2;
+							weight = 1/std::sqrt(2*3.14159*sigma*sigma)
+															/ std::exp(diffLen*diffLen/2/sigma/sigma);
+															//(1 + 3*search_range
+															//- std::abs(ix) - std::abs(iy) - std::abs(iz));
 //							double weight = (1 + 3*search_range
 									 //- std::abs(ix) - std::abs(iy) - std::abs(iz));
 							prob_buff += prob * weight;
+							weight_total += weight;
 						}
-						else
-						{
-							prob_buff += 0.5 * weight;
-						}
-						weight_total += weight;
 						++key[2];
 					}
 					key[2] -= 2*search_range;
