@@ -115,15 +115,21 @@ double CustomOctoMap::internal_computeObservationLikelihood( const mrpt::obs::CO
 					{
 						octomap::point3d p = PIMPL_GET_REF(OCTREE, m_octomap).keyToCoord(key);
 						const double diffLen = std::fabs((p - sensorPt).norm() - dist);
+						double weight = (1 + 3*search_range
+														- std::abs(ix) - std::abs(iy) - std::abs(iz));
 						if (diffLen < resolution_ &&
 							(node = PIMPL_GET_REF(OCTREE, m_octomap).search(key,0 /*depth*/)))
 						{
 							double prob = node->getOccupancy();
-							double weight = (1 + 3*search_range
-									 - std::abs(ix) - std::abs(iy) - std::abs(iz));
+//							double weight = (1 + 3*search_range
+									 //- std::abs(ix) - std::abs(iy) - std::abs(iz));
 							prob_buff += prob * weight;
-							weight_total += weight;
 						}
+						else
+						{
+							prob_buff += 0.5 * weight;
+						}
+						weight_total += weight;
 						++key[2];
 					}
 					key[2] -= 2*search_range;
