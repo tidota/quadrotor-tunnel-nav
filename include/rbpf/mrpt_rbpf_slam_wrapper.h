@@ -131,6 +131,9 @@ private:
   std::string odom_frame_id_;    ///< /odom frame
   std::string base_frame_id_;    ///< robot frame
 
+  // maximum frequency of updates
+  double rate_;
+
   // Sensor source
   std::string sensor_source_;
   std::map<std::string, mrpt::poses::CPose3D> range_poses_;   ///< range poses with respect to the map

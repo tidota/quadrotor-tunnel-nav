@@ -1,12 +1,20 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="rate" default="10"/>
+  <arg name="min_range" default="0.01"/>
+  <arg name="max_range" default="10.0"/>
+
   <!-- Start Gazebo with wg world running in (max) realtime -->
   <include file="$(find hector_gazebo_worlds)/launch/start.launch">
    <arg name="world" value="$(find quadrotor_tunnel_nav)/worlds/IndianTunnel.world"/>
   </include>
 
   <!-- Spawn simulated quadrotor uav -->
-  <include file="$(find quadrotor_tunnel_nav)/launch/env/spawn_uav.launch"/>
+  <include file="$(find quadrotor_tunnel_nav)/launch/env/spawn_uav.launch">
+    <arg name="rate" value="$(arg rate)"/>
+    <arg name="min_range" value="$(arg min_range)"/>
+    <arg name="max_range" value="$(arg max_range)"/>
+  </include>
 
   <!-- Start rviz visualization with preset config
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find quadrotor_tunnel_nav)/rviz_cfg/outdoor_flight.rviz"/>-->

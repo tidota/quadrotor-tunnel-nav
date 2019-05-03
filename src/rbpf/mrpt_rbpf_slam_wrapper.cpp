@@ -2,6 +2,8 @@
 
 #include "rbpf/options.h"
 
+#include "rbpf/CustomOctoMap.h"
+
 namespace
 {
 bool isFileExists(const std::string& name)
@@ -41,6 +43,8 @@ bool PFslamWrapper::getParams(const ros::NodeHandle& nh_p)
 
   nh_p.param<std::string>("sensor_source", sensor_source_, "");
   ROS_INFO("sensor_source: %s", sensor_source_.c_str());
+
+  nh_p.param("sensor_rate", rate_, 10.); // see the yaml file for more details.
 
   PFslam::Options options;
   if (!loadOptions(nh_p, options))
@@ -83,6 +87,23 @@ bool PFslamWrapper::init(ros::NodeHandle& nh)
   }
 
   mapBuilder_ = mrpt::slam::CMetricMapBuilderRBPF(options_.rbpfMappingOptions_);
+
+  // replace the map with the customized octomap
+  for (auto& particle: mapBuilder_.mapPDF.m_particles)
+  {
+    auto map = mrpt::maps::CustomOctoMap::Create();
+    auto org
+      = mrpt::maps::COctoMap::Ptr(particle.d->mapTillNow.maps[0].get_ptr());
+
+    // TODO: copy settings
+    map->insertionOptions = org->insertionOptions;
+    map->renderingOptions = org->renderingOptions;
+    map->likelihoodOptions = org->likelihoodOptions;
+    map->setResolution(org->getResolution());
+
+    particle.d->mapTillNow.maps[0] = map;
+  }
+
 
   // map visualization
   m_color_occupied.r = 1;
@@ -133,6 +154,16 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
     sensor_buffer[msg.header.frame_id] = std::queue< std::shared_ptr<sensor_msgs::Range> >();
   }
   sensor_buffer[msg.header.frame_id].push(std::make_shared<sensor_msgs::Range>(msg));
+
+  auto t_now = ros::Time::now();
+  for (auto& pair: sensor_buffer)
+  {
+    while (pair.second.size() > 0 and (t_now - pair.second.front()->header.stamp).toSec() > 1.0/rate_)
+    {
+      pair.second.pop();
+      ROS_INFO_STREAM("data discarded since it is old: " << pair.first);
+    }
+  }
 
   int count = 0;
   for (auto& pair: sensor_buffer)
@@ -194,15 +225,17 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
     }
   }
 
-  observation(sensory_frame_, odometry_);
-  timeLastUpdate_ = sensory_frame_->getObservationByIndex(0)->timestamp;
+  if (observation(sensory_frame_, odometry_))
+  {
+    timeLastUpdate_ = sensory_frame_->getObservationByIndex(0)->timestamp;
 
-  tictac_.Tic();
-  ROS_INFO("================= processActionObservation start ====================");
-  mapBuilder_.processActionObservation(*action_, *sensory_frame_);
-  ROS_INFO("================= processActionObservation end ====================");
-  t_exec_ = tictac_.Tac();
-  ROS_INFO("Map building executed in %.03fms", 1000.0f * t_exec_);
+    tictac_.Tic();
+    ROS_INFO("================= processActionObservation start ====================");
+    mapBuilder_.processActionObservation(*action_, *sensory_frame_);
+    ROS_INFO("================= processActionObservation end ====================");
+    t_exec_ = tictac_.Tac();
+    ROS_INFO("Map building executed in %.03fms", 1000.0f * t_exec_);
+  }
   publishMapPose();
   publishTF();
   publishVisMap();
@@ -214,7 +247,7 @@ void PFslamWrapper::publishMapPose()
   mapBuilder_.mapPDF.getEstimatedPosePDF(curPDF);
   if (metric_map_->maps.size())
   {
-    mrpt::maps::COctoMap::Ptr octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
+    auto octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
     octomap::OcTree &m_octree = octomap->getOctomap<octomap::OcTree>();
     // publish map
     octomap_msgs::Octomap msg;
@@ -319,8 +352,8 @@ void PFslamWrapper::publishTF()
 
 void PFslamWrapper::publishVisMap()
 {
-  // publish it oly once at each 10 updates.
-  if (marker_counter < 10)
+  // publish it oly once at each <rate_> updates.
+  if (marker_counter < rate_)
   {
     ++marker_counter;
     return;
@@ -328,7 +361,7 @@ void PFslamWrapper::publishVisMap()
   marker_counter = 0;
 
   metric_map_ = mapBuilder_.mapPDF.getCurrentMostLikelyMetricMap();
-  mrpt::maps::COctoMap::Ptr octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
+  auto octomap = mrpt::maps::COctoMap::Ptr(metric_map_->maps[0].get_ptr());
   octomap::OcTree &m_octree = octomap->getOctomap<octomap::OcTree>();
   visualization_msgs::MarkerArray occupiedNodesVis;
   occupiedNodesVis.markers.resize(m_octree.getTreeDepth()+1);

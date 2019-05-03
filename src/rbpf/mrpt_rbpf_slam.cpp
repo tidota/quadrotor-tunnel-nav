@@ -57,16 +57,22 @@ void PFslam::readIniFile(const std::string& ini_filename)
   options_.rbpfMappingOptions_.dumpToConsole();
 }
 
-void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
+bool PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
                          const mrpt::poses::CPose3D& odometry)
 {
   action_ = mrpt::obs::CActionCollection::Create();
   mrpt::obs::CActionRobotMovement3D odom_move;
   odom_move.timestamp = sensory_frame->getObservationByIndex(0)->timestamp;
 
-  if (odomLastObservation_.empty())
+  if (odomLastPoseUninitalized_)
   {
-    odomLastObservation_ = odometry;
+    // the location is estimated based on incremental offset from the previous
+    // pose. By initializing the first pose with only x, y, z, the initial pose
+    // can be taken into considertation on the estimation.
+    odomLastObservation_ = mrpt::poses::CPose3D(
+      odometry.x(), odometry.y(), odometry.z(), 0, 0, 0);
+    odomLastPoseUninitalized_ = false;
+    return false;
   }
 
   mrpt::poses::CPose3D incOdoPose = odometry - odomLastObservation_;
@@ -90,16 +96,23 @@ void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
     // Draw samples:
     for (size_t i = 0; i < 300; i++)
     {
-      auto trn = incOdoPose.norm();
+      //const double trn = incOdoPose.norm();
+      const double lim = 0.15;
+      double ampx = incOdoPose.x() * 1.5; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+      ampx = (-lim < ampx && ampx < lim)? ampx: lim;
+      double ampy = incOdoPose.y() * 1.5; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+      ampy = (-lim < ampy && ampy < lim)? ampy: lim;
+      double ampz = incOdoPose.z() * 1.5; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+      ampz = (-lim < ampz && ampz < lim)? ampz: lim;
       aux->m_particles[i].d->x(
-        incOdoPose.x()
-        + trn * 0.5 * randomGenerator.drawGaussian1D_normalized());
+        incOdoPose.x() + ampx * randomGenerator.drawGaussian1D_normalized());
+        //+ ampx * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->y(
-        incOdoPose.y()
-        + trn * 0.5 * randomGenerator.drawGaussian1D_normalized());
+        incOdoPose.y() + ampy * randomGenerator.drawGaussian1D_normalized());
+        //+ ampy * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->z(
-        incOdoPose.z()
-        + trn * 0.5 * randomGenerator.drawGaussian1D_normalized());
+        incOdoPose.z() + ampz * randomGenerator.drawGaussian1D_normalized());
+        //+ ampz * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->setYawPitchRoll(
         incOdoPose.yaw() + 0.001 * randomGenerator.drawGaussian1D_normalized(),
         incOdoPose.pitch() + 0.001 * randomGenerator.drawGaussian1D_normalized(),
@@ -119,6 +132,7 @@ void PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
   << ", roll = " << (pose.roll() * 180.0 / 3.15159265)
   << ", yaw = " << (pose.yaw() * 180.0 / 3.15159265));
   */
+  return true;
 }
 
 void PFslam::initSlam(PFslam::Options options)
@@ -141,5 +155,7 @@ void PFslam::initSlam(PFslam::Options options)
 #endif
 
   options_ = std::move(options);
+
+  odomLastPoseUninitalized_ = true;
 }
 }  // namespace mrpt_rbpf_slam

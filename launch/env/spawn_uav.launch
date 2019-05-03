@@ -27,12 +27,16 @@
   <arg name="base_link_frame" default="$(arg tf_prefix)/base_link"/>
 
   <arg name="motors" default="robbe_2827-34_epp1045" />
-  
+
+  <arg name="rate" default="10" />
+  <arg name="max_range" default="10.0" />
+  <arg name="min_range" default="0.01" />
+
   <!-- Spawn simulated quadrotor uav -->
   <group ns="$(arg ns)">
 
     <!-- send the robot XML to param server -->
-    <param name="robot_description" command="$(find xacro)/xacro '$(arg model)' base_link_frame:=$(arg base_link_frame) world_frame:=$(arg world_frame)" />
+    <param name="robot_description" command="$(find xacro)/xacro '$(arg model)' base_link_frame:=$(arg base_link_frame) world_frame:=$(arg world_frame) rate:=$(arg rate) max_range:=$(arg max_range) min_range:=$(arg min_range)" />
     <param name="tf_prefix" type="string" value="$(arg tf_prefix)"/> <!-- required for hector_pose_estimation and message_to_tf -->
     <param name="base_link_frame" type="string" value="$(arg base_link_frame)" />
     <param name="base_stabilized_frame" type="string" value="$(arg tf_prefix)/base_stabilized" />
