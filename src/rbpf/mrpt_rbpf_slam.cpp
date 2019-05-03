@@ -96,19 +96,20 @@ bool PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
     // Draw samples:
     for (size_t i = 0; i < 300; i++)
     {
-      //const double trn = incOdoPose.norm();
-      const double ampx = incOdoPose.x() * 2; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
-      const double ampy = incOdoPose.y() * 2; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
-      const double ampz = incOdoPose.z() * 2; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+      const double trn = incOdoPose.norm();
+//      const double ampx = incOdoPose.x() * 2; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+//      const double ampy = incOdoPose.y() * 2; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+//      const double ampz = incOdoPose.z() * 2; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+      const double amp = 1 + trn * 3 * randomGenerator.drawGaussian1D_normalized();
       aux->m_particles[i].d->x(
-        incOdoPose.x()
-        + ampx * randomGenerator.drawGaussian1D_normalized());
+        incOdoPose.x() * amp + randomGenerator.drawGaussian1D_normalized() * 0.001);
+        //+ ampx * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->y(
-        incOdoPose.y()
-        + ampy * randomGenerator.drawGaussian1D_normalized());
+        incOdoPose.y() * amp + randomGenerator.drawGaussian1D_normalized() * 0.001);
+        //+ ampy * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->z(
-        incOdoPose.z()
-        + ampz * randomGenerator.drawGaussian1D_normalized());
+        incOdoPose.z() * amp + randomGenerator.drawGaussian1D_normalized() * 0.001);
+        //+ ampz * randomGenerator.drawGaussian1D_normalized());
       aux->m_particles[i].d->setYawPitchRoll(
         incOdoPose.yaw() + 0.001 * randomGenerator.drawGaussian1D_normalized(),
         incOdoPose.pitch() + 0.001 * randomGenerator.drawGaussian1D_normalized(),
