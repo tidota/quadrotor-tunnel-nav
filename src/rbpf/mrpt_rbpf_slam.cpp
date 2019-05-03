@@ -97,9 +97,13 @@ bool PFslam::observation(const mrpt::obs::CSensoryFrame::ConstPtr sensory_frame,
     for (size_t i = 0; i < 300; i++)
     {
       //const double trn = incOdoPose.norm();
-      const double ampx = incOdoPose.x() * 1.5; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
-      const double ampy = incOdoPose.y() * 1.5; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
-      const double ampz = incOdoPose.z() * 1.5; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+      const double lim = 0.15;
+      double ampx = incOdoPose.x() * 1.5; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+      ampx = (-lim < ampx && ampx < lim)? ampx: lim;
+      double ampy = incOdoPose.y() * 1.5; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+      ampy = (-lim < ampy && ampy < lim)? ampy: lim;
+      double ampz = incOdoPose.z() * 1.5; //(trn * 1.5 < 0.15)? (trn) * 1.5: 0.15;
+      ampz = (-lim < ampz && ampz < lim)? ampz: lim;
       aux->m_particles[i].d->x(
         incOdoPose.x()
         + ampx * randomGenerator.drawGaussian1D_normalized());
