@@ -74,14 +74,6 @@ Visualization Manager:
       Topic: /robot/ground_truth_to_tf/pose
       Unreliable: false
       Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /robot/map_marker_free
-      Name: MarkerArray
-      Namespaces:
-        robot: true
-      Queue Size: 100
-      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
