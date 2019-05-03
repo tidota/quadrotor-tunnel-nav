@@ -78,17 +78,46 @@ roslaunch quadrotor_tunnel_nav multi_control.launch
 
 ## SLAM
 
-Currently working on implementation of SLAM.
+### OctoMap only
 
-_TODO_:
-- [ ] OctoMap
-- [ ] Localization
+This is just for practice purpose of Octomap.
 
-### How to run?
-**At first, launch `signle_uav_*.launch`.**
+In the terminal window, run the following to start Gazebo.
 ```
-roslaunch quadrotor_tunnel_nav start_slam.launch
+roslaunch quadrotor_tunnel_nav single_uav_IndianTunnel.launch
 ```
+
+In another terminal window, this command will start mapping.
+```
+roslaunch quadrotor_tunnel_nav start_octomap.launch
+```
+Rviz will show the resulted map constructed by Octomap.
+
+### MRPT
+
+Note: this part is experimental.
+
+Mobile Robot Programming Toolkit (MRPT) is a set of libraries for robot navigation.
+It implements Rao-Blackwellized particle filter for SLAM with Octomap.
+
+This work is based on the source code of [RBPF-SLAM](https://www.mrpt.org/list-of-mrpt-apps/application-rbpf-slam/).
+Customized Octomap with different likelihood evaluation and other features are added for the quadrotor navigation. (it is not so successful)
+
+In the terminal window, this command will start Gazebo with a quadrotor which is
+controlled based on the pose estimation, not the ground truth location.
+```
+roslaunch quadrotor_tunnel_nav start_env.launch
+```
+Note: The pose estimation is too unstable at the beginning.
+You should wait for 30 seconds before running the following command.
+
+In another window,
+```
+roslaunch quadrotor_tunnel_nav rbpf_slam.launch
+```
+
+Details:
+TBA
 
 ---
 
@@ -105,6 +134,13 @@ As of October 14, 2018, the second one is experimental.
 1. Ubuntu18.04 (Bionic)
     - ROS: Melodic
     - Gazebo: Gazebo9
+
+## Prerequisites
+
+For the SLAM part, Octomap and MRPT must be installed.
+http://wiki.ros.org/octomap
+http://wiki.ros.org/mrpt_slam
+
 
 ##  OS: Ubuntu 16.04, ROS: Kinetic, Gazebo7
 
