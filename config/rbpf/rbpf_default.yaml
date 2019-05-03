@@ -1,0 +1,41 @@
+# Ros loop update frequency
+update_loop_frequency: 100 # Hz (or 20 updates per sec)
+
+# Sensor measurement frequency (must be the same as defined in the sensor model (xacro))
+# As of 5/1/2019, this does not affect the actual ranging sensor. (internally, this value is ignored in the hector package)
+# This value is only used to check if the sensory data is so old to determine whether to discard it.
+# https://github.com/tu-darmstadt-ros-pkg/hector_models/blob/kinetic-devel/hector_sensors_description/urdf/sonar_sensor.urdf.xacro
+# https://github.com/tu-darmstadt-ros-pkg/hector_gazebo/blob/kinetic-devel/hector_gazebo_plugins/src/gazebo_ros_sonar.cpp
+# https://github.com/tu-darmstadt-ros-pkg/hector_gazebo/blob/kinetic-devel/hector_gazebo_plugins/include/hector_gazebo_plugins/update_timer.h
+sensor_rate: 10
+
+# Absolute path to the folder where to save *.simplemap
+# Note: everything in '/tmp' folder is removed if computer is restarted
+simplemap_save_folder: /tmp/
+
+# More documentation:
+# http://www.mrpt.org/tutorials/programming/odometry-and-motion-models/probabilistic_motion_models/
+# http://mrpt.ual.es/reference/devel/_c_action_robot_movement3_d_8cpp_source.html
+motion_model:
+  type: "6dof" # choose thrun or gaussian
+  6dof_motion_model_options:
+    nParticlesCount: 20
+    a1: 0.005
+    a2: 0.005
+    a3: 0.005
+    a4: 0.005
+    a5: 0.005
+    a6: 0.005
+    a7: 0.005
+    a8: 0.005
+    a9: 0.005
+    a10: 0.005
+    additional_std_XYZ:  0.001
+    additional_std_angle: 0.00
+
+mrpt_visualization_options:
+  show_window:         true
+  camera_follow_robot: false
+  window_update_delay: 1     # [ms]
+  width:               600   # [pix]
+  height:              500   # [pix]
