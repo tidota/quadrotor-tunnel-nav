@@ -1,10 +1,10 @@
-// slam_base.hpp
+// octomap_base.hpp
 // 190113
 // Base class and macros to use ranging sensors.
 //
 
-#ifndef _SLAM_BASE_HPP
-#define _SLAM_BASE_HPP
+#ifndef _OCTOMAP_BASE_HPP
+#define _OCTOMAP_BASE_HPP
 
 #include <map>
 
@@ -61,27 +61,27 @@
 
 #define subscribe_H(_NUM_) \
   rng_h_sub[_NUM_] = n.subscribe(\
-    TOPIC_RANGE_H##_NUM_, 1, &SLAM_BASE::updateRange_H##_NUM_, this);
+    TOPIC_RANGE_H##_NUM_, 1, &OCTOMAP_BASE::updateRange_H##_NUM_, this);
 #define subscribe_U(_NUM_) \
   rng_u_sub[_NUM_] = n.subscribe(\
-    TOPIC_RANGE_U##_NUM_, 1, &SLAM_BASE::updateRange_U##_NUM_, this);
+    TOPIC_RANGE_U##_NUM_, 1, &OCTOMAP_BASE::updateRange_U##_NUM_, this);
 #define subscribe_D(_NUM_) \
   rng_d_sub[_NUM_] = n.subscribe(\
-    TOPIC_RANGE_D##_NUM_, 1, &SLAM_BASE::updateRange_D##_NUM_, this);
+    TOPIC_RANGE_D##_NUM_, 1, &OCTOMAP_BASE::updateRange_D##_NUM_, this);
 
 // =============================================================================
-// SLAM_BASE class
-// it contains sensory data necessary used for SLAM
+// OCTOMAP_BASE class
+// it contains sensory data necessary used for OCTOMAP
 // =============================================================================
-class SLAM_BASE
+class OCTOMAP_BASE
 {
 public:
-  SLAM_BASE()
+  OCTOMAP_BASE()
   {
     // set up for timer and subscribers
     ros::NodeHandle n;
     timer = n.createTimer(
-      ros::Duration(TIME_INT), boost::bind(&SLAM_BASE::proc, this));
+      ros::Duration(TIME_INT), boost::bind(&OCTOMAP_BASE::proc, this));
 
     subscribe_H(0)
     subscribe_H(1)
@@ -99,7 +99,7 @@ public:
     subscribe_D(2)
 
     r_pose_sub = n.subscribe(
-      "ground_truth_to_tf/pose", 1, &SLAM_BASE::updateRobotPose, this);
+      "ground_truth_to_tf/pose", 1, &OCTOMAP_BASE::updateRobotPose, this);
 
     map_pub = n.advertise<octomap_msgs::Octomap>("octomap", 1);
 
@@ -143,7 +143,7 @@ public:
 
     marker_counter = 0;
   }
-  virtual ~SLAM_BASE()
+  virtual ~OCTOMAP_BASE()
   {
     delete m_octree;
   }
@@ -205,4 +205,4 @@ public:
   }
 };
 
-#endif // _SLAM_BASE_HPP
+#endif // _OCTOMAP_BASE_HPP

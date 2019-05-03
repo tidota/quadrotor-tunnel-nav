@@ -1,6 +1,6 @@
-// slam.cpp
+// octomap.cpp
 // 190113
-// Implementation of SLAM
+// Implementation of OCTOMAP
 //
 
 #include <cmath>
@@ -12,42 +12,42 @@
 #include <std_msgs/Bool.h>
 #include <std_srvs/SetBool.h>
 
-#include "slam/slam_base.hpp"
+#include "octomap_only/octomap_base.hpp"
 
 // =============================================================================
-// SLAM class
+// OCTOMAP class
 // =============================================================================
-class SLAM : public SLAM_BASE
+class OCTOMAP : public OCTOMAP_BASE
 {
   ///\brief Creates a singleton of the class
   //        To make the class singleton, this function creates a new object if
   //        there is no existing one. otherwise, it returns the existing object.
   // \param[in] _enable True if the object must run at the beginning.
   // \return    The class object.
-  public: static SLAM *create_slam(const bool _enable);
+  public: static OCTOMAP *create_octomap(const bool _enable);
 
   ///\brief Releases the memotry after sending a command to stop the UAV
-  public: static void kill_slam();
+  public: static void kill_octomap();
 
   ///\brief Callback function to receive a message to start operation.
   public: void OnStartMessage(
     const ros::MessageEvent<std_msgs::Bool const>& event);
 
-  ///\brief Main part to process SLAM.
+  ///\brief Main part to process OCTOMAP.
   protected: void proc() override;
 
-  ///\brief Constructor. It is called by create_slam method.
-  private: SLAM(const bool _enable);
+  ///\brief Constructor. It is called by create_octomap method.
+  private: OCTOMAP(const bool _enable);
 
   ///\brief Callback function to be called when Ctrl-C is hit on the terminal.
-  //        it kills the running slam and releases the memory.
+  //        it kills the running octomap and releases the memory.
   private: static void quit(int);
 
   protected: static ros::Publisher vel_pub;
 
   protected: static ros::Subscriber enable_sub;
 
-  private: static SLAM *p_slam;
+  private: static OCTOMAP *p_octomap;
 
   private: bool enable;
 };
@@ -55,47 +55,47 @@ class SLAM : public SLAM_BASE
 // =============================================================================
 // definitions of static members in the class
 // =============================================================================
-SLAM* SLAM::p_slam = NULL;
-ros::Publisher SLAM::vel_pub;
-ros::Subscriber SLAM::enable_sub;
+OCTOMAP* OCTOMAP::p_octomap = NULL;
+ros::Publisher OCTOMAP::vel_pub;
+ros::Subscriber OCTOMAP::enable_sub;
 
 ////////////////////////////////////////////////////////////////////////////////
-SLAM *SLAM::create_slam(const bool _enable)
+OCTOMAP *OCTOMAP::create_octomap(const bool _enable)
 {
-  if(SLAM::p_slam == NULL)
+  if(OCTOMAP::p_octomap == NULL)
   {
     // create a new object
-    SLAM::p_slam = new SLAM(_enable);
+    OCTOMAP::p_octomap = new OCTOMAP(_enable);
 
     // set up for signal handler
     // note: signal funciton must be called
     //       after the constructor is called where the node hander is created.
-    signal(SIGINT,SLAM::quit);
+    signal(SIGINT,OCTOMAP::quit);
   }
-  return SLAM::p_slam;
+  return OCTOMAP::p_octomap;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void SLAM::kill_slam()
+void OCTOMAP::kill_octomap()
 {
-  if(p_slam != NULL)
+  if(p_octomap != NULL)
   {
-    delete p_slam;
-    p_slam = NULL;
+    delete p_octomap;
+    p_octomap = NULL;
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void SLAM::OnStartMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
+void OCTOMAP::OnStartMessage(const ros::MessageEvent<std_msgs::Bool const>& event)
 {
   const std_msgs::Bool::ConstPtr& flag = event.getMessage();
   this->enable = flag->data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void SLAM::proc()
+void OCTOMAP::proc()
 {
-  ROS_INFO("This message is from proc() of slam.cpp");
+  ROS_INFO("This message is from proc() of octomap.cpp");
 
   // what I need:
   // ranging data (rng_x)
@@ -257,27 +257,27 @@ void SLAM::proc()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-SLAM::SLAM(const bool _enable): enable(_enable)
+OCTOMAP::OCTOMAP(const bool _enable): enable(_enable)
 {
   // set up for publisher, subscriber
   ros::NodeHandle n;
-  SLAM::vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+  OCTOMAP::vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
-  SLAM::enable_sub
-    = n.subscribe("/start_slam", 1, &SLAM::OnStartMessage, this);
+  OCTOMAP::enable_sub
+    = n.subscribe("/start_octomap", 1, &OCTOMAP::OnStartMessage, this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void SLAM::quit(int /*sig*/)
+void OCTOMAP::quit(int /*sig*/)
 {
   ROS_INFO("UAV Control: signal received, shutting down");
-  SLAM::kill_slam();
+  OCTOMAP::kill_octomap();
 
   geometry_msgs::Twist vel;
   ROS_INFO("Command: STOP");
   vel.linear.x = 0; vel.linear.y = 0; vel.linear.z = -1.0;//0;
   vel.angular.x = 0; vel.angular.y = 0; vel.angular.z = 0;
-  SLAM::vel_pub.publish(vel);
+  OCTOMAP::vel_pub.publish(vel);
 
   ros::shutdown();
 }
@@ -285,7 +285,7 @@ void SLAM::quit(int /*sig*/)
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "main_slam");
+  ros::init(argc, argv, "main_octomap");
 
   // enable the motors
   ros::NodeHandle n;
@@ -297,13 +297,13 @@ int main(int argc, char** argv)
   client.call(srv);
 
   if (argc == 2 && std::string(argv[1]) == "wait")
-    SLAM::create_slam(false);
+    OCTOMAP::create_octomap(false);
   else
-    SLAM::create_slam(true);
+    OCTOMAP::create_octomap(true);
 
   ros::spin();
 
-  SLAM::kill_slam();
+  OCTOMAP::kill_octomap();
 
   return(0);
 }

@@ -4,7 +4,7 @@
   <arg name="ns" default="robot"/>
 
   <group ns="$(arg ns)">
-    <node name="slam" pkg="quadrotor_tunnel_nav" type="slam" args="" />
+    <node name="octomap" pkg="quadrotor_tunnel_nav" type="octomap_only" args="" />
 
     <!-- Console -->
     <include file="$(find quadrotor_tunnel_nav)/launch/manual/sanwa_gamepad.launch" >
@@ -12,6 +12,6 @@
     </include>
   </group>
 
-  <node pkg="rviz" type="rviz" name="rviz_nav" output="screen" args="-d $(find quadrotor_tunnel_nav)/config/slam/octree.rviz"></node>
+  <node pkg="rviz" type="rviz" name="rviz_nav" output="screen" args="-d $(find quadrotor_tunnel_nav)/config/octomap_only/octree.rviz"></node>
 
 </launch>

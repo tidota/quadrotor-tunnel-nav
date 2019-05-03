@@ -284,9 +284,9 @@ target_link_libraries(keep_going_node ${catkin_LIBRARIES} keep_going_lib)
 
 
 # SLAM
-add_executable(slam src/slam/slam.cpp)
-add_dependencies(slam ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(slam ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
+add_executable(octomap_only src/octomap_only/octomap.cpp)
+add_dependencies(octomap_only ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(octomap_only ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
 
 #############
 ## Install ##
