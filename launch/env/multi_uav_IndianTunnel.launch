@@ -6,11 +6,11 @@
   </include>
 
   <!-- Spawn simulated quadrotor uav -->
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+  <include file="$(find quadrotor_tunnel_nav)/launch/env/spawn_uav.launch">
     <arg name="ns" value="robot1"/>
     <arg name="x" value="0"/><arg name="y" value="0"/>
   </include>
-  <include file="$(find quadrotor_tunnel_nav)/launch/spawn_uav.launch">
+  <include file="$(find quadrotor_tunnel_nav)/launch/env/spawn_uav.launch">
     <arg name="ns" value="robot2"/>
     <arg name="x" value="0"/><arg name="y" value="2"/><arg name="Y" value="1"/>
   </include>

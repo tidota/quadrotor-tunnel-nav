@@ -16,16 +16,34 @@ find_package(catkin REQUIRED COMPONENTS
   hector_quadrotor_gazebo
   hector_gazebo_worlds
   hector_uav_msgs
+  octomap_ros
+  octomap_msgs
   roscpp
   rospy
   std_msgs
   message_generation
+
+  laser_geometry
+  nav_msgs
+  mrpt_bridge
+  visualization_msgs
+  dynamic_reconfigure
 )
 
 file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/include)
 
 find_package(gazebo REQUIRED)
 find_package(ignition-transport4 REQUIRED)
+
+# Octomap
+find_package(octomap REQUIRED)
+
+# MRPT packages
+find_package(MRPT 1.5 REQUIRED gui obs slam)
+message(STATUS "MRPT_VERSION: ${MRPT_VERSION}")
+if(MRPT_VERSION VERSION_LESS "1.9.9")
+  set (CMAKE_CXX_STANDARD 14)
+endif()
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
@@ -121,7 +139,9 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES quadrotor_tunnel_nav
-  CATKIN_DEPENDS message_runtime gazebo_ros hector_gazebo_plugins hector_quadrotor_description hector_gazebo_worlds roscpp rospy std_msgs
+  CATKIN_DEPENDS
+    message_runtime gazebo_ros hector_gazebo_plugins hector_quadrotor_description hector_gazebo_worlds roscpp rospy std_msgs
+    visualization_msgs nav_msgs sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -133,9 +153,10 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${GAZEBO_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
-  include
+  ${OCTOMAP_INCLUDE_DIRS}
 )
 
 link_directories(
@@ -276,6 +297,27 @@ target_link_libraries(keep_going_lib ${catkin_LIBRARIES} go_straight_lib)
 add_executable(keep_going_node src/wall_follow/mains/keep_going.cpp)
 add_dependencies(keep_going_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} keep_going_lib)
 target_link_libraries(keep_going_node ${catkin_LIBRARIES} keep_going_lib)
+
+
+# SLAM
+add_executable(octomap_only src/octomap_only/octomap.cpp)
+add_dependencies(octomap_only ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(octomap_only ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
+
+# RBPF
+add_library(custom_octomap src/rbpf/CustomOctoMap.cpp)
+add_library(slam_core src/rbpf/mrpt_rbpf_slam.cpp)
+add_executable(mrpt_rbpf_slam
+    src/rbpf/mrpt_rbpf_slam_wrapper.cpp
+    src/rbpf/mrpt_rbpf_slam_node.cpp
+    src/rbpf/options.cpp
+)
+target_link_libraries(mrpt_rbpf_slam
+    ${MRPT_LIBRARIES}
+    ${catkin_LIBRARIES}
+    slam_core
+    custom_octomap
+)
 
 #############
 ## Install ##

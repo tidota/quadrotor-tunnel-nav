@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find quadrotor_tunnel_nav)/launch/reactive/spawn_control.launch"/>
+</launch>

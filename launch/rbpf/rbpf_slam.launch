@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<launch>
+  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find quadrotor_tunnel_nav)/config/rbpf/rosconsole.config"/>
+
+  <!--SLAM RUN-->
+  <node pkg="rviz" type="rviz" name="rviz_nav" output="screen" args="-d $(find quadrotor_tunnel_nav)/config/rbpf/rbpf.rviz"></node>
+
+  <node pkg="quadrotor_tunnel_nav" type="mrpt_rbpf_slam" name="slam" output="screen">
+    <param name="ini_filename" value="$(find quadrotor_tunnel_nav)/config/rbpf/grid_slam_demo.ini"/>
+    <param name="gtruthw_frame_id" value="ground_truth/world"/>
+    <param name="gtruthb_frame_id" value="ground_truth/base_link"/>
+    <param name="odom_frame_id" value="nav"/>
+    <param name="global_frame_id" value="map"/>
+    <param name="base_frame_id" value="base_link"/>
+    <!--for multiple sensors, place comma eg "r1/front_laser/scan,/beacon" -->
+    <param name="sensor_source"
+      value="/robot/range_front,
+             /robot/range_rfront,
+             /robot/range_lfront,
+             /robot/range_right,
+             /robot/range_left,
+             /robot/range_rrear,
+             /robot/range_lrear,
+             /robot/range_rear,
+             /robot/range_up,
+             /robot/range_ufront,
+             /robot/range_urear,
+             /robot/range_down,
+             /robot/range_dfront,
+             /robot/range_drear"/>
+    <rosparam command="load" file="$(find quadrotor_tunnel_nav)/config/rbpf/rbpf_default.yaml" />
+  </node>
+</launch>
