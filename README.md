@@ -185,6 +185,11 @@ wstool update -t src
 rosdep install --from-paths src --ignore-src --rosdistro=melodic -y
 ```
 
+For Octomap, you will also need `octomap_ros`
+```
+sudo apt install ros-melodic-octomap-ros
+```
+
 ---
 
 # Ad Hoc Network
