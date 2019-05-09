@@ -80,7 +80,7 @@ roslaunch quadrotor_tunnel_nav multi_control.launch
 
 ### OctoMap only
 
-This is just for practice purpose of Octomap.
+This is just for practice purpose of [Octomap](http://wiki.ros.org/octomap).
 
 In the terminal window, run the following to start Gazebo.
 ```
@@ -97,7 +97,7 @@ Rviz will show the resulted map constructed by Octomap.
 
 Note: this part is experimental.
 
-Mobile Robot Programming Toolkit (MRPT) is a set of libraries for robot navigation.
+[Mobile Robot Programming Toolkit (MRPT)](http://wiki.ros.org/mrpt_slam) is a set of libraries for robot navigation.
 It implements Rao-Blackwellized particle filter for SLAM with Octomap.
 
 This work is based on the source code of [RBPF-SLAM](https://www.mrpt.org/list-of-mrpt-apps/application-rbpf-slam/).
@@ -125,37 +125,19 @@ TBA
 
 This package should run in the following environments.
 
-As of October 14, 2018, the second one is experimental.
-<!--The second one is up-to-date and recommended.-->
-
-1. Ubuntu16.04 (Xenial)
-    - ROS: Kinetic
-    - Gazebo: Gazebo7
 1. Ubuntu18.04 (Bionic)
     - ROS: Melodic
     - Gazebo: Gazebo9
 
-## Prerequisites
-
-For the SLAM part, Octomap and MRPT must be installed.
-http://wiki.ros.org/octomap
-http://wiki.ros.org/mrpt_slam
-
-
-##  OS: Ubuntu 16.04, ROS: Kinetic, Gazebo7
-
-This package requires [hector-quadrotor packages](https://github.com/tu-darmstadt-ros-pkg/hector_quadrotor). Check [the details](SETUP.md).
-
-### Installation of this package
+## Old version
+The old version `tag: gazebo7` runs with Ubuntu16.04 (Xenial), ROS Kinetic, and Gazebo7.
+Checkout the tagged commit `gezbo7` and see the README.md.
+To clone the old version of this repository,
 ```
-cd ~/catkin/src
 git clone --branch gazebo7 git@github.com:tidota/quadrotor-tunnel-nav.git
-cd ..
-catkin_make
 ```
 
-## OS: Ubuntu18.04, ROS: Melodic, Gazebo9
-
+## Installation
 If you do not have wstool,
 ```
 sudo apt-get install python-wstool
@@ -188,6 +170,11 @@ rosdep install --from-paths src --ignore-src --rosdistro=melodic -y
 For Octomap, you will also need `octomap_ros`
 ```
 sudo apt install ros-melodic-octomap-ros
+```
+
+If you want to control the robot by the keyboard,
+```
+sudo apt-get install ros-melodic-teleop-twist-keyboard
 ```
 
 ---
