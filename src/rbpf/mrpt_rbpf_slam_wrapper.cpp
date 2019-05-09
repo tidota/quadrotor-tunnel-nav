@@ -141,9 +141,12 @@ bool PFslamWrapper::waitForTransform(mrpt::poses::CPose3D& des, const std::strin
   mrpt_bridge::convert(transform, des);
   return true;
 }
+
 // ========================================================
 void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
 {
+  std::lock_guard<std::mutex> lk(sensor_mutex);
+
   if (range_poses_.find(msg.header.frame_id) == range_poses_.end())
   {
     updateSensorPose(msg.header.frame_id);
@@ -151,30 +154,14 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
 
   if (sensor_buffer.count(msg.header.frame_id) == 0)
   {
-    sensor_buffer[msg.header.frame_id] = std::queue< std::shared_ptr<sensor_msgs::Range> >();
+    sensor_buffer[msg.header.frame_id] = std::shared_ptr<sensor_msgs::Range>();
   }
-  sensor_buffer[msg.header.frame_id].push(std::make_shared<sensor_msgs::Range>(msg));
+  sensor_buffer[msg.header.frame_id] = std::make_shared<sensor_msgs::Range>(msg);
+}
 
-  auto t_now = ros::Time::now();
-  for (auto& pair: sensor_buffer)
-  {
-    while (pair.second.size() > 0 and (t_now - pair.second.front()->header.stamp).toSec() > 1.0/rate_)
-    {
-      pair.second.pop();
-      ROS_INFO_STREAM("data discarded since it is old: " << pair.first);
-    }
-  }
-
-  int count = 0;
-  for (auto& pair: sensor_buffer)
-  {
-    if (pair.second.size() > 0)
-      ++count;
-  }
-
-  if ((unsigned int)count < sensorSub_.size())
-    return;
-
+// ========================================================
+void PFslamWrapper::procSensoryData()
+{
   using namespace mrpt::maps;
   using namespace mrpt::obs;
 
@@ -182,30 +169,39 @@ void PFslamWrapper::rangeCallback(const sensor_msgs::Range& msg)
   // as of 4/21, 2019, the version of MRPT for ROS is 1.5 and CObservationPointCloud is not available.
   // Temporarily, CObservation3DRangeScan is used.
   CObservation3DRangeScan::Ptr pc = CObservation3DRangeScan::Create();
-  // CObservationPointCloud::Ptr pc = CObservationPointCloud::Create();
-  for (auto& pair: sensor_buffer)
+
   {
-    auto p_msg = pair.second.front();
-    pair.second.pop();
+    std::lock_guard<std::mutex> lk(sensor_mutex);
 
-    mrpt_bridge::convert(p_msg->header.stamp, pc->timestamp);
+    if (sensor_buffer.size() < sensorSub_.size())
+      return;
 
-    mrpt::poses::CPoint3D dtpoint
-      = range_poses_[p_msg->header.frame_id]
-      + mrpt::poses::CPoint3D(p_msg->range, 0, 0);
+    // CObservationPointCloud::Ptr pc = CObservationPointCloud::Create();
+    for (auto& pair: sensor_buffer)
+    {
+      auto p_msg = pair.second;
 
-    pc->points3D_x.push_back(dtpoint.x());
-    pc->points3D_y.push_back(dtpoint.y());
-    pc->points3D_z.push_back(dtpoint.z());
-    pc->hasPoints3D = true;
-    // pc->pointcloud->insertPointFast(dtpoint.x(), dtpoint.y(), dtpoint.z());
+      currentTime_ = p_msg->header.stamp;
+
+      mrpt_bridge::convert(p_msg->header.stamp, pc->timestamp);
+
+      mrpt::poses::CPoint3D dtpoint
+        = range_poses_[p_msg->header.frame_id]
+        + mrpt::poses::CPoint3D(p_msg->range, 0, 0);
+
+      pc->points3D_x.push_back(dtpoint.x());
+      pc->points3D_y.push_back(dtpoint.y());
+      pc->points3D_z.push_back(dtpoint.z());
+      pc->hasPoints3D = true;
+      // pc->pointcloud->insertPointFast(dtpoint.x(), dtpoint.y(), dtpoint.z());
+    }
+    sensor_buffer.clear();
   }
 
   sensory_frame_ = CSensoryFrame::Create();
   CObservation::Ptr obs = CObservation::Ptr(pc);
   sensory_frame_->insert(obs);
 
-  currentTime_ = msg.header.stamp;
   if (this->waitForTransform(odometry_, odom_frame_id_, base_frame_id_, currentTime_, ros::Duration(1)))
   {
     // store the initial odometry location.

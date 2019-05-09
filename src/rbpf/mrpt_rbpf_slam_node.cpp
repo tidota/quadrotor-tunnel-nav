@@ -35,6 +35,8 @@ int main(int argc, char** argv)
     ros::spinOnce();
     rate.sleep();
 
+    slam.procSensoryData();
+    
     if (f)
     {
       double tempT = slam.getCurrentTime();
