@@ -1,6 +1,28 @@
 <?xml version="1.0"?>
 
 <robot name="quadrotor" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:arg name="disable_imu" default="false"/>
+    <xacro:arg name="disable_baro" default="false"/>
+    <xacro:arg name="disable_magnetic" default="false"/>
+    <xacro:arg name="disable_gps" default="false"/>
+    <xacro:arg name="disable_groundtruth" default="false"/>
+
     <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensor.urdf.xacro" />
-    <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/quadrotor_plugins_custom.gazebo.xacro" />
+
+    <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/plugins.gazebo.xacro" />
+    <xacro:unless value="$(arg disable_imu)">
+      <xacro:quadrotor_imu />
+    </xacro:unless>
+    <xacro:unless value="$(arg disable_baro)">
+      <xacro:quadrotor_baro />
+    </xacro:unless>
+    <xacro:unless value="$(arg disable_magnetic)">
+      <xacro:quadrotor_magnetic />
+    </xacro:unless>
+    <xacro:unless value="$(arg disable_gps)">
+      <xacro:quadrotor_gps />
+    </xacro:unless>
+    <xacro:unless value="$(arg disable_groundtruth)">
+      <xacro:quadrotor_groundtruth />
+    </xacro:unless>
 </robot>

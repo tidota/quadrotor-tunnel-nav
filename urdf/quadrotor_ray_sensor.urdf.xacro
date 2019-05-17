@@ -12,7 +12,7 @@
     <xacro:property name="M_PI" value="3.1415926535897931" />
 
     <!-- Included URDF Files -->
-    <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/quadrotor_simple.urdf.xacro" />
+    <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/quadrotor_base.urdf.xacro" />
 
     <!-- Instantiate quadrotor_base_macro once (has no parameters atm) -->
     <!-- page: http://wiki.ros.org/hector_gazebo_plugins#GazeboRosSonar -->
