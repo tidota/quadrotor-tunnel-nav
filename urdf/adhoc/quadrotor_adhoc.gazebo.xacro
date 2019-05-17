@@ -2,7 +2,7 @@
 
 <robot name="quadrotor" xmlns:xacro="http://ros.org/wiki/xacro">
     <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensor.urdf.xacro" />
-    <xacro:include filename="$(find hector_quadrotor_gazebo)/urdf/quadrotor_plugins.gazebo.xacro" />
+    <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/quadrotor_plugins_cusom.gazebo.xacro" />
     <gazebo>
       <plugin name="adhocclient_plugin" filename="libAdHocClientPlugin.so">
         <enable>false</enable>
