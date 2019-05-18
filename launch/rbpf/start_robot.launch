@@ -2,7 +2,7 @@
 <launch>
   <arg name="ns" default="robot" />>
   <arg name="name" default="$(arg ns)"/>
-  <arg name="model" default="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensor.gazebo.xacro"/>
+  <arg name="model" default="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensors_14.gazebo.xacro"/>
 
   <arg name="controllers" default="
     controller/position
@@ -99,8 +99,8 @@
 
 
     <!-- Console -->
-    <include file="$(find quadrotor_tunnel_nav)/launch/manual/sanwa_gamepad.launch" >
+    <!-- <include file="$(find quadrotor_tunnel_nav)/launch/manual/sanwa_gamepad.launch" >
       <arg name="control_mode" value="velocity"/>
-    </include>
+    </include> -->
   </group>
 </launch>

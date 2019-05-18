@@ -7,7 +7,7 @@
 
   <include file="$(find quadrotor_tunnel_nav)/launch/env/spawn_uav.launch">
     <arg name="ns" value="$(arg ns)"/>
-    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/adhoc/quadrotor_adhoc.gazebo.xacro"/>
+    <arg name="model" value="$(find quadrotor_tunnel_nav)/urdf/quadrotor_ray_sensors_14_adhoc.gazebo.xacro"/>
     <arg name="x" value="$(arg x)"/><arg name="y" value="$(arg y)"/><arg name="Y" value="$(arg Y)"/>
   </include>
 
