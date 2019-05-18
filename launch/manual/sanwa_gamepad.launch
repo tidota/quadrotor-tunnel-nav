@@ -3,7 +3,7 @@
 <launch>
   <arg name="joy_dev" default="/dev/input/js0" />
   <arg name="control_mode" default="velocity"/>
-  <arg name="ns" default="/"/>
+  <arg name="ns" default="robot"/>
 
   <group ns="$(arg ns)">
     <node name="joy" pkg="joy" type="joy_node" output="screen" >
