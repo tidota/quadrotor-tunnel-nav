@@ -1,5 +1,10 @@
 # TODO list
 
+# launch file reorg
+
+- [ ] double-check if the branch `reorg_repo` works
+- [ ] merge `reorg_repo` to master
+
 # xacro reorg
 
 - [x] make custom quadrotor_plugins.gazebo.xacro (original file is in hector_quadrotor_gazebo)
