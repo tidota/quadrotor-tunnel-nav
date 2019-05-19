@@ -216,7 +216,7 @@ Then, in your catkin workspace, build the program and run it as follows.
 . /opt/ros/kinetic/setup.bash
 catkin_make
 . devel/setup.bash
-roslaunch quadrotor_tunnel_nav I-tunnel-40x10.launch
+roslaunch quadrotor_tunnel_nav start_adhoc_I-tunnel-40x10.launch
 ```
 
 The results are stored in csv files under `~/.ros/`
