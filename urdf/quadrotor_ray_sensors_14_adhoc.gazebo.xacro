@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<robot name="quadrotor" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:arg name="disable_imu" default="false"/>
+    <xacro:arg name="disable_baro" default="false"/>
+    <xacro:arg name="disable_magnetic" default="false"/>
+    <xacro:arg name="disable_gps" default="false"/>
+    <xacro:arg name="disable_groundtruth" default="false"/>
+
+    <!-- Included URDF Files -->
+    <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/parts/quadrotor_base.urdf.xacro" />
+    <!-- Instantiate quadrotor_base_macro once (has no parameters atm) -->
+    <!-- page: http://wiki.ros.org/hector_gazebo_plugins#GazeboRosSonar -->
+    <xacro:quadrotor_base_macro />
+
+    <!-- ray sensors -->
+    <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/parts/ray_sensors_14.urdf.xacro" />
+    <xacro:ray_sensors_14_macro />
+
+    <!-- gazebo plugins -->
+    <xacro:include filename="$(find quadrotor_tunnel_nav)/urdf/parts/plugins.gazebo.xacro" />
+    <xacro:unless value="$(arg disable_imu)">
+      <xacro:quadrotor_imu />
+    </xacro:unless>
+    <xacro:unless value="$(arg disable_baro)">
+      <xacro:quadrotor_baro />
+    </xacro:unless>
+    <xacro:unless value="$(arg disable_magnetic)">
+      <xacro:quadrotor_magnetic />
+    </xacro:unless>
+    <xacro:unless value="$(arg disable_gps)">
+      <xacro:quadrotor_gps />
+    </xacro:unless>
+    <xacro:unless value="$(arg disable_groundtruth)">
+      <xacro:quadrotor_groundtruth />
+    </xacro:unless>
+
+    <gazebo>
+      <plugin name="adhocclient_plugin" filename="libAdHocClientPlugin.so">
+        <enable>false</enable>
+        <delay>0.5</delay>
+      </plugin>
+    </gazebo>
+</robot>

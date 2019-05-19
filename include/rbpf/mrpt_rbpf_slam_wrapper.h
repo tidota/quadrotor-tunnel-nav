@@ -4,6 +4,7 @@
 #include <fstream>   // std::ifstream
 #include <map>
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <string>
 #include <vector>
@@ -89,6 +90,11 @@ public:
   void rangeCallback(const sensor_msgs::Range& msg);
 
   /**
+   * @brief Process on the received sensory data.
+   */
+  void procSensoryData();
+
+  /**
    * @brief Wait for transform between odometry frame and the robot frame
    *
    * @param[out] des position of the robot with respect to odometry frame
@@ -139,7 +145,7 @@ private:
   std::map<std::string, mrpt::poses::CPose3D> range_poses_;   ///< range poses with respect to the map
 
   // buffer of sensor messages
-  std::map<std::string, std::queue< std::shared_ptr<sensor_msgs::Range> > > sensor_buffer;
+  std::map<std::string, std::shared_ptr<sensor_msgs::Range> > sensor_buffer;
 
   // Subscribers
   std::vector<ros::Subscriber> sensorSub_;  ///< list of sensors topics
@@ -153,15 +159,17 @@ private:
 #else
   mrpt::utils::CTicTac tictac_;
 #endif
-  float t_exec_;  ///< the time which take one SLAM update execution
+  float t_exec_;  ///< the time taken for one SLAM update execution
 
   // visualization of the map
   std_msgs::ColorRGBA m_color_occupied;
   ros::Publisher marker_occupied_pub;
   int marker_counter;
 
+  std::mutex sensor_mutex; /// mutex for sensor acquisition
+
+// for evaluation
 private:
-  // for evaluation
   mrpt::poses::CPose3D odometry_; /// location estimated by odometry
   mrpt::poses::CPose3D odometryOrg_; /// original location of odometry_
   bool odometryOrgUnitialized_; /// whether odometryOrg_ is uninitialized
