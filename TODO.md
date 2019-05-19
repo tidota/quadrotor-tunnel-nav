@@ -2,8 +2,8 @@
 
 # launch file reorg
 
-- [ ] double-check if the branch `reorg_repo` works
-- [ ] merge `reorg_repo` to master
+- [ ] double-check if the branch `reorg_adhoc_launch` works
+- [ ] merge `reorg_adhoc_launch` to master
 
 # xacro reorg
 
