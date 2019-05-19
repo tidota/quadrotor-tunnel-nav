@@ -5,11 +5,6 @@
 
   <group ns="$(arg ns)">
     <node name="octomap" pkg="quadrotor_tunnel_nav" type="octomap_only" args="" />
-
-    <!-- Console -->
-    <include file="$(find quadrotor_tunnel_nav)/launch/manual/sanwa_gamepad.launch" >
-      <arg name="control_mode" value="velocity"/>
-    </include>
   </group>
 
   <node pkg="rviz" type="rviz" name="rviz_nav" output="screen" args="-d $(find quadrotor_tunnel_nav)/config/octomap_only/octree.rviz"></node>
