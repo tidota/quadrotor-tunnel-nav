@@ -32,6 +32,8 @@
   <arg name="max_range" default="10.0" />
   <arg name="min_range" default="0.01" />
 
+  <arg name="publish_world_nav_transform" default="true" />
+
   <!-- Spawn simulated quadrotor uav -->
   <group ns="$(arg ns)">
 
@@ -59,7 +61,7 @@
       <node name="pose_estimation" pkg="hector_quadrotor_pose_estimation" type="hector_quadrotor_pose_estimation" output="screen">
         <rosparam file="$(find hector_quadrotor_pose_estimation)/params/simulation.yaml" />
         <param name="nav_frame" value="$(arg tf_prefix)/nav" />
-        <param name="publish_world_nav_transform" value="true" />
+        <param name="publish_world_nav_transform" value="$(arg publish_world_nav_transform)" />
         <param name="tf_prefix" value="$(arg tf_prefix)" unless="$(arg use_ground_truth_for_tf)" />
         <param name="tf_prefix" value="$(arg tf_prefix)/pose_estimation" if="$(arg use_ground_truth_for_tf)" />
       </node>
@@ -76,9 +78,6 @@
     <remap from="pose" to="ground_truth_to_tf/pose"  if="$(arg use_ground_truth_for_control)" />
 
     <!-- load controllers -->
-    <!--<include file="$(find hector_quadrotor_controllers)/launch/controller.launch">-->
-      <!--<arg name="controllers" value="$(arg controllers)"/>-->
-    <!--</include>-->
     <node pkg="quadrotor_tunnel_nav" type="delayed_preparer.py" name="robot_preparer" args="$(arg controllers)"/>
 
     <!-- load actions -->
