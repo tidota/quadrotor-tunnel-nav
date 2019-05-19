@@ -106,7 +106,7 @@ Customized Octomap with different likelihood evaluation and other features are a
 In the terminal window, this command will start Gazebo with a quadrotor which is
 controlled based on the pose estimation, not the ground truth location.
 ```
-roslaunch quadrotor_tunnel_nav start_env.launch
+roslaunch quadrotor_tunnel_nav single_uav_IndianTunnel_pose_estimation.launch
 ```
 Note: The pose estimation is too unstable at the beginning.
 You should wait for 30 seconds before running the following command.
