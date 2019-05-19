@@ -36,7 +36,7 @@ if __name__ == '__main__':
 		cmd = [
 			'roslaunch',
 			'quadrotor_tunnel_nav',
-			'spawn_robot.launch',
+			'spawn_adhoc_robot.launch',
 			'ns:=' + robot,
 			'x:=' + str(eval(str(dict_robot[robot]['x']))),
 			'y:=' + str(eval(str(dict_robot[robot]['y']))),
